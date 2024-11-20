@@ -4,7 +4,7 @@ export const ClientsPage = () => {
   return (
     <Grid2
       container
-      spacing={7}
+      spacing={2}
       direction="row"
       sx={{ minHeight: "90vh", backgroundColor: "primary.paper", pb: 4 }}
     >

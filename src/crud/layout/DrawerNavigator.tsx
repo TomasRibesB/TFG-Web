@@ -10,6 +10,7 @@ import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
+import {Link as RouterLink} from "react-router-dom";
 import {
   Menu as MenuIcon,
   ChevronLeft,
@@ -18,6 +19,8 @@ import {
   Dashboard as DashboardIcon,
   Groups2 as ClientsIcon,
   AccountBox as AccountBoxIcon,
+  Logout,
+  NotificationsNone,
 } from "@mui/icons-material";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -140,32 +143,61 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
         open={open}
         sx={{ backgroundColor: "background.paper", color: "text.primary" }}
       >
-        <Toolbar>
-          {/* Menu Icon */}
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ marginRight: 5, ...(open && { display: "none" }) }}
-          >
-            <MenuIcon />
-          </IconButton>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          {/* Izquierda: Menu Icon y location.pathname */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{ marginRight: 2, ...(open && { display: "none" }) }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              variant="h6"
+              noWrap
+              sx={{ display: { xs: "none", md: "block" } }}
+            >
+              {getSectionTitle(location.pathname)}
+            </Typography>
+          </Box>
 
-          {/*Icon AND Title = NexoHealth */}
+          {/* Centro: Icono y nombre de la app */}
           <Box
-            component="img"
-            src={NexoHealthIcon}
-            alt="Nexo Health Icon"
             sx={{
-              height: 50,
-              width: 50,
-              mr: 2,
+              display: { xs: "none", sm: "flex" },
+              alignItems: "center",
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
             }}
-          />
-          <Typography variant="h6" noWrap>
-            {getSectionTitle(location.pathname)}
-          </Typography>
+          >
+            <Box
+              component="img"
+              src={NexoHealthIcon}
+              alt="Nexo Health Icon"
+              sx={{
+                height: 50,
+                width: 50,
+                mr: 1,
+              }}
+            />
+            <Typography variant="h6" noWrap>
+              NexoHealth
+            </Typography>
+          </Box>
+
+          {/* Derecha: Botones de notificaciones y logout */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton color="inherit">
+              <NotificationsNone />
+            </IconButton>
+            <IconButton color="inherit" component={RouterLink} to="/auth/login">
+              <Logout />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
 

@@ -16,7 +16,7 @@ export const LoginPage = () => {
               placeholder="correo@ejemplo.com"
               InputProps={{
                 style: {
-                  borderRadius: "50px",
+                  borderRadius: "8px",
                 },
               }}
             />
@@ -30,7 +30,7 @@ export const LoginPage = () => {
               type="password"
               InputProps={{
                 style: {
-                  borderRadius: "50px",
+                  borderRadius: "8px",
                 },
               }}
             />
@@ -39,8 +39,10 @@ export const LoginPage = () => {
             <Button
               variant="contained"
               fullWidth
+              component={RouterLink}
+              to="/"
               sx={{
-                borderRadius: "50px",
+                borderRadius: "8px",
                 textTransform: "none",
               }}
             >

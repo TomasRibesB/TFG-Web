@@ -43,7 +43,7 @@ export const RegisterPage = () => {
               placeholder="Nombre"
               InputProps={{
                 style: {
-                  borderRadius: "50px",
+                  borderRadius: "8px",
                 },
               }}
             />
@@ -57,7 +57,7 @@ export const RegisterPage = () => {
               placeholder="Apellido"
               InputProps={{
                 style: {
-                  borderRadius: "50px",
+                  borderRadius: "8px",
                 },
               }}
             />
@@ -71,7 +71,7 @@ export const RegisterPage = () => {
               placeholder="correo@ejemplo.com"
               InputProps={{
                 style: {
-                  borderRadius: "50px",
+                  borderRadius: "8px",
                 },
               }}
             />
@@ -85,7 +85,7 @@ export const RegisterPage = () => {
               type="password"
               InputProps={{
                 style: {
-                  borderRadius: "50px",
+                  borderRadius: "8px",
                 },
               }}
             />
@@ -99,7 +99,7 @@ export const RegisterPage = () => {
               type="password"
               InputProps={{
                 style: {
-                  borderRadius: "50px",
+                  borderRadius: "8px",
                 },
               }}
             />
@@ -111,7 +111,7 @@ export const RegisterPage = () => {
               <Select
                 label="Profesión"
                 placeholder="Tipo de usuario"
-                style={{ borderRadius: "50px" }}
+                style={{ borderRadius: "8px" }}
               >
                 <MenuItem value="nutricionista">Nutricionista</MenuItem>
                 <MenuItem value="entrenador">Entrenador</MenuItem>
@@ -125,7 +125,7 @@ export const RegisterPage = () => {
               <MuiFileInput
                 InputProps={{
                   style: {
-                    borderRadius: "50px",
+                    borderRadius: "8px",
                   },
                 }}
                 label="Comprobante de profesión"
@@ -165,7 +165,11 @@ export const RegisterPage = () => {
               label={
                 <Typography variant="body2">
                   Acepto los{" "}
-                  <Link component={RouterLink} to="/auth/terms/profesional" target="_blank">
+                  <Link
+                    component={RouterLink}
+                    to="/auth/terms/profesional"
+                    target="_blank"
+                  >
                     términos y condiciones
                   </Link>{" "}
                   para el uso de la plataforma.
@@ -178,8 +182,10 @@ export const RegisterPage = () => {
             <Button
               variant="contained"
               fullWidth
+              component={RouterLink}
+              to="/auth/login"
               sx={{
-                borderRadius: "50px",
+                borderRadius: "8px",
                 textTransform: "none",
               }}
             >
