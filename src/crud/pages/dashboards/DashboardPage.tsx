@@ -6,7 +6,7 @@ export const DashboardPage = () => {
       container
       spacing={7}
       direction="column"
-      sx={{ minHeight: "100vh", backgroundColor: "primary.paper", pb: 4 }}
+      sx={{ minHeight: "90vh", backgroundColor: "primary.paper", pb: 4 }}
     >
       <Grid2 container size={12} direction="row" sx={{ height: "20vh" }}>
         <Grid2

@@ -1,7 +1,7 @@
 // src/components/DrawerNavigator.tsx
 import * as React from "react";
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
@@ -108,6 +108,23 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
     setOpen(false);
   };
 
+  const location = useLocation();
+
+  const getSectionTitle = (pathname: string) => {
+    switch (pathname) {
+      case "/profile":
+        return "Perfil";
+      case "/clients":
+        return "Clientes";
+      case "/tickets":
+        return "Tickets";
+      case "/":
+        return "Dashboard";
+      default:
+        return "Sección desconocida";
+    }
+  };
+
   const menuItems = [
     { text: "Perfil", icon: <AccountBoxIcon />, path: "/profile" },
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
@@ -147,7 +164,7 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
             }}
           />
           <Typography variant="h6" noWrap>
-            NexoHealth
+            {getSectionTitle(location.pathname)}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -171,6 +188,7 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
             <ListItem key={text} disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
+                selected={location.pathname === path}
                 to={path}
                 sx={{
                   minHeight: 48,
@@ -184,6 +202,7 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
+                    color: location.pathname === path ? "primary.main" : "",
                   }}
                 >
                   {icon}
