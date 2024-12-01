@@ -16,7 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Inbox as InboxIcon,
-  Dashboard as DashboardIcon,
+  Home as HomeIcon,
   Groups2 as ClientsIcon,
   AccountBox as AccountBoxIcon,
   Logout,
@@ -122,7 +122,7 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
       case "/tickets":
         return "Tickets";
       case "/":
-        return "Dashboard";
+        return "Home";
       default:
         return "Sección desconocida";
     }
@@ -130,7 +130,7 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
 
   const menuItems = [
     { text: "Perfil", icon: <AccountBoxIcon />, path: "/profile" },
-    { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
+    { text: "Home", icon: <HomeIcon />, path: "/" },
     { text: "Clientes", icon: <ClientsIcon />, path: "/clients" },
     { text: "Tickets", icon: <InboxIcon />, path: "/tickets" },
   ];

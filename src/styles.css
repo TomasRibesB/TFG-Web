@@ -1,4 +1,41 @@
-.card-shadow{
+.card-shadow {
     box-shadow: 0 3px 4px 0 rgba(29, 27, 30, 0.2);
     transition: 0.3s;
-}
+    background-color: var(--mui-palette-background-paper); /* Usar color de fondo del tema */
+  }
+  
+  /* Estilos para navegadores basados en WebKit (Chrome, Safari) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--mui-palette-background-default); /* Usar color de fondo del tema */
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--mui-palette-primary-main); /* Usar color primario del tema */
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--mui-palette-primary-dark); /* Usar color primario oscuro del tema */
+  }
+  
+  /* Estilos para Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--mui-palette-primary-main) var(--mui-palette-background-default); /* Usar colores del tema */
+  }
+  
+  /* Estilos para Edge */
+  .custom-scrollbar {
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+  }
+  
+  /* Estilos generales para todos los navegadores */
+  .custom-scrollbar {
+    overflow: auto;
+  }
