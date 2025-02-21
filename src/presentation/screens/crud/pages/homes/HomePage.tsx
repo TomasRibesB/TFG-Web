@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Grid2,
@@ -10,6 +10,8 @@ import {
   TextField,
 } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import { User } from "../../../../../infrastructure/interfaces/user";
+import { StorageAdapter } from "../../../../../config/adapters/storage-adapter";
 
 interface Reminder {
   id: number;
@@ -111,6 +113,7 @@ export const HomePage = () => {
       status: "Pendiente",
     },
   ]);
+  const [clients, setClients] = useState<Partial<User>[]>();
 
   const [unreservedAppointments, setUnreservedAppointments] = useState<
     UnreservedAppointment[]
@@ -159,6 +162,17 @@ export const HomePage = () => {
     }
   };
 
+  useEffect(() => {
+    fetch();
+  }, []);
+
+  const fetch = async () => {
+    const clientes: Partial<User>[] = (await StorageAdapter.getItem('clientes')) || [];
+
+    setClients(clientes);
+  }
+  
+
   return (
     <Grid2
       container
@@ -177,7 +191,7 @@ export const HomePage = () => {
           <Box style={{ flexDirection: "column", display: "flex" }}>
             <Typography variant="h4">Clientes</Typography>
             <Typography variant="h2" sx={{ color: "primary.main" }}>
-              100
+              {clients?.length}
             </Typography>
           </Box>
         </Grid2>
