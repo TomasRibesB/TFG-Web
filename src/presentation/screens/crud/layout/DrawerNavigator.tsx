@@ -115,13 +115,13 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
 
   const getSectionTitle = (pathname: string) => {
     switch (pathname) {
-      case "/profile":
+      case "/main/profile":
         return "Perfil";
-      case "/clients":
+      case "/main/clients":
         return "Clientes";
-      case "/tickets":
+      case "/main/tickets":
         return "Tickets";
-      case "/":
+      case "/main":
         return "Home";
       default:
         return "Sección desconocida";
@@ -129,10 +129,10 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const menuItems = [
-    { text: "Perfil", icon: <AccountBoxIcon />, path: "/profile" },
-    { text: "Home", icon: <HomeIcon />, path: "/" },
-    { text: "Clientes", icon: <ClientsIcon />, path: "/clients" },
-    { text: "Tickets", icon: <InboxIcon />, path: "/tickets" },
+    { text: "Perfil", icon: <AccountBoxIcon />, path: "/main/profile" },
+    { text: "Home", icon: <HomeIcon />, path: "/main" },
+    { text: "Clientes", icon: <ClientsIcon />, path: "/main/clients" },
+    { text: "Tickets", icon: <InboxIcon />, path: "/main/tickets" },
   ];
 
   return (

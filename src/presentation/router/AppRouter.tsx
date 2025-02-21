@@ -1,14 +1,17 @@
-import { Route, Routes } from "react-router-dom"
-import { AuthRoutes } from "../screens/auth/routes/AuthRoutes"
-import { CrudRoutes } from "../screens/crud/routes/CrudRoutes"
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthRoutes } from "../screens/auth/routes/AuthRoutes";
+import { CrudRoutes } from "../screens/crud/routes/CrudRoutes";
+import { SessionLoader } from "../screens/auth/pages/SessionLoaderPage";
 
 export const AppRouter = () => {
   return (
     <Routes>
-        {/* Login y Registro*/}
+      <Route element={<SessionLoader />}>
         <Route path="/auth/*" element={<AuthRoutes />} />
-        {/*Crud, home, etc*/}
-        <Route path="/*" element={<CrudRoutes />} />
+        <Route path="/main/*" element={<CrudRoutes />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/auth" />} />
     </Routes>
-  )
-}
+  );
+};
