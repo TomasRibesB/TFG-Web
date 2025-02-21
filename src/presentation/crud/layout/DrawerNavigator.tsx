@@ -26,7 +26,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import NexoHealthIcon from "../../../public/nexoHealthIcon.svg";
+import NexoHealthIcon from "../../../../public/nexoHealthIcon.svg";
 
 const drawerWidth = 240;
 

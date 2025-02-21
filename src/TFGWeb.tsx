@@ -1,5 +1,5 @@
-import { AppRouter } from "./router/AppRouter";
-import { AppTheme } from "./theme";
+import { AppRouter } from "./presentation/router/AppRouter";
+import { AppTheme } from "./presentation/theme";
 
 export const TFGWeb = () => {
   return (
