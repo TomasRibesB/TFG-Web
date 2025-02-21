@@ -1,5 +1,5 @@
 import { Typography, Box, Grid2 } from "@mui/material";
-import NexoHealthIcon from "../../../../../public/nexoHealthIcon.svg";
+import NexoHealthIcon from "/nexoHealthIcon.svg";
 
 interface Props {
   children: React.ReactNode;
