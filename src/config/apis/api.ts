@@ -3,7 +3,7 @@ import { StorageAdapter } from "../adapters/storage-adapter";
 import { User } from "../../infrastructure/interfaces/user";
 
 const api = axios.create({
-  baseURL: "http://10.0.2.2:3000/api/v1",
+  baseURL: "http://localhost:3000/api/v1",
   headers: {
     "Content-Type": "application/json",
   },

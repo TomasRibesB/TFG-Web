@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom"
-import { AuthRoutes } from "../auth/routes/AuthRoutes"
-import { CrudRoutes } from "../crud/routes/CrudRoutes"
+import { AuthRoutes } from "../screens/auth/routes/AuthRoutes"
+import { CrudRoutes } from "../screens/crud/routes/CrudRoutes"
 
 export const AppRouter = () => {
   return (
