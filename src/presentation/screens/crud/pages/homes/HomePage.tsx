@@ -12,166 +12,59 @@ import {
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import { User } from "../../../../../infrastructure/interfaces/user";
 import { StorageAdapter } from "../../../../../config/adapters/storage-adapter";
+import { Ticket } from "../../../../../infrastructure/interfaces/ticket";
+import { Turno } from "../../../../../infrastructure/interfaces/turno";
+import { EstadoTurno } from "../../../../../infrastructure/enums/estadosTurnos";
 
-interface Reminder {
+interface Recordatorio {
   id: number;
-  reminder: string;
+  tipo: string;
+  fecha: Date;
+  descripcion: string;
 }
-
-interface Appointment {
-  id: number;
-  patientName: string;
-  date: Date;
-  status: "Pendiente" | "Aceptado" | "Rechazado";
-}
-
-interface UnreservedAppointment {
-  id: number;
-  date: Date;
-}
-
-const rows: Reminder[] = [
-  {
-    id: 1,
-    reminder:
-      "Revisión mensual con el paciente Juan Pérez para evaluar avances y ajustar la dieta según resultados.",
-  },
-  {
-    id: 2,
-    reminder:
-      "Control de peso programado con María López, verificar cumplimiento de metas semanales.",
-  },
-  {
-    id: 3,
-    reminder:
-      "Evaluación de dieta con Carlos García, revisar si se requieren suplementos adicionales.",
-  },
-  {
-    id: 4,
-    reminder:
-      "Consulta de seguimiento con Ana Martínez para discutir resultados de análisis recientes.",
-  },
-  {
-    id: 5,
-    reminder:
-      "Revisión de análisis de Luis Rodríguez, prestar atención a niveles de colesterol.",
-  },
-  {
-    id: 6,
-    reminder:
-      "Control de peso con Laura Fernández, motivar para mantener rutina de ejercicios.",
-  },
-  {
-    id: 7,
-    reminder:
-      "Evaluación de dieta con Pedro Sánchez, introducir nuevos alimentos ricos en fibra.",
-  },
-];
 
 export const HomePage = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>([
-    {
-      id: 1,
-      patientName: "Juan Pérez",
-      date: new Date(),
-      status: "Pendiente",
-    },
-    {
-      id: 2,
-      patientName: "María López",
-      date: new Date(),
-      status: "Aceptado",
-    },
-    {
-      id: 3,
-      patientName: "Carlos García",
-      date: new Date(),
-      status: "Rechazado",
-    },
-    {
-      id: 4,
-      patientName: "Ana Martínez",
-      date: new Date(),
-      status: "Pendiente",
-    },
-    {
-      id: 5,
-      patientName: "Luis Rodríguez",
-      date: new Date(),
-      status: "Pendiente",
-    },
-    {
-      id: 6,
-      patientName: "Laura Fernández",
-      date: new Date(),
-      status: "Pendiente",
-    },
-    {
-      id: 7,
-      patientName: "Pedro Sánchez",
-      date: new Date(),
-      status: "Pendiente",
-    },
-  ]);
   const [clients, setClients] = useState<Partial<User>[]>();
-
-  const [unreservedAppointments, setUnreservedAppointments] = useState<
-    UnreservedAppointment[]
-  >([
-    {
-      id: 1,
-      date: new Date(),
-    },
-  ]);
+  const [tickets, setTickets] = useState<Ticket[]>();
+  const [turnosLibres, setTurnosLibres] = useState<Turno[]>();
+  const [turnosOcupados, setTurnosOcupados] = useState<Turno[]>();
+  const [recordatorios, setRecordatorios] = useState<Recordatorio[]>([]);
 
   const [newAppointmentDateTime, setNewAppointmentDateTime] =
     useState<string>("");
 
   const handleAccept = (id: number) => {
-    setAppointments((prevAppointments) =>
-      prevAppointments.map((appointment) =>
-        appointment.id === id
-          ? { ...appointment, status: "Aceptado" }
-          : appointment
-      )
-    );
+    console.log("Accepting turno with id: ", id);
   };
 
   const handleReject = (id: number) => {
-    setAppointments((prevAppointments) =>
-      prevAppointments.map((appointment) =>
-        appointment.id === id
-          ? { ...appointment, status: "Rechazado" }
-          : appointment
-      )
-    );
+    console.log("Rejecting turno with id: ", id);
   };
 
-  const handleCreateAppointment = () => {
-    if (newAppointmentDateTime) {
-      const date = new Date(newAppointmentDateTime);
-      const newUnreservedAppointment: UnreservedAppointment = {
-        id: unreservedAppointments.length + 1,
-        date: date,
-      };
-      setUnreservedAppointments([
-        ...unreservedAppointments,
-        newUnreservedAppointment,
-      ]);
-      setNewAppointmentDateTime("");
-    }
-  };
+  const handleCreateAppointment = () => {};
 
   useEffect(() => {
     fetch();
   }, []);
 
   const fetch = async () => {
-    const clientes: Partial<User>[] = (await StorageAdapter.getItem('clientes')) || [];
+    const clientes: Partial<User>[] =
+      (await StorageAdapter.getItem("clientes")) || [];
+    const tickets: Ticket[] = (await StorageAdapter.getItem("tickets")) || [];
+    const turnos: Turno[] = (await StorageAdapter.getItem("turnos")) || [];
+    const recordatorios: Recordatorio[] =
+      (await StorageAdapter.getItem("recordatorios")) || [];
 
     setClients(clientes);
-  }
-  
+    setTickets(tickets);
+
+    const libres = turnos.filter((turno) => turno.paciente === null);
+    const ocupados = turnos.filter((turno) => turno.paciente !== null);
+
+    setTurnosLibres(libres);
+    setTurnosOcupados(ocupados);
+    setRecordatorios(recordatorios);
+  };
 
   return (
     <Grid2
@@ -218,13 +111,27 @@ export const HomePage = () => {
               sx={{ mb: 1 }}
             >
               <Typography variant="h4" sx={{ color: "primary.main" }}>
-                14
+                {
+                  tickets?.filter(
+                    (ticket) =>
+                      ticket.isAutorizado === true &&
+                      ticket.isAceptado === true &&
+                      ticket.isActive === true
+                  ).length
+                }
               </Typography>
               <Typography variant="h6">Abiertos</Typography>
             </Stack>
             <Stack direction="row" alignItems="baseline" spacing={1}>
               <Typography variant="h4" sx={{ color: "primary.main" }}>
-                3
+                {
+                  tickets?.filter(
+                    (ticket) =>
+                      ticket.isAutorizado === true &&
+                      ticket.isAceptado === false &&
+                      ticket.isActive === false
+                  ).length
+                }
               </Typography>
               <Typography variant="h6">Pendientes</Typography>
             </Stack>
@@ -251,29 +158,53 @@ export const HomePage = () => {
               scrollSnapType: "y mandatory",
             }}
           >
-            {rows.map((row) => (
+            {recordatorios.map((recordatorio) => (
+              // En HomePage.tsx
               <Card
-                key={row.id}
+                key={`reminder-${recordatorio.id}`}
                 sx={{ mb: 3, scrollSnapAlign: "start" }}
                 elevation={0}
               >
-                <CardContent sx={{ padding: 2 }}>
+                <CardContent sx={{ p: 2 }}>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <NotificationsNoneIcon
                       sx={{
                         fontSize: { xs: "1.5rem", sm: "1.8rem", md: "2rem" },
                         color: "primary.main",
+                        mr: 2,
                       }}
                     />
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontSize: { xs: "0.9rem", sm: "1rem", md: "0.9rem" },
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {recordatorio.descripcion}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: {
+                            xs: "0.8rem",
+                            sm: "0.9rem",
+                            md: "0.8rem",
+                          },
+                          color: "text.secondary",
+                        }}
+                      >
+                        {recordatorio.tipo}
+                      </Typography>
+                    </Box>
                     <Typography
-                      variant="body1"
+                      variant="body2"
                       sx={{
-                        fontSize: { xs: "0.9rem", sm: "1rem", md: "0.9rem" },
-                        wordBreak: "break-word",
-                        ml: 1,
+                        fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.7rem" },
                       }}
                     >
-                      {row.reminder}
+                      {new Date(recordatorio.fecha).toLocaleString()}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -296,26 +227,26 @@ export const HomePage = () => {
             sx={{ maxHeight: "50vh", overflowY: "auto" }}
             className="custom-scrollbar"
           >
-            {appointments.map((appointment) => (
-              <Card key={appointment.id} sx={{ mb: 2 }}>
+            {turnosOcupados?.map((turno) => (
+              <Card key={`turno-${turno.id}`} sx={{ mb: 2 }}>
                 <CardContent>
                   <Typography variant="h6">
-                    {appointment.patientName}
+                    {turno.paciente.firstName} {turno.paciente.lastName}
                   </Typography>
                   <Typography variant="body1">
-                    Fecha: {appointment.date.toLocaleString()}
+                    Fecha: {new Date(turno.fechaHora).toLocaleString()}
                   </Typography>
                   <Typography variant="body1">
-                    Estado: {appointment.status}
+                    Estado: {turno.estado}
                   </Typography>
-                  {appointment.status === "Pendiente" && (
+                  {turno.estado === EstadoTurno.Pendiente && (
                     <Box sx={{ mt: 2 }}>
                       <Button
                         variant="contained"
                         color="primary"
                         sx={{ mr: 2, borderRadius: "8px" }}
                         size="medium"
-                        onClick={() => handleAccept(appointment.id)}
+                        onClick={() => handleAccept(turno.id)}
                       >
                         Aceptar
                       </Button>
@@ -324,7 +255,7 @@ export const HomePage = () => {
                         color="error"
                         sx={{ mr: 2, borderRadius: "8px" }}
                         size="medium"
-                        onClick={() => handleReject(appointment.id)}
+                        onClick={() => handleReject(turno.id)}
                       >
                         Rechazar
                       </Button>
@@ -379,11 +310,11 @@ export const HomePage = () => {
             <Typography variant="h5" sx={{ mb: 2 }}>
               Turnos Sin Reservar
             </Typography>
-            {unreservedAppointments.map((unreserved) => (
-              <Card key={unreserved.id} sx={{ mb: 2 }}>
+            {turnosLibres?.map((turno) => (
+              <Card key={`unreserved-${turno.id}`} sx={{ mb: 2 }}>
                 <CardContent>
                   <Typography variant="body1">
-                    Fecha: {unreserved.date.toLocaleString()}
+                    Fecha: {new Date(turno.fechaHora).toLocaleString()}
                   </Typography>
                 </CardContent>
               </Card>
