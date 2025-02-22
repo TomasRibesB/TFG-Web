@@ -9,7 +9,9 @@ import {
 } from "@mui/material";
 import { Verified, Pending, ErrorOutline } from "@mui/icons-material";
 import { MuiFileInput } from "mui-file-input";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { User } from "../../../../infrastructure/interfaces/user";
+import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
 
 export const ProfilePage = () => {
   // Ejemplo de estado de certificación
@@ -28,7 +30,15 @@ export const ProfilePage = () => {
     return "error";
   };
 
-  const [value, setValue] = React.useState<File[] | undefined>(undefined);
+  const [value, setValue] = useState<File[] | undefined>(undefined);
+  const [user, setUser] = useState<Partial<User>>({});
+  const [loading, setLoading] = useState(false);
+  const [fristName, setFristName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
 
   interface HandleChangeEvent {
     target: {
@@ -38,6 +48,20 @@ export const ProfilePage = () => {
 
   const handleChange = (newValue: HandleChangeEvent["target"]["value"]) => {
     setValue(newValue);
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    fetch();
+  }, []);
+
+  const fetch = async () => {
+    const user: Partial<User> = (await StorageAdapter.getItem("user")) || {};
+    setUser(user);
+    setFristName(user.firstName || "");
+    setLastName(user.lastName || "");
+    setEmail(user.email || "");
+    setLoading(false);
   };
 
   return (
@@ -129,6 +153,8 @@ export const ProfilePage = () => {
                 variant="outlined"
                 fullWidth
                 margin="normal"
+                value={fristName}
+                onChange={(e) => setFristName(e.target.value)}
                 InputProps={{
                   style: {
                     borderRadius: "8px",
@@ -142,6 +168,8 @@ export const ProfilePage = () => {
                 variant="outlined"
                 fullWidth
                 margin="normal"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 InputProps={{
                   style: {
                     borderRadius: "8px",
@@ -155,19 +183,8 @@ export const ProfilePage = () => {
                 variant="outlined"
                 fullWidth
                 margin="normal"
-                InputProps={{
-                  style: {
-                    borderRadius: "8px",
-                  },
-                }}
-              />
-            </Grid2>
-            <Grid2 size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Teléfono"
-                variant="outlined"
-                fullWidth
-                margin="normal"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 InputProps={{
                   style: {
                     borderRadius: "8px",
@@ -241,7 +258,16 @@ export const ProfilePage = () => {
           </Button>
         </form>
         <Divider sx={{ mt: 4 }} />
-        <Grid2 container sx={{ mt: 3 }}>
+        <Grid2
+          container
+          sx={{
+            mt: 3,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "nowrap",
+          }}
+        >
           <MuiFileInput
             InputProps={{
               style: {
@@ -251,7 +277,7 @@ export const ProfilePage = () => {
             label="Subir Imagen de Perfil"
             onChange={handleChange}
             value={value}
-            fullWidth
+            sx={{ width: "100%", borderRadius: "8px", mr: 2 }}
             getInputText={(files) =>
               files?.length === 1
                 ? "1 archivo seleccionado"
@@ -260,6 +286,15 @@ export const ProfilePage = () => {
             multiple
             inputProps={{ accept: ".png, .jpeg, .jpg, .pdf" }}
           />
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ borderRadius: "8px" }}
+            size="large"
+            disabled={!value}
+          >
+            Subir
+          </Button>
         </Grid2>
       </Grid2>
     </Grid2>
