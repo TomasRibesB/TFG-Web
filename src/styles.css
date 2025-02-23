@@ -39,3 +39,8 @@
   .custom-scrollbar {
     overflow: auto;
   }
+
+  main {
+    height: 100vh;
+    padding-top: 64px;
+  }

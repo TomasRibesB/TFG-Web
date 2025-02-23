@@ -142,6 +142,7 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
         position="fixed"
         open={open}
         sx={{ backgroundColor: "background.paper", color: "text.primary" }}
+        
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
           {/* Izquierda: Menu Icon y location.pathname */}

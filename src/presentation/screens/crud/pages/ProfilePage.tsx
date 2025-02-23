@@ -69,7 +69,7 @@ export const ProfilePage = () => {
       container
       spacing={2}
       direction="row"
-      sx={{ minHeight: "90vh", pb: 4 }}
+      sx={{ height: "95.4%", pb: 4 }}
     >
       {/* Información de certificación */}
       <Grid2 container size={{ xs: 12, md: 6 }} direction="column">

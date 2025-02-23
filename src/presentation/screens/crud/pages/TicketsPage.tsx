@@ -6,7 +6,7 @@ export const TicketsPage = () => {
     container
     spacing={2}
     direction="row"
-    sx={{ minHeight: "90vh", backgroundColor: "primary.paper", pb: 4 }}
+    sx={{ backgroundColor: "primary.paper", pb: 4, height: "95.4%" }}
   >
     <Grid2
       className="card-shadow"

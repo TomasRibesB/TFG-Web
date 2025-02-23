@@ -15,7 +15,7 @@ export const AuthLayout = ({ children, title, isLarger = false }: Props) => {
       direction="column"
       alignItems="center"
       justifyContent="center"
-      sx={{ minHeight: "100vh", backgroundColor: "primary.paper", pb: 4 }}
+      sx={{ height: "95.4%", backgroundColor: "primary.paper", pb: 4 }}
     >
       {/* Agrega el icono aquí */}
       <Box

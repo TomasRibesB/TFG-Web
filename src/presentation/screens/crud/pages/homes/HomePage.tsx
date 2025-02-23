@@ -71,7 +71,7 @@ export const HomePage = () => {
       container
       spacing={2}
       direction="column"
-      sx={{ minHeight: "90vh", backgroundColor: "primary.paper" }}
+      sx={{ height: "95.4%", backgroundColor: "primary.paper" }}
     >
       {/* Primer Contenedor */}
       <Grid2 container spacing={2}>
