@@ -1,8 +1,6 @@
 import {
   Typography,
-  Divider,
   Box,
-  Avatar,
   TextField,
   Button,
   IconButton,
@@ -28,8 +26,6 @@ import { User } from "../../../../../../infrastructure/interfaces/user";
 import { Ejercicio } from "../../../../../../infrastructure/interfaces/ejercicio";
 import { RutinaEjercicio } from "../../../../../../infrastructure/interfaces/rutina-ejercicio";
 import { UnidadMedida } from "../../../../../../infrastructure/enums/unidadMedida";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import Person3OutlinedIcon from "@mui/icons-material/Person3Outlined";
 
 interface Props {
   selectedClient: Partial<User> | null;
@@ -131,52 +127,6 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
       {/* Información del Cliente */}
-      <Typography variant="h5" gutterBottom>
-        Acciones para {selectedClient.firstName} {selectedClient.lastName}
-      </Typography>
-      <Divider sx={{ mb: 2 }} />
-      <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 3 }}>
-        <Avatar
-          sx={{
-            bgcolor: "primary.main",
-            color: "primary.contrastText",
-            width: 100,
-            height: 100,
-          }}
-        >
-          {selectedClient.sex ? (
-            selectedClient.sex === "M" ? (
-              <PersonOutlineOutlinedIcon sx={{ fontSize: 70 }} />
-            ) : (
-              <Person3OutlinedIcon sx={{ fontSize: 70 }} />
-            )
-          ) : (
-            <PersonOutlineOutlinedIcon sx={{ fontSize: 70 }} />
-          )}
-        </Avatar>
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Typography variant="h3" sx={{ ml: 2, mr: 2 }}>
-            {selectedClient.firstName} {selectedClient.lastName}
-          </Typography>
-          <Box sx={{ display: "flex", gap: 2, ml: 2, justifyContent: "center" }}>
-            {selectedClient.birthdate && (
-              <Typography variant="h6">
-                Edad:{" "}
-                <span style={{ fontSize: "1.5rem" }}>
-                  {new Date().getFullYear() -
-                    new Date(selectedClient.birthdate).getFullYear()}
-                </span>
-              </Typography>
-            )}
-            {selectedClient.sex && (
-              <Typography variant="h6">
-                Sexo:{" "}
-                <span style={{ fontSize: "1.5rem" }}>{selectedClient.sex}</span>
-              </Typography>
-            )}
-          </Box>
-        </Box>
-      </Box>
       <Grid2 container spacing={2} direction="row">
         <Grid2 size={9} sx={{ borderRight: "1px solid #ddd" }}>
           {/* Listado de Rutinas Existentes */}

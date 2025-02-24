@@ -9,6 +9,7 @@ import {
   ListItemText,
   TextField,
   Typography,
+  Box
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { StorageAdapter } from "../../../../../config/adapters/storage-adapter";
@@ -17,10 +18,14 @@ import { PlanNutricional } from "../../../../../infrastructure/interfaces/plan-n
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import Person3OutlinedIcon from "@mui/icons-material/Person3Outlined";
 import { EntrenadorForm } from "./form/EntrenadorForm";
+import { NutricionistaForm } from "./form/NutricionistaForm";
+import { ProfesionalSaludForm } from "./form/ProfesionalSaludForm";
 import { Role } from "../../../../../infrastructure/enums/roles";
 import { getPlanNutricionalByUserIdRequest } from "../../../../../services/nutricion";
 import { Routine } from "../../../../../infrastructure/interfaces/routine";
 import { getPlanTrainerByUserIdRequest } from "../../../../../services/entrenamiento";
+import { Documento } from "../../../../../infrastructure/interfaces/documento";
+import { getDocumentosForProfesionalByUserRequest } from "../../../../../services/salud";
 
 export const ClientsPage = () => {
   const [loading, setLoading] = useState(false);
@@ -39,7 +44,6 @@ export const ClientsPage = () => {
     const clients: Partial<User>[] =
       (await StorageAdapter.getItem("clientes")) || [];
     const user: Partial<User> | null = await StorageAdapter.getItem("user");
-
     setUser(user);
     setClients(clients);
     setLoading(false);
@@ -54,7 +58,7 @@ export const ClientsPage = () => {
     if (user?.role === Role.Nutricionista) {
       fetchNutricionista(client);
     } else if (user?.role === Role.Profesional) {
-      console.log("fetchProfesional");
+      fetchProfesional(client);
     } else if (user?.role === Role.Entrenador) {
       console.log("fetchEntrenador");
       fetchEntreanador(client);
@@ -70,10 +74,16 @@ export const ClientsPage = () => {
 
   const fetchEntreanador = async (client: Partial<User>) => {
     if (!client || typeof client.id !== "number") return;
-    const routines: Routine[] = await getPlanTrainerByUserIdRequest(
-      client.id!
-    );
+    const routines: Routine[] = await getPlanTrainerByUserIdRequest(client.id!);
     setSelectedClient({ ...client, routines });
+  };
+
+  const fetchProfesional = async (client: Partial<User>) => {
+    if (!client || typeof client.id !== "number") return;
+    const documentos: Documento[] =
+      await getDocumentosForProfesionalByUserRequest(client.id!);
+    setSelectedClient({ ...client, documentos });
+    console.log("Documentos: ", documentos);
   };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -160,16 +170,73 @@ export const ClientsPage = () => {
           padding: 2,
         }}
       >
-        <EntrenadorForm selectedClient={selectedClient} />
-        {/* {user && user.role === Role.Profesional && (
+        {selectedClient && (
+          <>
+            <Typography variant="h5" gutterBottom>
+              Acciones para {selectedClient.firstName} {selectedClient.lastName}
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 3 }}>
+              <Avatar
+                sx={{
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
+                  width: 100,
+                  height: 100,
+                }}
+              >
+                {selectedClient.sex ? (
+                  selectedClient.sex === "M" ? (
+                    <PersonOutlineOutlinedIcon sx={{ fontSize: 70 }} />
+                  ) : (
+                    <Person3OutlinedIcon sx={{ fontSize: 70 }} />
+                  )
+                ) : (
+                  <PersonOutlineOutlinedIcon sx={{ fontSize: 70 }} />
+                )}
+              </Avatar>
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <Typography variant="h3" sx={{ ml: 2, mr: 2 }}>
+                  {selectedClient.firstName} {selectedClient.lastName}
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    ml: 2,
+                  }}
+                >
+                  {selectedClient.birthdate && (
+                    <Typography variant="h6">
+                      Edad:{" "}
+                      <span style={{ fontSize: "1.5rem" }}>
+                        {new Date().getFullYear() -
+                          new Date(selectedClient.birthdate).getFullYear()}
+                      </span>
+                    </Typography>
+                  )}
+                  {selectedClient.sex && (
+                    <Typography variant="h6">
+                      Sexo:{" "}
+                      <span style={{ fontSize: "1.5rem" }}>
+                        {selectedClient.sex}
+                      </span>
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </Box>
+          </>
+        )}
+        {user && user.role === Role.Entrenador && (
           <EntrenadorForm selectedClient={selectedClient} />
         )}
         {user && user.role === Role.Nutricionista && (
-          <Typography variant="h6">Nutricionista</Typography>
+          <NutricionistaForm selectedClient={selectedClient} />
         )}
         {user && user.role === Role.Profesional && (
-          <Typography variant="h6">Profesional</Typography>
-        )} */}
+          <ProfesionalSaludForm selectedClient={selectedClient} />
+        )}
       </Grid2>
     </Grid2>
   );
