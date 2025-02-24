@@ -10,11 +10,11 @@ import {
   TextField,
 } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import { User } from "../../../../../infrastructure/interfaces/user";
-import { StorageAdapter } from "../../../../../config/adapters/storage-adapter";
-import { Ticket } from "../../../../../infrastructure/interfaces/ticket";
-import { Turno } from "../../../../../infrastructure/interfaces/turno";
-import { EstadoTurno } from "../../../../../infrastructure/enums/estadosTurnos";
+import { User } from "../../../../infrastructure/interfaces/user";
+import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
+import { Ticket } from "../../../../infrastructure/interfaces/ticket";
+import { Turno } from "../../../../infrastructure/interfaces/turno";
+import { EstadoTurno } from "../../../../infrastructure/enums/estadosTurnos";
 
 interface Recordatorio {
   id: number;
