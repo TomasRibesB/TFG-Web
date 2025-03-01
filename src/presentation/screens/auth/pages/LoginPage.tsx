@@ -1,14 +1,34 @@
 import React, { useState } from "react";
-import { Button, TextField, Typography, Grid2, Link } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Typography,
+  Grid2,
+  Link,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../layout/AuthLayout";
 import { loginRequest } from "../../../../services/auth"; // Llama al servicio de login
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
 
   const handleLogin = async () => {
     try {
@@ -77,11 +97,22 @@ export const LoginPage = () => {
               variant="outlined"
               fullWidth
               sx={{ mb: 4 }}
-              type="password"
+              type={showPassword ? "text" : "password"}
               InputProps={{
                 style: {
                   borderRadius: "8px",
                 },
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleTogglePasswordVisibility}
+                      onMouseDown={handleMouseDownPassword}
+                    >
+                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               }}
             />
           </Grid2>

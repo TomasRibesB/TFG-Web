@@ -10,21 +10,107 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { Link as RouterLink } from "react-router-dom";
 import { AuthLayout } from "../layout/AuthLayout";
 import { MuiFileInput } from "mui-file-input";
-import React from "react";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import React, { useState } from "react";
+import { registerRequest } from "../../../../services/auth";
+import { useNavigate } from "react-router-dom";
 
 export const RegisterPage = () => {
-  const [value, setValue] = React.useState<File[] | undefined>(undefined);
+  const [value, setValue] = useState<File[] | undefined>(undefined);
+  const navigate = useNavigate();
+
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [profesion, setProfesion] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
 
   interface HandleChangeEvent {
     target: {
       value: File[] | undefined;
     };
   }
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleToggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
+
+  const handleRegister = async () => {
+    // Validaciones
+    if (!nombre.trim()) {
+      setError("El nombre es obligatorio");
+      return;
+    }
+    if (!apellido.trim()) {
+      setError("El apellido es obligatorio");
+      return;
+    }
+    if (!email) {
+      setError("El correo electrónico es obligatorio");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("El correo electrónico no es válido");
+      return;
+    }
+    if (email.length > 50) {
+      setError("El correo electrónico no puede tener más de 50 caracteres");
+      return;
+    }
+    if (!password) {
+      setError("La contraseña es obligatoria");
+      return;
+    }
+    if (password.length < 6 || password.length > 50) {
+      setError("La contraseña debe tener entre 6 y 50 caracteres");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+    if (!profesion) {
+      setError("La profesión es obligatoria");
+      return;
+    }
+    if (!termsAccepted) {
+      setError("Debes aceptar los términos y condiciones");
+      return;
+    }
+    // Aquí se pueden agregar validaciones adicionales según se requiera
+
+    try {
+      // Se podría enviar también nombre, apellido, profesión y comprobante si el servicio lo soporta
+      await registerRequest({email, password, firstName: nombre, lastName: apellido, dni: ""});
+      navigate("/"); // Redirige a la ruta deseada
+    } catch (err) {
+      setError("No se pudo registrar");
+      console.error(err);
+    }
+  };
 
   const handleChange = (newValue: HandleChangeEvent["target"]["value"]) => {
     setValue(newValue);
@@ -37,6 +123,11 @@ export const RegisterPage = () => {
           {/* Nombre */}
           <Grid2 size={{ xs: 12, md: 6 }}>
             <TextField
+              value={nombre}
+              onChange={(e) => {
+                setNombre(e.target.value);
+                setError("");
+              }}
               label="Nombre"
               variant="outlined"
               fullWidth
@@ -51,6 +142,11 @@ export const RegisterPage = () => {
           {/* Apellido */}
           <Grid2 size={{ xs: 12, md: 6 }}>
             <TextField
+              value={apellido}
+              onChange={(e) => {
+                setApellido(e.target.value);
+                setError("");
+              }}
               label="Apellido"
               variant="outlined"
               fullWidth
@@ -65,6 +161,11 @@ export const RegisterPage = () => {
           {/* Correo electrónico */}
           <Grid2 size={{ xs: 12, md: 6 }}>
             <TextField
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError("");
+              }}
               label="Correo electrónico"
               variant="outlined"
               fullWidth
@@ -79,28 +180,60 @@ export const RegisterPage = () => {
           {/* Contraseña */}
           <Grid2 size={{ xs: 12, md: 6 }}>
             <TextField
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError("");
+              }}
               label="Contraseña"
               variant="outlined"
               fullWidth
-              type="password"
+              type={showPassword ? "text" : "password"}
               InputProps={{
                 style: {
                   borderRadius: "8px",
                 },
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleTogglePasswordVisibility}
+                      onMouseDown={handleMouseDownPassword}
+                    >
+                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               }}
             />
           </Grid2>
           {/* Repite contraseña */}
           <Grid2 size={{ xs: 12, md: 6 }}>
             <TextField
-              label="Repite contraseña"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setError("");
+              }}
+              label="Confirmar Contraseña"
               variant="outlined"
               fullWidth
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               InputProps={{
                 style: {
                   borderRadius: "8px",
                 },
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={handleToggleConfirmPasswordVisibility}
+                      onMouseDown={handleMouseDownPassword}
+                    >
+                      {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               }}
             />
           </Grid2>
@@ -109,13 +242,20 @@ export const RegisterPage = () => {
             <FormControl fullWidth variant="outlined">
               <InputLabel>Profesión</InputLabel>
               <Select
+                value={profesion}
+                onChange={(e) => {
+                  setProfesion(e.target.value);
+                  setError("");
+                }}
                 label="Profesión"
                 placeholder="Tipo de usuario"
                 style={{ borderRadius: "8px" }}
               >
                 <MenuItem value="nutricionista">Nutricionista</MenuItem>
                 <MenuItem value="entrenador">Entrenador</MenuItem>
-                <MenuItem value="profesional">Profesional de la salud</MenuItem>
+                <MenuItem value="profesional">
+                  Profesional de la salud
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid2>
@@ -128,7 +268,7 @@ export const RegisterPage = () => {
                     borderRadius: "8px",
                   },
                 }}
-                label="Comprobante de profesión"
+                label="Certificado Profesional"
                 onChange={handleChange}
                 value={value}
                 fullWidth
@@ -157,6 +297,11 @@ export const RegisterPage = () => {
             <FormControlLabel
               control={
                 <Checkbox
+                  checked={termsAccepted}
+                  onChange={(e) => {
+                    setTermsAccepted(e.target.checked);
+                    setError("");
+                  }}
                   sx={{
                     color: "primary.main",
                   }}
@@ -177,13 +322,20 @@ export const RegisterPage = () => {
               }
             />
           </Grid2>
+          {/* Mostrar errores */}
+          {error && (
+            <Grid2 size={12}>
+              <Typography color="error" sx={{ mb: 2 }}>
+                {error}
+              </Typography>
+            </Grid2>
+          )}
           {/* Botón Enviar */}
           <Grid2 size={12}>
             <Button
               variant="contained"
               fullWidth
-              component={RouterLink}
-              to="/auth/login"
+              onClick={handleRegister}
               sx={{
                 borderRadius: "8px",
                 textTransform: "none",

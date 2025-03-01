@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Divider,
   Grid2,
   List,
@@ -9,14 +8,12 @@ import {
   ListItemText,
   TextField,
   Typography,
-  Box
+  Box,
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { StorageAdapter } from "../../../../../config/adapters/storage-adapter";
 import { User } from "../../../../../infrastructure/interfaces/user";
 import { PlanNutricional } from "../../../../../infrastructure/interfaces/plan-nutricional";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import Person3OutlinedIcon from "@mui/icons-material/Person3Outlined";
 import { EntrenadorForm } from "./form/EntrenadorForm";
 import { NutricionistaForm } from "./form/NutricionistaForm";
 import { ProfesionalSaludForm } from "./form/ProfesionalSaludForm";
@@ -26,6 +23,7 @@ import { Routine } from "../../../../../infrastructure/interfaces/routine";
 import { getPlanTrainerByUserIdRequest } from "../../../../../services/entrenamiento";
 import { Documento } from "../../../../../infrastructure/interfaces/documento";
 import { getDocumentosForProfesionalByUserRequest } from "../../../../../services/salud";
+import { ImageAvatar } from "../../../../components/ImageAvatar";
 
 export const ClientsPage = () => {
   const [loading, setLoading] = useState(false);
@@ -51,16 +49,13 @@ export const ClientsPage = () => {
 
   const handeSelectClient = (client: Partial<User>) => {
     if (!client || typeof client.id !== "number") return;
-    console.log("Selected Client: ", client);
     setSelectedClient(client);
 
-    console.log("User: ", user);
     if (user?.role === Role.Nutricionista) {
       fetchNutricionista(client);
     } else if (user?.role === Role.Profesional) {
       fetchProfesional(client);
     } else if (user?.role === Role.Entrenador) {
-      console.log("fetchEntrenador");
       fetchEntreanador(client);
     }
   };
@@ -83,7 +78,6 @@ export const ClientsPage = () => {
     const documentos: Documento[] =
       await getDocumentosForProfesionalByUserRequest(client.id!);
     setSelectedClient({ ...client, documentos });
-    console.log("Documentos: ", documentos);
   };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -133,22 +127,7 @@ export const ClientsPage = () => {
               <ListItem key={client.id} disablePadding>
                 <ListItemButton onClick={() => handeSelectClient(client)}>
                   <ListItemAvatar>
-                    <Avatar
-                      sx={{
-                        bgcolor: "primary.main",
-                        color: "primary.contrastText",
-                      }}
-                    >
-                      {client.sex ? (
-                        client.sex === "M" ? (
-                          <PersonOutlineOutlinedIcon />
-                        ) : (
-                          <Person3OutlinedIcon />
-                        )
-                      ) : (
-                        <PersonOutlineOutlinedIcon />
-                      )}
-                    </Avatar>
+                    <ImageAvatar user={client} />
                   </ListItemAvatar>
                   <ListItemText
                     primary={`${client.firstName} ${client.lastName}`}
@@ -177,24 +156,11 @@ export const ClientsPage = () => {
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 3 }}>
-              <Avatar
-                sx={{
-                  bgcolor: "primary.main",
-                  color: "primary.contrastText",
-                  width: 100,
-                  height: 100,
-                }}
-              >
-                {selectedClient.sex ? (
-                  selectedClient.sex === "M" ? (
-                    <PersonOutlineOutlinedIcon sx={{ fontSize: 70 }} />
-                  ) : (
-                    <Person3OutlinedIcon sx={{ fontSize: 70 }} />
-                  )
-                ) : (
-                  <PersonOutlineOutlinedIcon sx={{ fontSize: 70 }} />
-                )}
-              </Avatar>
+              <ImageAvatar
+                user={selectedClient}
+                sx={{ height: 100, width: 100 , fontSize: "3rem", bgcolor: "primary.main" }}
+                onClickView
+              />
               <Box sx={{ display: "flex", flexDirection: "column" }}>
                 <Typography variant="h3" sx={{ ml: 2, mr: 2 }}>
                   {selectedClient.firstName} {selectedClient.lastName}

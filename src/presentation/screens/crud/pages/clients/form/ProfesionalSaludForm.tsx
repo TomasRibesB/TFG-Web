@@ -66,7 +66,6 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
       usuario: selectedClient as User,
       visibilidad: [],
     };
-    console.log("Guardando documento:", newDocument);
     setCreatedDocuments([...createdDocuments, newDocument]);
     setOpenDocumentModal(false);
   };

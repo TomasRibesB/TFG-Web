@@ -25,11 +25,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import NexoHealthIcon from "/nexoHealthIcon.svg";
-import { Avatar } from "@mui/material";
 import { User } from "../../../../infrastructure/interfaces/user";
 import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
 import { Role } from "../../../../infrastructure/enums/roles";
 import { useAuth } from "../../../hooks/useAuth";
+import { ImageAvatar } from "../../../components/ImageAvatar";
 
 const drawerWidth = 240;
 
@@ -153,7 +153,13 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
       <AppBar
         position="fixed"
         open={open}
-        sx={{ backgroundColor: "background.paper", color: "text.primary" }}
+        sx={{
+          backgroundColor: "background.paper",
+          color: "text.primary",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+        elevation={0}
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
           {/* Izquierda: Menu Icon y location.pathname */}
@@ -204,11 +210,15 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
           {/* Derecha: Botones de notificaciones y logout */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Link to="/main/profile" style={{ textDecoration: "none" }}>
-              <Box sx={{ display: { display: "flex", alignItems: "center" } }}>
-                <Avatar sx={{ bgcolor: "primary.main" }}>
-                  {user.firstName?.charAt(0).toUpperCase()}
-                </Avatar>
-                <Box sx={{ display: "flex", flexDirection: "column", mr: 3 }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <ImageAvatar user={user} flag={new Date()} />
+                <Box
+                  sx={{
+                    display: { xs: "none", sm: "none", md: "flex" },
+                    flexDirection: "column",
+                    mr: 3,
+                  }}
+                >
                   <Typography variant="body2" sx={{ ml: 1 }}>
                     {(user.firstName?.charAt(0)?.toUpperCase() ?? "") +
                       user.firstName?.slice(1).toLowerCase()}{" "}

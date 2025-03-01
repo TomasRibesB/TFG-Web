@@ -3,9 +3,10 @@ import {
   Typography,
   TextField,
   Button,
-  Avatar,
   Chip,
   Divider,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { Verified, Pending } from "@mui/icons-material";
 import { MuiFileInput } from "mui-file-input";
@@ -13,9 +14,16 @@ import { useEffect, useState } from "react";
 import { User } from "../../../../infrastructure/interfaces/user";
 import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
 import { Role } from "../../../../infrastructure/enums/roles";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  updateEmailRequest,
+  updatePasswordRequest,
+  uploadImageRequest,
+} from "../../../../services/user";
+import { ImageAvatar } from "../../../components/ImageAvatar";
 
 export const ProfilePage = () => {
-  const [image, setValue] = useState<File[] | undefined>(undefined);
+  const [image, setImage] = useState<File | undefined>(undefined);
   const [user, setUser] = useState<Partial<User>>({});
   const [loading, setLoading] = useState(false);
   const [fristName, setFristName] = useState("");
@@ -24,15 +32,24 @@ export const ProfilePage = () => {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [errorContraseña, setErrorContraseña] = useState("");
+  const [errorEmail, setErrorEmail] = useState("");
+  const [errorImagen, setErrorImagen] = useState("");
+  const [flagUpdateImage, setFlagUpdateImage] = useState<Date | undefined>(
+    undefined
+  );
 
   interface HandleChangeEvent {
     target: {
-      image: File[] | undefined;
+      image: File | undefined;
     };
   }
 
-  const handleChange = (newValue: HandleChangeEvent["target"]["image"]) => {
-    setValue(newValue);
+  const handleChange = (
+    newValue: HandleChangeEvent["target"]["image"] | null
+  ) => {
+    if (!newValue) return;
+    setImage(newValue);
   };
 
   useEffect(() => {
@@ -49,16 +66,96 @@ export const ProfilePage = () => {
     setLoading(false);
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
+    if (!email) {
+      setErrorEmail("El correo electrónico es obligatorio");
+      return;
+    }
+    if (email === user.email) {
+      setErrorEmail("");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorEmail("El correo electrónico no es válido");
+      return;
+    }
+    if (email.length > 50) {
+      setErrorEmail(
+        "El correo electrónico no puede tener más de 50 caracteres"
+      );
+      return;
+    }
     setLoading(true);
+    const response = await updateEmailRequest(email);
+    if (response) {
+      await StorageAdapter.setItem("user", { ...user, email });
+      setErrorEmail("");
+      fetch();
+    } else {
+      setErrorEmail("El correo electrónico ya está en uso");
+    }
+    setLoading(false);
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
+    if (newPassword !== repeatPassword) {
+      setErrorContraseña("Las contraseñas no coinciden");
+      return;
+    }
+    if (newPassword.length < 6 || newPassword.length > 50) {
+      setErrorContraseña("La contraseña debe tener entre 6 y 50 caracteres");
+      return;
+    }
     setLoading(true);
+    const response = await updatePasswordRequest(password, newPassword);
+    if (response) {
+      await StorageAdapter.setItem("user", { ...user, password: newPassword });
+      setPassword("");
+      setNewPassword("");
+      setRepeatPassword("");
+      setErrorContraseña("");
+      fetch();
+    } else {
+      setErrorContraseña("La contraseña actual es incorrecta");
+    }
+    setLoading(false);
   };
 
-  const handleUploadImage = () => {
+  const handleUploadImage = async () => {
+    if (!image) {
+      setErrorImagen("Debe seleccionar una imagen");
+      return;
+    }
     setLoading(true);
+    const response = await uploadImageRequest(image);
+    if (response) {
+      await StorageAdapter.setItem("user", { ...user, hasImage: true });
+      const flag = new Date();
+      setFlagUpdateImage(flag);
+      setUser({ ...user, hasImage: true });
+      setImage(undefined);
+      setErrorImagen("");
+      fetch();
+    } else {
+      setErrorImagen("No se pudo subir la imagen");
+    }
+    setLoading(false);
+  };
+
+  // Dentro del componente ProfilePage, define estos estados y handlers:
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showRepeat, setShowRepeat] = useState(false);
+
+  const handleClickShowCurrent = () => setShowCurrent(!showCurrent);
+  const handleClickShowNew = () => setShowNew(!showNew);
+  const handleClickShowRepeat = () => setShowRepeat(!showRepeat);
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
   };
 
   return (
@@ -78,20 +175,18 @@ export const ProfilePage = () => {
           }}
         >
           <Grid2 container spacing={2} direction="row" alignItems="center">
-            {/* Avatar a la izquierda */}
             <Grid2>
-              <Avatar
-                alt="Foto de Perfil"
-                src="/ruta/a/tu/foto.jpg"
+              <ImageAvatar
+                user={user}
                 sx={{
                   width: 120,
                   height: 120,
                   bgcolor: "primary.main",
                   fontSize: 48,
                 }}
-              >
-                {user.firstName?.charAt(0).toUpperCase()}
-              </Avatar>
+                onClickView
+                flag={flagUpdateImage}
+              />
             </Grid2>
 
             {/* Columna de información a la derecha */}
@@ -121,38 +216,40 @@ export const ProfilePage = () => {
               </Grid2>
 
               {/* Certificación */}
-              <Grid2>
-                <Chip
-                  icon={
-                    user.userTipoProfesionales?.some(
-                      (tipo) => tipo.certificadora
-                    ) ? (
-                      <Verified />
-                    ) : (
-                      <Pending />
-                    )
-                  }
-                  label={
-                    user.userTipoProfesionales?.some(
-                      (tipo) => tipo.certificadora
-                    )
-                      ? `Certificado por ${user.userTipoProfesionales
-                          ?.filter((tipo) => tipo.certificadora)
-                          .map((tipo) => tipo.certificadora)
-                          .join(", ")}`
-                      : "Sin certificar"
-                  }
-                  color={
-                    user.userTipoProfesionales?.some(
-                      (tipo) => tipo.certificadora
-                    )
-                      ? "success"
-                      : "warning"
-                  }
-                  variant="outlined"
-                  sx={{ mb: 1 }}
-                />
-              </Grid2>
+              {user.role !== Role.Usuario && (
+                <Grid2>
+                  <Chip
+                    icon={
+                      user.userTipoProfesionales?.some(
+                        (tipo) => tipo.certificadora
+                      ) ? (
+                        <Verified />
+                      ) : (
+                        <Pending />
+                      )
+                    }
+                    label={
+                      user.userTipoProfesionales?.some(
+                        (tipo) => tipo.certificadora
+                      )
+                        ? `Certificado por ${user.userTipoProfesionales
+                            ?.filter((tipo) => tipo.certificadora)
+                            .map((tipo) => tipo.certificadora)
+                            .join(", ")}`
+                        : "Sin certificar"
+                    }
+                    color={
+                      user.userTipoProfesionales?.some(
+                        (tipo) => tipo.certificadora
+                      )
+                        ? "success"
+                        : "warning"
+                    }
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                  />
+                </Grid2>
+              )}
             </Grid2>
           </Grid2>
         </Grid2>
@@ -236,6 +333,11 @@ export const ProfilePage = () => {
                 }}
               />
             </Grid2>
+            <Grid2 size={{ xs: 12, sm: 6 }}>
+              <Typography color="error" sx={{ mt: 1 }}>
+                {errorEmail}
+              </Typography>
+            </Grid2>
           </Grid2>
           <Button
             variant="contained"
@@ -260,12 +362,22 @@ export const ProfilePage = () => {
                 variant="outlined"
                 fullWidth
                 margin="normal"
-                type="password"
+                type={showCurrent ? "text" : "password"} // <-- Toggle de visibilidad
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 InputProps={{
-                  style: {
-                    borderRadius: "8px",
-                  },
+                  style: { borderRadius: "8px" },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle current password visibility"
+                        onClick={handleClickShowCurrent}
+                        onMouseDown={handleMouseDownPassword}
+                      >
+                        {showCurrent ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
               />
             </Grid2>
@@ -275,12 +387,22 @@ export const ProfilePage = () => {
                 variant="outlined"
                 fullWidth
                 margin="normal"
-                type="password"
+                type={showNew ? "text" : "password"}
+                value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 InputProps={{
-                  style: {
-                    borderRadius: "8px",
-                  },
+                  style: { borderRadius: "8px" },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle new password visibility"
+                        onClick={handleClickShowNew}
+                        onMouseDown={handleMouseDownPassword}
+                      >
+                        {showNew ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
               />
             </Grid2>
@@ -290,14 +412,29 @@ export const ProfilePage = () => {
                 variant="outlined"
                 fullWidth
                 margin="normal"
-                type="password"
+                type={showRepeat ? "text" : "password"}
+                value={repeatPassword}
                 onChange={(e) => setRepeatPassword(e.target.value)}
                 InputProps={{
-                  style: {
-                    borderRadius: "8px",
-                  },
+                  style: { borderRadius: "8px" },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle repeat password visibility"
+                        onClick={handleClickShowRepeat}
+                        onMouseDown={handleMouseDownPassword}
+                      >
+                        {showRepeat ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
               />
+            </Grid2>
+            <Grid2 size={{ xs: 12, sm: 6 }}>
+              <Typography color="error" sx={{ mt: 1 }}>
+                {errorContraseña}
+              </Typography>
             </Grid2>
           </Grid2>
           <Button
@@ -338,12 +475,7 @@ export const ProfilePage = () => {
             onChange={handleChange}
             value={image}
             sx={{ width: "100%", borderRadius: "8px", mr: 2 }}
-            getInputText={(files) =>
-              files?.length === 1
-                ? "1 archivo seleccionado"
-                : `${files?.length} archivos seleccionados`
-            }
-            multiple
+            getInputText={(file) => file?.name || ""}
             inputProps={{ accept: ".png, .jpeg, .jpg, .pdf" }}
           />
           <Button
@@ -357,6 +489,9 @@ export const ProfilePage = () => {
             Subir
           </Button>
         </Grid2>
+        <Typography color="error" sx={{ mt: 1 }}>
+          {errorImagen}
+        </Typography>
       </Grid2>
     </Grid2>
   );

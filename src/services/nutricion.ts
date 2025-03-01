@@ -3,6 +3,5 @@ import {api} from '../config/apis/api';
 
 export const getPlanNutricionalByUserIdRequest = async (id: number) => {
   const {data} = await api.get(`/plan-nutricional/${id}`);
-  console.log('Plan Nutricional: ', JSON.stringify(data, null, 2));
   return data;
 };

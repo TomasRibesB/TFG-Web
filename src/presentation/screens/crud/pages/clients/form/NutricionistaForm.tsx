@@ -79,7 +79,6 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
       paciente: selectedClient as User,
       nutricionista: selectedClient as User, // Ajusta según corresponda
     };
-    console.log("Guardando plan nutricional:", newPlan);
     setCreatedPlans([...createdPlans, newPlan]);
     setOpenPlanModal(false);
   };

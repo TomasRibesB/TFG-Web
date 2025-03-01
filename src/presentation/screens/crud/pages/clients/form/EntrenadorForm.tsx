@@ -103,12 +103,6 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
   };
 
   const handleSaveRoutine = () => {
-    console.log(
-      "Guardando rutina:",
-      routineName,
-      routineDescription,
-      addedExercises
-    );
     // Aquí se podría enviar la rutina a un servicio y luego reiniciar el modal
     setRoutineName("");
     setRoutineDescription("");

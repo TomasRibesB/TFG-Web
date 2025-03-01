@@ -56,7 +56,6 @@ export const useAuth = () => {
 
   const authRedirection = async () => {
     const user = await StorageAdapter.getItem<Partial<User>>("user");
-    console.log("user", user);
 
     if (user && user.token) {
       if (isTokenExpired(user.token)) {
