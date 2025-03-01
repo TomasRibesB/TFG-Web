@@ -4,7 +4,6 @@ import {StorageAdapter} from '../config/adapters/storage-adapter';
 
 export const loginRequest = async (email: string, password: string) => {
   const {data} = await api.post('/auth/login', {email, password});
-  await StorageAdapter.setItem('user', data);
   return data;
 };
 

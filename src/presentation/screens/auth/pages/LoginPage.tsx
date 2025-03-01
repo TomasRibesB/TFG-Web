@@ -8,17 +8,17 @@ import {
   IconButton,
   InputAdornment,
 } from "@mui/material";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { AuthLayout } from "../layout/AuthLayout";
-import { loginRequest } from "../../../../services/auth"; // Llama al servicio de login
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const LoginPage = () => {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const { login } = useAuth();
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -53,10 +53,14 @@ export const LoginPage = () => {
         setError("La contraseña debe tener entre 6 y 50 caracteres");
         return;
       }
-      // Llamada al servicio de login
-      await loginRequest(email, password);
-      // Redirige a la home u otra ruta en caso de éxito
-      navigate("/");
+
+      const result = await login(email, password);
+      if (result) {
+        setError(result);
+        return;
+      } else {
+        setError("");
+      }
     } catch (err) {
       setError("No se pudo iniciar sesión");
       console.error(err);

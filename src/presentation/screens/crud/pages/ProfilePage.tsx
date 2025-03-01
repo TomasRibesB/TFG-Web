@@ -216,40 +216,38 @@ export const ProfilePage = () => {
               </Grid2>
 
               {/* Certificación */}
-              {user.role !== Role.Usuario && (
-                <Grid2>
-                  <Chip
-                    icon={
-                      user.userTipoProfesionales?.some(
-                        (tipo) => tipo.certificadora
-                      ) ? (
-                        <Verified />
-                      ) : (
-                        <Pending />
-                      )
-                    }
-                    label={
-                      user.userTipoProfesionales?.some(
-                        (tipo) => tipo.certificadora
-                      )
-                        ? `Certificado por ${user.userTipoProfesionales
-                            ?.filter((tipo) => tipo.certificadora)
-                            .map((tipo) => tipo.certificadora)
-                            .join(", ")}`
-                        : "Sin certificar"
-                    }
-                    color={
-                      user.userTipoProfesionales?.some(
-                        (tipo) => tipo.certificadora
-                      )
-                        ? "success"
-                        : "warning"
-                    }
-                    variant="outlined"
-                    sx={{ mb: 1 }}
-                  />
-                </Grid2>
-              )}
+              <Grid2>
+                <Chip
+                  icon={
+                    user.userTipoProfesionales?.some(
+                      (tipo) => tipo.certificadora
+                    ) ? (
+                      <Verified />
+                    ) : (
+                      <Pending />
+                    )
+                  }
+                  label={
+                    user.userTipoProfesionales?.some(
+                      (tipo) => tipo.certificadora
+                    )
+                      ? `Certificado por ${user.userTipoProfesionales
+                          ?.filter((tipo) => tipo.certificadora)
+                          .map((tipo) => tipo.certificadora)
+                          .join(", ")}`
+                      : "Sin certificar"
+                  }
+                  color={
+                    user.userTipoProfesionales?.some(
+                      (tipo) => tipo.certificadora
+                    )
+                      ? "success"
+                      : "warning"
+                  }
+                  variant="outlined"
+                  sx={{ mb: 1 }}
+                />
+              </Grid2>
             </Grid2>
           </Grid2>
         </Grid2>

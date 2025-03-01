@@ -4,6 +4,7 @@ import { loginRequest, registerRequest } from "../../services/auth";
 import { isTokenExpired } from "../../utils/tokenUtils";
 import { initialFetch } from "../../services/fetch";
 import { User } from "../../infrastructure/interfaces/user";
+import { Role } from "../../infrastructure/enums/roles";
 
 export const useAuth = () => {
   const navigate = useNavigate();
@@ -12,11 +13,17 @@ export const useAuth = () => {
   const login = async (email: string, password: string) => {
     try {
       const data = await loginRequest(email, password);
+      if (data.role && data.role == Role.Usuario) {
+        return 'Esta aplicación es solo para profesionales de la salud';
+      }
+      console.log("continua");
       await StorageAdapter.setItem("user", data);
       // Redirige al loader
       navigate("/loader", { replace: true });
+      return;
     } catch (err) {
       console.log(err);
+      return 'Usuario o contraseña incorrectos';
     }
   };
 
@@ -59,10 +66,7 @@ export const useAuth = () => {
 
     if (user && user.token) {
       if (isTokenExpired(user.token)) {
-        await StorageAdapter.clear();
-        if (!location.pathname.startsWith("/auth")) {
-          navigate("/auth", { replace: true });
-        }
+        await logout();
         return;
       }
       await initialFetch();

@@ -14,28 +14,29 @@ import {
   InputAdornment,
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import { Delete } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
 import { AuthLayout } from "../layout/AuthLayout";
 import { MuiFileInput } from "mui-file-input";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import React, { useState } from "react";
-import { registerRequest } from "../../../../services/auth";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const RegisterPage = () => {
   const [value, setValue] = useState<File[] | undefined>(undefined);
-  const navigate = useNavigate();
 
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [dni, setDni] = useState("");
   const [profesion, setProfesion] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const { register } = useAuth();
 
   interface HandleChangeEvent {
     target: {
@@ -103,9 +104,16 @@ export const RegisterPage = () => {
     // Aquí se pueden agregar validaciones adicionales según se requiera
 
     try {
-      // Se podría enviar también nombre, apellido, profesión y comprobante si el servicio lo soporta
-      await registerRequest({email, password, firstName: nombre, lastName: apellido, dni: ""});
-      navigate("/"); // Redirige a la ruta deseada
+      await register(email, password, nombre, apellido, dni);
+      setNombre("");
+      setApellido("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setDni("");
+      setProfesion("");
+      setValue(undefined);
+      setTermsAccepted(false);
     } catch (err) {
       setError("No se pudo registrar");
       console.error(err);
@@ -237,40 +245,66 @@ export const RegisterPage = () => {
               }}
             />
           </Grid2>
-          {/* Profesión */}
+          {/* Dni */}
           <Grid2 size={{ xs: 12, md: 6 }}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>Profesión</InputLabel>
-              <Select
-                value={profesion}
-                onChange={(e) => {
-                  setProfesion(e.target.value);
-                  setError("");
-                }}
-                label="Profesión"
-                placeholder="Tipo de usuario"
-                style={{ borderRadius: "8px" }}
-              >
-                <MenuItem value="nutricionista">Nutricionista</MenuItem>
-                <MenuItem value="entrenador">Entrenador</MenuItem>
-                <MenuItem value="profesional">
-                  Profesional de la salud
-                </MenuItem>
-              </Select>
-            </FormControl>
+            <TextField
+              value={dni}
+              onChange={(e) => {
+                setDni(e.target.value);
+                setError("");
+              }}
+              label="DNI"
+              variant="outlined"
+              fullWidth
+              placeholder="DNI"
+              InputProps={{
+                style: {
+                  borderRadius: "8px",
+                },
+              }}
+            />
           </Grid2>
-          {/* Comprobante de profesión */}
-          <Grid2 container size={12}>
-            <Grid2 size={10}>
+
+          <Grid2 container size={12} spacing={2}>
+            <Grid2 size={6}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Profesión</InputLabel>
+                <Select
+                  value={profesion}
+                  onChange={(e) => {
+                    setProfesion(e.target.value);
+                    setError("");
+                  }}
+                  label="Profesión"
+                  placeholder="Tipo de usuario"
+                  style={{ borderRadius: "8px" }}
+                >
+                  <MenuItem value="nutricionista">Nutricionista</MenuItem>
+                  <MenuItem value="entrenador">Entrenador</MenuItem>
+                  <MenuItem value="profesional">
+                    Profesional de la salud
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid2>
+            <Grid2 size={6}>
               <MuiFileInput
                 InputProps={{
                   style: {
                     borderRadius: "8px",
                   },
+                  inputProps: {
+                    accept: "video/*",
+                  },
+                  startAdornment: <UploadFileIcon />,
                 }}
                 label="Certificado Profesional"
                 onChange={handleChange}
                 value={value}
+                clearIconButtonProps={{
+                  title: "Limpiar",
+                  children: <Delete />,
+                }}
                 fullWidth
                 getInputText={(files) =>
                   files?.length === 1
@@ -280,16 +314,6 @@ export const RegisterPage = () => {
                 multiple
                 inputProps={{ accept: ".png, .jpeg, .jpg, .pdf" }}
               />
-            </Grid2>
-            <Grid2
-              size={2}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <UploadFileIcon style={{ fontSize: 40 }} color="primary" />
             </Grid2>
           </Grid2>
           {/* Aceptar términos */}
