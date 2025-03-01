@@ -7,30 +7,15 @@ import {
   Chip,
   Divider,
 } from "@mui/material";
-import { Verified, Pending, ErrorOutline } from "@mui/icons-material";
+import { Verified, Pending } from "@mui/icons-material";
 import { MuiFileInput } from "mui-file-input";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "../../../../infrastructure/interfaces/user";
 import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
+import { Role } from "../../../../infrastructure/enums/roles";
 
 export const ProfilePage = () => {
-  // Ejemplo de estado de certificación
-  const certificationStatus = "Verificada"; // Puede ser "Pendiente", "Denegada"
-
-  // Selección de icono y color según el estado
-  const getStatusIcon = () => {
-    if (certificationStatus === "Verificada") return <Verified />;
-    if (certificationStatus === "Pendiente") return <Pending />;
-    return <ErrorOutline />;
-  };
-
-  const getStatusColor = () => {
-    if (certificationStatus === "Verificada") return "success";
-    if (certificationStatus === "Pendiente") return "warning";
-    return "error";
-  };
-
-  const [value, setValue] = useState<File[] | undefined>(undefined);
+  const [image, setValue] = useState<File[] | undefined>(undefined);
   const [user, setUser] = useState<Partial<User>>({});
   const [loading, setLoading] = useState(false);
   const [fristName, setFristName] = useState("");
@@ -42,11 +27,11 @@ export const ProfilePage = () => {
 
   interface HandleChangeEvent {
     target: {
-      value: File[] | undefined;
+      image: File[] | undefined;
     };
   }
 
-  const handleChange = (newValue: HandleChangeEvent["target"]["value"]) => {
+  const handleChange = (newValue: HandleChangeEvent["target"]["image"]) => {
     setValue(newValue);
   };
 
@@ -62,6 +47,18 @@ export const ProfilePage = () => {
     setLastName(user.lastName || "");
     setEmail(user.email || "");
     setLoading(false);
+  };
+
+  const handleSaveChanges = () => {
+    setLoading(true);
+  };
+
+  const handleChangePassword = () => {
+    setLoading(true);
+  };
+
+  const handleUploadImage = () => {
+    setLoading(true);
   };
 
   return (
@@ -80,37 +77,82 @@ export const ProfilePage = () => {
             backgroundColor: "background.paper",
           }}
         >
-          <Grid2 container spacing={2} direction="column" alignItems="center">
+          <Grid2 container spacing={2} direction="row" alignItems="center">
+            {/* Avatar a la izquierda */}
             <Grid2>
               <Avatar
                 alt="Foto de Perfil"
                 src="/ruta/a/tu/foto.jpg"
-                sx={{ width: 120, height: 120 }}
-              />
+                sx={{
+                  width: 120,
+                  height: 120,
+                  bgcolor: "primary.main",
+                  fontSize: 48,
+                }}
+              >
+                {user.firstName?.charAt(0).toUpperCase()}
+              </Avatar>
             </Grid2>
-            <Grid2>
-              <Typography variant="h5" sx={{ mb: 1, textAlign: "center" }}>
-                Certificación Profesional
-              </Typography>
-            </Grid2>
-            <Grid2>
-              <Chip
-                icon={getStatusIcon()}
-                label={certificationStatus}
-                color={getStatusColor()}
-                variant="outlined"
-                sx={{ mb: 1 }}
-              />
-            </Grid2>
-            <Grid2>
-              <Typography variant="body1" sx={{ textAlign: "center" }}>
-                Profesión: Nutricionista
-              </Typography>
-            </Grid2>
-            <Grid2>
-              <Typography variant="body1" sx={{ textAlign: "center" }}>
-                Rol: Profesional de la Salud
-              </Typography>
+
+            {/* Columna de información a la derecha */}
+            <Grid2 container direction="column" spacing={1}>
+              {/* Nombre */}
+              <Grid2>
+                <Typography variant="body1">
+                  {(user.firstName?.charAt(0)?.toUpperCase() ?? "") +
+                    user.firstName?.slice(1).toLowerCase()}{" "}
+                  {(user.lastName?.charAt(0).toUpperCase() ?? "") +
+                    user.lastName?.slice(1).toLowerCase()}
+                </Typography>
+              </Grid2>
+
+              {/* Profesión */}
+              <Grid2>
+                <Typography variant="body1">
+                  {user.role === Role.Profesional
+                    ? "Profesional - " +
+                      (user.userTipoProfesionales
+                        ?.map((tipo) => tipo.tipoProfesional?.profesion)
+                        .filter((profesion) => profesion !== undefined)
+                        .join(", ") || "N/E")
+                    : (user.role?.charAt(0).toUpperCase() ?? "") +
+                      (user.role?.slice(1).toLocaleLowerCase() ?? "")}
+                </Typography>
+              </Grid2>
+
+              {/* Certificación */}
+              <Grid2>
+                <Chip
+                  icon={
+                    user.userTipoProfesionales?.some(
+                      (tipo) => tipo.certificadora
+                    ) ? (
+                      <Verified />
+                    ) : (
+                      <Pending />
+                    )
+                  }
+                  label={
+                    user.userTipoProfesionales?.some(
+                      (tipo) => tipo.certificadora
+                    )
+                      ? `Certificado por ${user.userTipoProfesionales
+                          ?.filter((tipo) => tipo.certificadora)
+                          .map((tipo) => tipo.certificadora)
+                          .join(", ")}`
+                      : "Sin certificar"
+                  }
+                  color={
+                    user.userTipoProfesionales?.some(
+                      (tipo) => tipo.certificadora
+                    )
+                      ? "success"
+                      : "warning"
+                  }
+                  variant="outlined"
+                  sx={{ mb: 1 }}
+                />
+              </Grid2>
             </Grid2>
           </Grid2>
         </Grid2>
@@ -153,6 +195,7 @@ export const ProfilePage = () => {
                 variant="outlined"
                 fullWidth
                 margin="normal"
+                disabled
                 value={fristName}
                 onChange={(e) => setFristName(e.target.value)}
                 InputProps={{
@@ -170,6 +213,7 @@ export const ProfilePage = () => {
                 margin="normal"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
+                disabled
                 InputProps={{
                   style: {
                     borderRadius: "8px",
@@ -198,6 +242,11 @@ export const ProfilePage = () => {
             color="primary"
             sx={{ mt: 3, borderRadius: "8px" }}
             size="large"
+            disabled={
+              ((!fristName || !lastName || !email) && email !== user.email) ||
+              loading
+            }
+            onClick={handleSaveChanges}
           >
             Guardar Cambios
           </Button>
@@ -212,6 +261,7 @@ export const ProfilePage = () => {
                 fullWidth
                 margin="normal"
                 type="password"
+                onChange={(e) => setPassword(e.target.value)}
                 InputProps={{
                   style: {
                     borderRadius: "8px",
@@ -226,6 +276,7 @@ export const ProfilePage = () => {
                 fullWidth
                 margin="normal"
                 type="password"
+                onChange={(e) => setNewPassword(e.target.value)}
                 InputProps={{
                   style: {
                     borderRadius: "8px",
@@ -240,6 +291,7 @@ export const ProfilePage = () => {
                 fullWidth
                 margin="normal"
                 type="password"
+                onChange={(e) => setRepeatPassword(e.target.value)}
                 InputProps={{
                   style: {
                     borderRadius: "8px",
@@ -253,6 +305,14 @@ export const ProfilePage = () => {
             color="primary"
             sx={{ mt: 3, borderRadius: "8px" }}
             size="large"
+            disabled={
+              !password ||
+              !newPassword ||
+              !repeatPassword ||
+              newPassword !== repeatPassword ||
+              loading
+            }
+            onClick={handleChangePassword}
           >
             Cambiar Contraseña
           </Button>
@@ -276,7 +336,7 @@ export const ProfilePage = () => {
             }}
             label="Subir Imagen de Perfil"
             onChange={handleChange}
-            value={value}
+            value={image}
             sx={{ width: "100%", borderRadius: "8px", mr: 2 }}
             getInputText={(files) =>
               files?.length === 1
@@ -291,7 +351,8 @@ export const ProfilePage = () => {
             color="primary"
             sx={{ borderRadius: "8px" }}
             size="large"
-            disabled={!value}
+            disabled={!image || loading}
+            onClick={handleUploadImage}
           >
             Subir
           </Button>

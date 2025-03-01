@@ -1,5 +1,5 @@
 // src/components/DrawerNavigator.tsx
-import * as React from "react";
+import React, { useEffect } from "react";
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import { Link, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
@@ -10,7 +10,6 @@ import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import {Link as RouterLink} from "react-router-dom";
 import {
   Menu as MenuIcon,
   ChevronLeft,
@@ -18,7 +17,6 @@ import {
   Inbox as InboxIcon,
   Home as HomeIcon,
   Groups2 as ClientsIcon,
-  AccountBox as AccountBoxIcon,
   Logout,
   NotificationsNone,
 } from "@mui/icons-material";
@@ -27,6 +25,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import NexoHealthIcon from "/nexoHealthIcon.svg";
+import { Avatar } from "@mui/material";
+import { User } from "../../../../infrastructure/interfaces/user";
+import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
+import { Role } from "../../../../infrastructure/enums/roles";
+import { useAuth } from "../../../hooks/useAuth";
 
 const drawerWidth = 240;
 
@@ -102,6 +105,16 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [user, setUser] = React.useState<Partial<User>>({});
+
+  useEffect(() => {
+    fetch();
+  }, []);
+
+  const fetch = async () => {
+    const user: Partial<User> = (await StorageAdapter.getItem("user")) || {};
+    setUser(user);
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -129,7 +142,6 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const menuItems = [
-    { text: "Perfil", icon: <AccountBoxIcon />, path: "/main/profile" },
     { text: "Home", icon: <HomeIcon />, path: "/main" },
     { text: "Clientes", icon: <ClientsIcon />, path: "/main/clients" },
     { text: "Tickets", icon: <InboxIcon />, path: "/main/tickets" },
@@ -142,7 +154,6 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
         position="fixed"
         open={open}
         sx={{ backgroundColor: "background.paper", color: "text.primary" }}
-        
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
           {/* Izquierda: Menu Icon y location.pathname */}
@@ -192,10 +203,35 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
 
           {/* Derecha: Botones de notificaciones y logout */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Link to="/main/profile" style={{ textDecoration: "none" }}>
+              <Box sx={{ display: { display: "flex", alignItems: "center" } }}>
+                <Avatar sx={{ bgcolor: "primary.main" }}>
+                  {user.firstName?.charAt(0).toUpperCase()}
+                </Avatar>
+                <Box sx={{ display: "flex", flexDirection: "column", mr: 3 }}>
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    {(user.firstName?.charAt(0)?.toUpperCase() ?? "") +
+                      user.firstName?.slice(1).toLowerCase()}{" "}
+                    {(user.lastName?.charAt(0).toUpperCase() ?? "") +
+                      user.lastName?.slice(1).toLowerCase()}
+                  </Typography>
+                  <Typography variant="caption" sx={{ ml: 1 }}>
+                    {user.role === Role.Profesional
+                      ? "Profesional - " +
+                        (user.userTipoProfesionales
+                          ?.map((tipo) => tipo.tipoProfesional?.profesion)
+                          .filter((profesion) => profesion !== undefined)
+                          .join(", ") || "N/E")
+                      : (user.role?.charAt(0).toUpperCase() ?? "") +
+                        (user.role?.slice(1).toLocaleLowerCase() ?? "")}
+                  </Typography>
+                </Box>
+              </Box>
+            </Link>
             <IconButton color="inherit">
               <NotificationsNone />
             </IconButton>
-            <IconButton color="inherit" component={RouterLink} to="/auth/login">
+            <IconButton color="inherit" onClick={useAuth().logout}>
               <Logout />
             </IconButton>
           </Box>
