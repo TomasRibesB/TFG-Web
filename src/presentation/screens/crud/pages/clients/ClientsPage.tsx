@@ -9,6 +9,7 @@ import {
   TextField,
   Typography,
   Box,
+  Button,
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { StorageAdapter } from "../../../../../config/adapters/storage-adapter";
@@ -24,6 +25,7 @@ import { getPlanTrainerByUserIdRequest } from "../../../../../services/entrenami
 import { Documento } from "../../../../../infrastructure/interfaces/documento";
 import { getDocumentosForProfesionalByUserRequest } from "../../../../../services/salud";
 import { ImageAvatar } from "../../../../components/ImageAvatar";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 export const ClientsPage = () => {
   const [loading, setLoading] = useState(false);
@@ -33,6 +35,7 @@ export const ClientsPage = () => {
   );
   const [user, setUser] = useState<Partial<User> | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+
   useEffect(() => {
     setLoading(true);
     fetch();
@@ -83,6 +86,7 @@ export const ClientsPage = () => {
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
+
   const filteredClients = clients.filter((client) => {
     const term = searchTerm.toLowerCase();
     return (
@@ -96,20 +100,38 @@ export const ClientsPage = () => {
     <Grid2
       container
       spacing={2}
-      direction="row"
       sx={{ height: "95.4%", backgroundColor: "primary.paper", pb: 4 }}
     >
+      {/* Listado de clientes */}
       <Grid2
+        size={{ xs: 12, md: 4, lg: 3 }}
         className="card-shadow"
-        size={3}
         sx={{
           backgroundColor: "background.paper",
-          padding: 2,
+          p: 2,
         }}
       >
-        <Typography variant="h6" gutterBottom>
-          Listado de Clientes
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", md: "center" },
+            mb: 2,
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            Listado de Clientes
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<PersonAddIcon />}
+            sx={{ mt: { xs: 2, md: 0 } }}
+          >
+            Agregar
+          </Button>
+        </Box>
         <TextField
           label="Buscar por nombre, apellido o DNI"
           variant="outlined"
@@ -141,12 +163,18 @@ export const ClientsPage = () => {
           )}
         </List>
       </Grid2>
+
+      {/* Detalle y acciones para el cliente seleccionado */}
       <Grid2
+        size={{
+          xs: 12,
+          md: 8,
+          lg: 9,
+        }}
         className="card-shadow"
-        size={9}
         sx={{
           backgroundColor: "background.paper",
-          padding: 2,
+          p: 2,
         }}
       >
         {selectedClient && (
@@ -155,10 +183,23 @@ export const ClientsPage = () => {
               Acciones para {selectedClient.firstName} {selectedClient.lastName}
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            <Box sx={{ display: "flex", gap: 2, alignItems: "center", mb: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                gap: 2,
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
               <ImageAvatar
                 user={selectedClient}
-                sx={{ height: 100, width: 100 , fontSize: "3rem", bgcolor: "primary.main" }}
+                sx={{
+                  height: 100,
+                  width: 100,
+                  fontSize: "3rem",
+                  bgcolor: "primary.main",
+                }}
                 onClickView
               />
               <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -170,6 +211,7 @@ export const ClientsPage = () => {
                     display: "flex",
                     gap: 2,
                     ml: 2,
+                    flexDirection: { xs: "column", md: "row" },
                   }}
                 >
                   {selectedClient.birthdate && (

@@ -40,7 +40,7 @@ export const ImageAvatar: React.FC<Props> = ({
           cursor: onClickView ? "pointer" : "default",
         }}
         style={{
-          borderRadius: 16,
+          borderRadius: "20%",
         }}
         onClick={handleOpen}
         {...avatarProps}

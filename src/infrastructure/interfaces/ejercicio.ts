@@ -11,7 +11,7 @@ export interface Ejercicio {
     explication?: string;
     keywords?: string;
     ejercicioRutina?: RutinaEjercicio[];
-    categoriaEjercicio: CategoriaEjercicio;
+    categoriaEjercicio: CategoriaEjercicio[];
     gruposMusculares: GruposMusculares[];
     unidadMedida: UnidadMedida;
   }
