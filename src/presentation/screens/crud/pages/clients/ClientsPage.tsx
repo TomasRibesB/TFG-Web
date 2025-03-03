@@ -21,11 +21,16 @@ import { ProfesionalSaludForm } from "./form/ProfesionalSaludForm";
 import { Role } from "../../../../../infrastructure/enums/roles";
 import { getPlanNutricionalByUserIdRequest } from "../../../../../services/nutricion";
 import { Routine } from "../../../../../infrastructure/interfaces/routine";
-import { getPlanTrainerByUserIdRequest } from "../../../../../services/entrenamiento";
+import {
+  getPlanTrainerByUserIdRequest,
+  getRelacionesEjericiosRequest,
+} from "../../../../../services/entrenamiento";
 import { Documento } from "../../../../../infrastructure/interfaces/documento";
 import { getDocumentosForProfesionalByUserRequest } from "../../../../../services/salud";
 import { ImageAvatar } from "../../../../components/ImageAvatar";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { GruposMusculares } from "../../../../../infrastructure/interfaces/grupos-musculares";
+import { CategoriaEjercicio } from "../../../../../infrastructure/interfaces/categoria-ejercicio";
 
 export const ClientsPage = () => {
   const [loading, setLoading] = useState(false);
@@ -33,6 +38,10 @@ export const ClientsPage = () => {
   const [selectedClient, setSelectedClient] = useState<Partial<User> | null>(
     null
   );
+  const [gruposMusculares, setGruposMusculares] = useState<GruposMusculares[]>(
+    []
+  );
+  const [categorias, setCategorias] = useState<CategoriaEjercicio[]>([]);
   const [user, setUser] = useState<Partial<User> | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -48,6 +57,17 @@ export const ClientsPage = () => {
     setUser(user);
     setClients(clients);
     setLoading(false);
+
+    if (user?.role === Role.Nutricionista) {
+      console.log("Nutricionista");
+    } else if (user?.role === Role.Profesional) {
+      console.log("Profesional");
+    } else if (user?.role === Role.Entrenador) {
+      const relaciones = await getRelacionesEjericiosRequest();
+      setGruposMusculares(relaciones.gruposMusculares);
+      setCategorias(relaciones.categorias);
+      console.log(relaciones);
+    }
   };
 
   const handeSelectClient = (client: Partial<User>) => {
@@ -237,7 +257,11 @@ export const ClientsPage = () => {
           </>
         )}
         {user && user.role === Role.Entrenador && (
-          <EntrenadorForm selectedClient={selectedClient} />
+          <EntrenadorForm
+            selectedClient={selectedClient}
+            gruposMusculares={gruposMusculares}
+            categoriasEjercicio={categorias}
+          />
         )}
         {user && user.role === Role.Nutricionista && (
           <NutricionistaForm selectedClient={selectedClient} />

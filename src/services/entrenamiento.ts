@@ -19,15 +19,21 @@ export const updateRoutineRequest = async (routine: Partial<Routine>) => {
 
 export const getEjerciciosRequest = async (
   search: string = "",
-  categoriaId: number = 0,
-  grupoId: number = 0
+  categoriaId: number[] = [],
+  grupoId: number[] = []
 ) => {
-  const params: { search?: string; categoriaId?: number; grupoId?: number } =
+  const params: { search?: string; categoria?: string; grupoMuscular?: string } =
     {};
   if (search !== "") params.search = search;
-  if (categoriaId !== 0) params.categoriaId = categoriaId;
-  if (grupoId !== 0) params.grupoId = grupoId;
+  if (categoriaId.length > 0) params.categoria = categoriaId.join(",");
+  if (grupoId.length > 0) params.grupoMuscular = grupoId.join(",");
+
 
   const { data } = await api.get("/ejercicios", { params });
   return data;
 };
+
+export const getRelacionesEjericiosRequest = async () => {
+  const { data } = await api.get("/ejercicios/relations");
+  return data;
+}

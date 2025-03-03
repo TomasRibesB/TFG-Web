@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Box,
@@ -15,11 +16,12 @@ import {
   DialogContent,
   DialogActions,
   Grid,
+  Autocomplete,
+  Grid2,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
-import { useState, useEffect } from "react";
 import { User } from "../../../../../../infrastructure/interfaces/user";
 import { Ejercicio } from "../../../../../../infrastructure/interfaces/ejercicio";
 import { RutinaEjercicio } from "../../../../../../infrastructure/interfaces/rutina-ejercicio";
@@ -30,42 +32,61 @@ import {
 } from "../../../../../../services/entrenamiento";
 import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 import { UnidadMedida } from "../../../../../../infrastructure/enums/unidadMedida";
+import { GruposMusculares } from "../../../../../../infrastructure/interfaces/grupos-musculares";
+import { CategoriaEjercicio } from "../../../../../../infrastructure/interfaces/categoria-ejercicio";
 
 interface Props {
   selectedClient: Partial<User> | null;
+  gruposMusculares: GruposMusculares[];
+  categoriasEjercicio: CategoriaEjercicio[];
 }
 
-export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
+export const EntrenadorForm: React.FC<Props> = ({
+  selectedClient,
+  gruposMusculares,
+  categoriasEjercicio,
+}) => {
   const [routineName, setRoutineName] = useState("");
   const [routineDescription, setRoutineDescription] = useState("");
   const [addedExercises, setAddedExercises] = useState<RutinaEjercicio[]>([]);
   const [exerciseSearch, setExerciseSearch] = useState("");
-  const [exerciseSearchGroup, setExerciseSearchGroup] = useState("");
-  const [exerciseSearchCategory, setExerciseSearchCategory] = useState("");
+  const [exerciseSearchMuscularGroup, setExerciseSearchMuscularGroup] =
+    useState<GruposMusculares[]>([]);
+  const [exerciseSearchCategory, setExerciseSearchCategory] = useState<
+    CategoriaEjercicio[]
+  >([]);
   const [filteredExercises, setFilteredExercises] = useState<Ejercicio[]>([]);
   const [currentRoutine, setCurrentRoutine] = useState<Partial<Routine> | null>(
     null
   );
   const [openRoutineModal, setOpenRoutineModal] = useState(false);
 
-  // Búsqueda de ejercicios (con debounce)
+  // Búsqueda de ejercicios con debounce y filtros (search, categoría y grupo muscular)
   useEffect(() => {
-    if (!exerciseSearch && !exerciseSearchCategory && !exerciseSearchGroup) {
+    if (
+      !exerciseSearch &&
+      exerciseSearchCategory.length === 0 &&
+      exerciseSearchMuscularGroup.length === 0
+    ) {
       setFilteredExercises([]);
       return;
     }
     const timer = setTimeout(async () => {
       const ejercicios = await getEjerciciosRequest(
         exerciseSearch,
-        exerciseSearchCategory ? +exerciseSearchCategory : 0,
-        exerciseSearchGroup ? +exerciseSearchGroup : 0
+        exerciseSearchCategory.length
+          ? exerciseSearchCategory.map((c) => c.id)
+          : [],
+        exerciseSearchMuscularGroup.length
+          ? exerciseSearchMuscularGroup.map((g) => g.id)
+          : []
       );
       setFilteredExercises(ejercicios);
     }, 1000);
     return () => clearTimeout(timer);
-  }, [exerciseSearch, exerciseSearchCategory, exerciseSearchGroup]);
+  }, [exerciseSearch, exerciseSearchCategory, exerciseSearchMuscularGroup]);
 
-  // Agregar ejercicio a la rutina con valores por defecto
+  // Función para agregar ejercicio a la rutina con valores por defecto
   const addExerciseToRoutine = (exercise: Ejercicio) => {
     const newRutinaEjercicio: RutinaEjercicio = {
       id: Date.now(), // id temporal para demo
@@ -101,25 +122,22 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
     setAddedExercises(addedExercises.filter((ex) => ex.id !== id));
   };
 
-  // Al guardar, se arma el objeto DTO de actualización
+  // Función para actualizar la rutina (usar handleUpdateRoutine o handleSaveRoutine según corresponda)
   const handleUpdateRoutine = async () => {
     if (!selectedClient || !selectedClient.id || !currentRoutine) return;
 
-    // Mapeamos los ejercicios: se envía un arreglo de objetos con al menos el id
+    // Mapeamos los ejercicios para el DTO
     const ejerciciosDTO = addedExercises.map((rutEx) => ({
       id: rutEx.ejercicio.id,
-      // Puedes incluir otros campos si lo requiere el backend
     }));
 
     // Se envía la información completa de cada registro de ejercicio
     const ejerciciosRegistrosDTO = addedExercises.map((rutEx) => ({
-      // Aquí se envían todos los datos que espera el backend para cada RutinaEjercicio:
       id: rutEx.id,
       series: rutEx.series,
       repeticiones: rutEx.repeticiones,
       medicion: rutEx.medicion,
       fecha: rutEx.fecha,
-      // Puedes incluir, si es necesario, más información para vincular la relación
       ejercicio: { id: rutEx.ejercicio.id },
       routine: { id: currentRoutine.id },
     }));
@@ -135,11 +153,10 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
 
     const response = await updateRoutineRequest(updatedRoutineDto);
     if (response.data?.id) {
-      // Actualiza la rutina en el estado del cliente
       selectedClient.routines = (selectedClient.routines || []).map((rut) =>
         rut.id === currentRoutine.id ? (response.data as Routine) : rut
       );
-      // Reinicia los estados y cierra el modal
+      // Reiniciar estados y cerrar modal
       setRoutineName("");
       setRoutineDescription("");
       setAddedExercises([]);
@@ -150,7 +167,6 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
     }
   };
 
-  // Función para guardar una nueva rutina (si se requiere pasar también el DTO correspondiente)
   const handleSaveRoutine = async () => {
     if (!selectedClient || !selectedClient.id) return;
     const newRoutineDto = {
@@ -165,7 +181,6 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
         medicion: rutEx.medicion,
         fecha: rutEx.fecha,
         ejercicio: { id: rutEx.ejercicio.id },
-        // En creación, routine puede estar incompleto; el backend lo asigna posteriormente
       })),
     };
 
@@ -184,7 +199,7 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
     }
   };
 
-  // Abrir modal en modo creación o edición precargando datos
+  // Función para abrir el modal (modo creación o edición)
   const handleOpenModal = (routine?: Routine) => {
     if (routine) {
       setCurrentRoutine(routine);
@@ -321,7 +336,8 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
             value={routineDescription}
             onChange={(e) => setRoutineDescription(e.target.value)}
           />
-          {/* Buscador de Ejercicios */}
+
+          {/* Campo de búsqueda */}
           <TextField
             label="Buscar Ejercicio"
             variant="outlined"
@@ -330,6 +346,46 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
             value={exerciseSearch}
             onChange={(e) => setExerciseSearch(e.target.value)}
           />
+
+          {/* Filtro por Categoría */}
+          <Grid2 container spacing={2}>
+            <Grid2 size={{ xs: 12, md: 6 }}>
+              <Autocomplete
+                multiple
+                options={categoriasEjercicio}
+                getOptionLabel={(option) => option.name}
+                value={exerciseSearchCategory}
+                onChange={(event, newValue) =>
+                  setExerciseSearchCategory(newValue)
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Categoría" variant="outlined" />
+                )}
+                sx={{ my: 1 }}
+              />
+            </Grid2>
+            <Grid2 size={{ xs: 12, md: 6 }}>
+              {/* Filtro por Grupo Muscular */}
+              <Autocomplete
+                multiple
+                options={gruposMusculares}
+                getOptionLabel={(option) => option.name}
+                value={exerciseSearchMuscularGroup}
+                onChange={(event, newValue) =>
+                  setExerciseSearchMuscularGroup(newValue)
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Grupo Muscular"
+                    variant="outlined"
+                  />
+                )}
+                sx={{ my: 1 }}
+              />
+            </Grid2>
+          </Grid2>
+
           {filteredExercises.length > 0 && (
             <Box
               sx={{
@@ -363,7 +419,8 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
               ))}
             </Box>
           )}
-          {/* Lista de Ejercicios Agregados con inputs para editar series, repeticiones y medición */}
+
+          {/* Lista de Ejercicios Agregados */}
           {addedExercises.length > 0 && (
             <Box sx={{ mt: 2 }}>
               <Typography variant="h6" gutterBottom>
@@ -469,7 +526,6 @@ export const EntrenadorForm: React.FC<Props> = ({ selectedClient }) => {
         </DialogActions>
       </Dialog>
 
-      {/* FAB para abrir el modal de Crear Rutina */}
       <Fab
         color="primary"
         aria-label="add"
