@@ -20,37 +20,42 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import SetMealIcon from "@mui/icons-material/SetMeal";
+import BreakfastDiningIcon from "@mui/icons-material/BreakfastDining";
+import OpacityIcon from "@mui/icons-material/Opacity";
 import { useState } from "react";
 import { User } from "../../../../../../infrastructure/interfaces/user";
 import { PlanNutricional } from "../../../../../../infrastructure/interfaces/plan-nutricional";
-import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
-import LocalDiningIcon from "@mui/icons-material/LocalDining";
-import OpacityIcon from "@mui/icons-material/Opacity";
+import {
+  setPlanNutricionalRequest,
+  updatePlanNutricionalRequest,
+} from "../../../../../../services/nutricion";
 
 interface Props {
   selectedClient: Partial<User> | null;
 }
 
 export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
-  // Campos del plan nutricional
-  const [planName, setPlanName] = useState("");
-  const [planDescription, setPlanDescription] = useState("");
-  const [caloriasDiarias, setCaloriasDiarias] = useState("");
-  // En lugar de un input JSON, usaremos campos separados para cada macronutriente
-  const [proteinas, setProteinas] = useState("");
-  const [carbohidratos, setCarbohidratos] = useState("");
-  const [grasas, setGrasas] = useState("");
-  const [objetivos, setObjetivos] = useState("");
-  const [notasAdicionales, setNotasAdicionales] = useState("");
+  // Estados para los campos del plan nutricional
+  const [planName, setPlanName] = useState<string>("");
+  const [planDescription, setPlanDescription] = useState<string>("");
+  const [caloriasDiarias, setCaloriasDiarias] = useState<string>("");
+  const [proteinas, setProteinas] = useState<string>("");
+  const [carbohidratos, setCarbohidratos] = useState<string>("");
+  const [grasas, setGrasas] = useState<string>("");
+  const [objetivos, setObjetivos] = useState<string>("");
+  const [notasAdicionales, setNotasAdicionales] = useState<string>("");
 
   // Lista de planes creados en sesión
   const [createdPlans, setCreatedPlans] = useState<PlanNutricional[]>([]);
-
-  // Modal control para crear/editar plan
+  // Estado para el plan que se está editando
+  const [currentPlan, setCurrentPlan] = useState<PlanNutricional | null>(null);
+  // Modal control
   const [openPlanModal, setOpenPlanModal] = useState(false);
 
+  // Abrir modal en modo creación
   const handleOpenModal = () => {
-    // Reiniciamos todos los campos al abrir el modal
+    setCurrentPlan(null);
     setPlanName("");
     setPlanDescription("");
     setCaloriasDiarias("");
@@ -62,27 +67,84 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
     setOpenPlanModal(true);
   };
 
-  const handleSavePlan = () => {
-    const newPlan: PlanNutricional = {
-      id: Date.now(),
+  // Abrir modal en modo edición: precargar campos con el plan existente
+  const handleOpenEditModal = (plan: PlanNutricional) => {
+    setCurrentPlan(plan);
+    setPlanName(plan.nombre ?? "");
+    setPlanDescription(plan.descripcion ?? "");
+    setCaloriasDiarias((plan.caloriasDiarias ?? 0).toString());
+    setProteinas(plan.macronutrientes?.proteinas?.toString() ?? "");
+    setCarbohidratos(plan.macronutrientes?.carbohidratos?.toString() ?? "");
+    setGrasas(plan.macronutrientes?.grasas?.toString() ?? "");
+    setObjetivos(plan.objetivos ?? "");
+    setNotasAdicionales(plan.notasAdicionales ?? "");
+    setOpenPlanModal(true);
+  };
+
+  // Función para guardar un nuevo plan nutricional
+  const handleSavePlan = async () => {
+    if (!selectedClient || !selectedClient.id) return;
+    // Se arma el objeto DTO para la creación. Se usa "any" para incluir propiedades que no figuran en el interface del front.
+    const newPlan = {
       nombre: planName,
       descripcion: planDescription,
-      fechaCreacion: new Date(),
+      pacienteId: selectedClient.id,
+      objetivos,
       caloriasDiarias: parseFloat(caloriasDiarias) || 0,
       macronutrientes: {
         proteinas: parseFloat(proteinas) || 0,
         carbohidratos: parseFloat(carbohidratos) || 0,
         grasas: parseFloat(grasas) || 0,
       },
-      objetivos,
       notasAdicionales,
-      paciente: selectedClient as User,
-      nutricionista: selectedClient as User, // Ajusta según corresponda
     };
-    setCreatedPlans([...createdPlans, newPlan]);
-    setOpenPlanModal(false);
-  };
 
+    try {
+      const data = await setPlanNutricionalRequest(newPlan);
+      if (data?.id) {
+        selectedClient.planesNutricionales = [
+          ...(selectedClient.planesNutricionales || []),
+          data,
+        ];
+        setOpenPlanModal(false);
+      } else {
+        console.error("Error al guardar el plan nutricional", data);
+      }
+    } catch (error) {
+      console.error("Error al guardar el plan nutricional", error);
+    }
+  };
+  // Función para actualizar un plan existente
+  const handleUpdatePlan = async () => {
+    if (!selectedClient || !selectedClient.id || !currentPlan) return;
+    const updatedPlan = {
+      id: currentPlan.id,
+      nombre: planName,
+      descripcion: planDescription,
+      pacienteId: selectedClient.id,
+      objetivos,
+      caloriasDiarias: parseFloat(caloriasDiarias) || 0,
+      macronutrientes: {
+        proteinas: parseFloat(proteinas) || 0,
+        carbohidratos: parseFloat(carbohidratos) || 0,
+        grasas: parseFloat(grasas) || 0,
+      },
+      notasAdicionales,
+    };
+
+    const data = await updatePlanNutricionalRequest(updatedPlan);
+    if (data?.id) {
+      selectedClient.planesNutricionales = (
+        selectedClient.planesNutricionales || []
+      ).map((p) => (p.id === currentPlan.id ? data : p));
+      // Opcional: limpiar estados y cerrar modal
+      setCurrentPlan(null);
+      setOpenPlanModal(false);
+    } else {
+      console.error("Error al actualizar el plan nutricional", data);
+    }
+  };
+  // Función para eliminar un plan de la lista local (por ejemplo, en sesión)
   const removePlan = (id: number) => {
     setCreatedPlans(createdPlans.filter((plan) => plan.id !== id));
   };
@@ -95,7 +157,7 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
           <Typography variant="h6" gutterBottom>
             Planes Nutricionales
           </Typography>
-          {(selectedClient.planesNutricionales || []).map((plan) => (
+          {(selectedClient.planesNutricionales || createdPlans).map((plan) => (
             <Accordion
               key={plan.id}
               disableGutters
@@ -122,7 +184,7 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
                   <Typography variant="body2">Macronutrientes:</Typography>
                   <List dense>
                     <ListItem>
-                      <FitnessCenterIcon sx={{ mr: 1 }} color="primary" />
+                      <SetMealIcon sx={{ mr: 1 }} color="primary" />
                       <ListItemText
                         primary={`Proteínas: ${
                           plan.macronutrientes?.proteinas || 0
@@ -130,7 +192,7 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
                       />
                     </ListItem>
                     <ListItem>
-                      <LocalDiningIcon sx={{ mr: 1 }} color="primary" />
+                      <BreakfastDiningIcon sx={{ mr: 1 }} color="primary" />
                       <ListItemText
                         primary={`Carbohidratos: ${
                           plan.macronutrientes?.carbohidratos || 0
@@ -161,89 +223,11 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
                     gap: 1,
                   }}
                 >
-                  <Button variant="outlined" startIcon={<EditIcon />}>
-                    Editar Plan
-                  </Button>
                   <Button
                     variant="outlined"
-                    startIcon={<DeleteIcon />}
-                    onClick={() => removePlan(plan.id)}
+                    startIcon={<EditIcon />}
+                    onClick={() => handleOpenEditModal(plan)}
                   >
-                    Eliminar
-                  </Button>
-                </Box>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-
-          {/* Listado de planes creados en sesión */}
-          {createdPlans.map((plan) => (
-            <Accordion
-              key={plan.id}
-              disableGutters
-              TransitionProps={{ unmountOnExit: true }}
-            >
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  <Typography variant="subtitle1">{plan.nombre}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {plan.fechaCreacion
-                      ? new Date(plan.fechaCreacion).toLocaleDateString()
-                      : "Fecha no definida"}
-                  </Typography>
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography variant="body2" gutterBottom>
-                  {plan.descripcion || "Sin descripción"}
-                </Typography>
-                <Typography variant="body2">
-                  Calorías Diarias: {plan.caloriasDiarias || 0}
-                </Typography>
-                <Box sx={{ mt: 1 }}>
-                  <Typography variant="body2">Macronutrientes:</Typography>
-                  <List dense>
-                    <ListItem>
-                      <FitnessCenterIcon sx={{ mr: 1 }} color="primary" />
-                      <ListItemText
-                        primary={`Proteínas: ${
-                          plan.macronutrientes?.proteinas || 0
-                        } g`}
-                      />
-                    </ListItem>
-                    <ListItem>
-                      <LocalDiningIcon sx={{ mr: 1 }} color="primary" />
-                      <ListItemText
-                        primary={`Carbohidratos: ${
-                          plan.macronutrientes?.carbohidratos || 0
-                        } g`}
-                      />
-                    </ListItem>
-                    <ListItem>
-                      <OpacityIcon sx={{ mr: 1 }} color="primary" />
-                      <ListItemText
-                        primary={`Grasas: ${
-                          plan.macronutrientes?.grasas || 0
-                        } g`}
-                      />
-                    </ListItem>
-                  </List>
-                </Box>
-                <Typography variant="body2">
-                  Objetivos: {plan.objetivos || "No especificados"}
-                </Typography>
-                <Typography variant="body2">
-                  Notas Adicionales: {plan.notasAdicionales || "Sin notas"}
-                </Typography>
-                <Box
-                  sx={{
-                    mt: 1,
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    gap: 1,
-                  }}
-                >
-                  <Button variant="outlined" startIcon={<EditIcon />}>
                     Editar Plan
                   </Button>
                   <Button
@@ -260,7 +244,7 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
         </Box>
       )}
 
-      {/* Modal para Crear / Editar Plan Nutricional */}
+      {/* Modal para Crear/Editar Plan Nutricional */}
       <Dialog
         open={openPlanModal}
         onClose={() => setOpenPlanModal(false)}
@@ -268,7 +252,9 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
         maxWidth="sm"
       >
         <DialogTitle>
-          {planName ? "Editar Plan Nutricional" : "Crear Plan Nutricional"}
+          {currentPlan?.id
+            ? "Editar Plan Nutricional"
+            : "Crear Plan Nutricional"}
         </DialogTitle>
         <DialogContent dividers>
           <TextField
@@ -293,18 +279,17 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
             label="Calorías Diarias"
             variant="outlined"
             fullWidth
+            type="number"
             sx={{ my: 1, borderRadius: "8px" }}
             value={caloriasDiarias}
             onChange={(e) => setCaloriasDiarias(e.target.value)}
-            type="number"
           />
-          {/* Sección para ingresar macronutrientes de forma sencilla */}
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
               Macronutrientes (g)
             </Typography>
             <Grid2 container spacing={2}>
-              <Grid2 xs={12} sm={4}>
+              <Grid2 size={{ xs: 12, sm: 4 }}>
                 <TextField
                   label="Proteínas"
                   variant="outlined"
@@ -314,12 +299,12 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
                   onChange={(e) => setProteinas(e.target.value)}
                   InputProps={{
                     startAdornment: (
-                      <FitnessCenterIcon sx={{ mr: 1 }} color="primary" />
+                      <SetMealIcon sx={{ mr: 1 }} color="primary" />
                     ),
                   }}
                 />
               </Grid2>
-              <Grid2 xs={12} sm={4}>
+              <Grid2 size={{ xs: 12, sm: 4 }}>
                 <TextField
                   label="Carbohidratos"
                   variant="outlined"
@@ -329,12 +314,12 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
                   onChange={(e) => setCarbohidratos(e.target.value)}
                   InputProps={{
                     startAdornment: (
-                      <LocalDiningIcon sx={{ mr: 1 }} color="primary" />
+                      <BreakfastDiningIcon sx={{ mr: 1 }} color="primary" />
                     ),
                   }}
                 />
               </Grid2>
-              <Grid2 xs={12} sm={4}>
+              <Grid2 size={{ xs: 12, sm: 4 }}>
                 <TextField
                   label="Grasas"
                   variant="outlined"
@@ -374,13 +359,26 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
           <Button onClick={() => setOpenPlanModal(false)} color="secondary">
             Cancelar
           </Button>
-          <Button onClick={handleSavePlan} variant="contained" color="primary">
-            Guardar Plan
-          </Button>
+          {currentPlan?.id ? (
+            <Button
+              onClick={handleUpdatePlan}
+              variant="contained"
+              color="primary"
+            >
+              Actualizar Plan
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSavePlan}
+              variant="contained"
+              color="primary"
+            >
+              Guardar Plan
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
-      {/* FAB para abrir el modal de Crear Plan */}
       <Fab
         color="primary"
         aria-label="add"
