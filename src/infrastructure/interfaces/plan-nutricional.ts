@@ -12,4 +12,5 @@ export interface PlanNutricional {
   objetivos?: string;
   paciente?: User;
   nutricionista?: User;
+  fechaBaja?: Date | null;
 }

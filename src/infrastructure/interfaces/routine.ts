@@ -8,4 +8,5 @@ export interface Routine {
     rutinaEjercicio?: RutinaEjercicio[];
     user: User;
     trainer: User;
+    fechaBaja?: Date | null;
   }

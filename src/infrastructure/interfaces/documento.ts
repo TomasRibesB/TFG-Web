@@ -1,6 +1,6 @@
-import {User} from './user';
-import {TipoDocumento} from '../enums/tipoDocumentos';
-import {TipoProfesional} from './tipo-profesional';
+import { User } from "./user";
+import { TipoDocumento } from "../enums/tipoDocumentos";
+import { TipoProfesional } from "./tipo-profesional";
 
 export interface Documento {
   id: number;
@@ -17,4 +17,5 @@ export interface Documento {
   profesional?: User | null;
   usuario: User;
   visibilidad: User[];
+  fechaBaja?: Date | null;
 }
