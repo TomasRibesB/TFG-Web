@@ -121,6 +121,11 @@ export const EntrenadorForm: React.FC<Props> = ({
 
   const removeExerciseFromRoutine = async (id: number) => {
     await deleteRoutineRequest(id);
+    // Actualizamos selectedClient con response, obteniendo las rutinas, identificando el documento eliminado y le pongo la fechaBaja
+    if (!selectedClient || !selectedClient.id) return;
+    selectedClient.routines = (selectedClient.routines || []).map((rut) =>
+      rut.id === id ? { ...rut, fechaBaja: new Date() } : rut
+    );
     setAddedExercises(addedExercises.filter((ex) => ex.id !== id));
   };
 
@@ -234,7 +239,14 @@ export const EntrenadorForm: React.FC<Props> = ({
                 >
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
-                      <Typography variant="subtitle1">
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          color: routine.fechaBaja
+                            ? "error.main"
+                            : "text.primary",
+                        }}
+                      >
                         {routine.name}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -357,9 +369,7 @@ export const EntrenadorForm: React.FC<Props> = ({
                 options={categoriasEjercicio}
                 getOptionLabel={(option) => option.name}
                 value={exerciseSearchCategory}
-                onChange={(event, newValue) =>
-                  setExerciseSearchCategory(newValue)
-                }
+                onChange={(_, newValue) => setExerciseSearchCategory(newValue)}
                 renderInput={(params) => (
                   <TextField {...params} label="Categoría" variant="outlined" />
                 )}
@@ -373,7 +383,7 @@ export const EntrenadorForm: React.FC<Props> = ({
                 options={gruposMusculares}
                 getOptionLabel={(option) => option.name}
                 value={exerciseSearchMuscularGroup}
-                onChange={(event, newValue) =>
+                onChange={(_, newValue) =>
                   setExerciseSearchMuscularGroup(newValue)
                 }
                 renderInput={(params) => (

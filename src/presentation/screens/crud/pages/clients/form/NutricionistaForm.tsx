@@ -46,9 +46,6 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
   const [grasas, setGrasas] = useState<string>("");
   const [objetivos, setObjetivos] = useState<string>("");
   const [notasAdicionales, setNotasAdicionales] = useState<string>("");
-
-  // Lista de planes creados en sesión
-  const [createdPlans, setCreatedPlans] = useState<PlanNutricional[]>([]);
   // Estado para el plan que se está editando
   const [currentPlan, setCurrentPlan] = useState<PlanNutricional | null>(null);
   // Modal control
@@ -148,18 +145,24 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
   // Función para eliminar un plan de la lista local (por ejemplo, en sesión)
   const removePlan = async (id: number) => {
     await deletePlanNutricionalRequest(id);
-    setCreatedPlans(createdPlans.filter((plan) => plan.id !== id));
-  };
+    // Actualizamos selectedClient.planesnutricionales con response, obteniendo los planes nutricionales, identificando el documento eliminado y le pongo la fechaBaja
+    if (selectedClient?.planesNutricionales) {
+      selectedClient.planesNutricionales = selectedClient.planesNutricionales.map((p) =>
+        p.id === id ? { ...p, fechaBaja: new Date() } : p
+      );
+    }
+  }
+
 
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
       {/* Listado de Planes Nutricionales */}
-      {(selectedClient.planesNutricionales || createdPlans.length > 0) && (
+      {(selectedClient.planesNutricionales) && (
         <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
           <Typography variant="h6" gutterBottom>
             Planes Nutricionales
           </Typography>
-          {(selectedClient.planesNutricionales || createdPlans).map((plan) => (
+          {(selectedClient.planesNutricionales).map((plan) => (
             <Accordion
               key={plan.id}
               disableGutters
@@ -167,7 +170,14 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  <Typography variant="subtitle1">{plan.nombre}</Typography>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      color: plan.fechaBaja ? "error.main" : "text.primary",
+                    }}
+                  >
+                    {plan.nombre}
+                  </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {plan.fechaCreacion
                       ? new Date(plan.fechaCreacion).toLocaleDateString()

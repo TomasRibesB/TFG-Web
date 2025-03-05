@@ -139,8 +139,19 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
   };
 
   const removeDocument = async (id: number) => {
-    await deleteDocumentoRequest(id);
-    setCreatedDocuments(createdDocuments.filter((doc) => doc.id !== id));
+    const response = await deleteDocumentoRequest(id);
+    // Actualizamos selectedClient.documentos con response, obteniendo los documentos, identificando el documento eliminado y le pongo la fechaBaja
+    if (selectedClient?.documentos) {
+      selectedClient.documentos = selectedClient.documentos.map((doc) =>
+        doc.id === id ? { ...doc, fechaBaja: new Date() } : doc
+      );
+    }
+    setCreatedDocuments(
+      createdDocuments.map((doc) =>
+        doc.id === id ? { ...doc, fechaBaja: new Date() } : doc
+      )
+    );
+    console.log(response);
   };
 
   return selectedClient ? (
@@ -161,7 +172,14 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
               >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Box sx={{ display: "flex", flexDirection: "column" }}>
-                    <Typography variant="subtitle1">{doc.titulo}</Typography>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        color: doc.fechaBaja ? "error.main" : "text.primary",
+                      }}
+                    >
+                      {doc.titulo}
+                    </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {doc.fechaSubida
                         ? new Date(doc.fechaSubida).toLocaleDateString()
