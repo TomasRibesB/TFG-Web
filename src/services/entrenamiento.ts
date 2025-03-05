@@ -37,3 +37,8 @@ export const getRelacionesEjericiosRequest = async () => {
   const { data } = await api.get("/ejercicios/relations");
   return data;
 }
+
+export const deleteRoutineRequest = async (id: number) => {
+  const response = await api.delete(`/routines/${id}`);
+  return response;
+};

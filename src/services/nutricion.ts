@@ -23,3 +23,8 @@ export const updatePlanNutricionalRequest = async (
   );
   return data;
 };
+
+export const deletePlanNutricionalRequest = async (id: number) => {
+  const response = await api.delete(`/plan-nutricional/${id}`);
+  return response;
+}

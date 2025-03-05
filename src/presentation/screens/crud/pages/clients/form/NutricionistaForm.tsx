@@ -27,6 +27,7 @@ import { useState } from "react";
 import { User } from "../../../../../../infrastructure/interfaces/user";
 import { PlanNutricional } from "../../../../../../infrastructure/interfaces/plan-nutricional";
 import {
+  deletePlanNutricionalRequest,
   setPlanNutricionalRequest,
   updatePlanNutricionalRequest,
 } from "../../../../../../services/nutricion";
@@ -145,7 +146,8 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
     }
   };
   // Función para eliminar un plan de la lista local (por ejemplo, en sesión)
-  const removePlan = (id: number) => {
+  const removePlan = async (id: number) => {
+    await deletePlanNutricionalRequest(id);
     setCreatedPlans(createdPlans.filter((plan) => plan.id !== id));
   };
 

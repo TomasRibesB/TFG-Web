@@ -29,6 +29,7 @@ import {
   getEjerciciosRequest,
   setRoutineRequest,
   updateRoutineRequest,
+  deleteRoutineRequest,
 } from "../../../../../../services/entrenamiento";
 import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 import { UnidadMedida } from "../../../../../../infrastructure/enums/unidadMedida";
@@ -118,7 +119,8 @@ export const EntrenadorForm: React.FC<Props> = ({
     );
   };
 
-  const removeExerciseFromRoutine = (id: number) => {
+  const removeExerciseFromRoutine = async (id: number) => {
+    await deleteRoutineRequest(id);
     setAddedExercises(addedExercises.filter((ex) => ex.id !== id));
   };
 

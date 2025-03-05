@@ -51,3 +51,8 @@ export const getArchivoRequest = async (id: number) => {
   });
   return response.data;
 };
+
+export const deleteDocumentoRequest = async (id: number) => {
+  const response = await api.delete(`/documentos/${id}`);
+  return response;
+}

@@ -26,6 +26,7 @@ import { User } from "../../../../../../infrastructure/interfaces/user";
 import { Documento } from "../../../../../../infrastructure/interfaces/documento";
 import { TipoDocumento } from "../../../../../../infrastructure/enums/tipoDocumentos";
 import {
+  deleteDocumentoRequest,
   setDocumentoRequest,
   updateDocumentoRequest,
   uploadFileRequest,
@@ -112,7 +113,10 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
         // Actualizamos selectedClient.documentos si existe
         if (docFile) {
           // Subir archivo
-          const { response } = await uploadFileRequest(docFile, currentDocument.id);
+          const { response } = await uploadFileRequest(
+            docFile,
+            currentDocument.id
+          );
           console.log(response);
         }
         if (selectedClient.documentos) {
@@ -134,7 +138,8 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
     }
   };
 
-  const removeDocument = (id: number) => {
+  const removeDocument = async (id: number) => {
+    await deleteDocumentoRequest(id);
     setCreatedDocuments(createdDocuments.filter((doc) => doc.id !== id));
   };
 
