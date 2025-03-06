@@ -548,8 +548,8 @@ export const EntrenadorForm: React.FC<Props> = ({
       </Fab>
     </Box>
   ) : (
-    <Typography variant="h6">
-      Seleccione un cliente para ver los detalles y administrar rutinas.
-    </Typography>
+    <Typography variant="body1" sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}>
+    Seleccione un cliente para ver sus rutinas.
+  </Typography>
   );
 };

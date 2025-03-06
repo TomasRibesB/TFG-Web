@@ -309,8 +309,8 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
       </Fab>
     </Box>
   ) : (
-    <Typography variant="h6">
-      Seleccione un cliente para ver los detalles y administrar documentos.
+    <Typography variant="body1" sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}>
+      Seleccione un cliente para ver sus documentos.
     </Typography>
   );
 };

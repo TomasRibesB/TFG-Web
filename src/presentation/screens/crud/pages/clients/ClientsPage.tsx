@@ -141,7 +141,7 @@ export const ClientsPage = () => {
           }}
         >
           <Typography variant="h6" gutterBottom>
-            Listado de Clientes
+            Clientes
           </Typography>
           <Button
             variant="contained"

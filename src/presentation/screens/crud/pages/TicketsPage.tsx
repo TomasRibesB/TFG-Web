@@ -1,18 +1,64 @@
-import React from "react";
-import { Grid2 } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  Chip,
+  Button,
+  Typography,
+  Grid2,
+  Box,
+  Divider,
+} from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
+import InfoIcon from "@mui/icons-material/Info";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { Chat } from "../../../components/Chat"; // ajusta la ruta según corresponda
+import { getTicketsRequest } from "../../../../services/tickets";
+import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
+import { Ticket } from "../../../../infrastructure/interfaces/ticket";
+import { User } from "../../../../infrastructure/interfaces/user";
 
-export const TicketsPage = () => {
-  // Para demostrar, supongamos que obtienes ticketId y userId de algún hook o StorageAdapter
-  const ticketId = 4; // Ejemplo
-  const userId = 10; // Ejemplo
+export const TicketsPage: React.FC = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [user, setUser] = useState<Partial<User> | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const ticketsData = await getTicketsRequest();
+      setTickets(ticketsData);
+      const user: Partial<User> | null = await StorageAdapter.getItem("user");
+      setUser(user);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSelectTicket = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+  };
+
+  const handleAccept = (id: number) => {
+    // Lógica para aceptar el ticket
+    console.log("Aceptar ticket", id);
+  };
+
+  const handleReject = (id: number) => {
+    // Lógica para rechazar el ticket
+    console.log("Rechazar ticket", id);
+  };
 
   return (
     <Grid2
       container
       spacing={2}
-      sx={{ height: "95.4%", backgroundColor: "primary.paper", pb: 4 }}
+      sx={{ height: "95.4%", backgroundColor: "background.paper", pb: 4 }}
     >
+      {/* Grid2 más pequeño: Listado de Tickets */}
       <Grid2
         size={{ xs: 12, md: 4, lg: 3 }}
         className="card-shadow"
@@ -21,14 +67,134 @@ export const TicketsPage = () => {
           p: 2,
         }}
       >
-        {/* Aquí podrías listar los tickets o mostrar otros controles */}
+        {/* Encabezado con título y botón para agregar */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", md: "center" },
+            mb: 2,
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            Tickets
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<PlaylistAddIcon />}
+            sx={{ mt: { xs: 2, md: 0 } }}
+          >
+            Agregar
+          </Button>
+        </Box>
+        <Divider sx={{ mb: 2 }} />
+        {loading ? (
+          <Typography variant="body1">Cargando...</Typography>
+        ) : tickets.length > 0 ? (
+          tickets.map((item) => (
+            <Card
+              key={item.id}
+              sx={{ mb: 2, cursor: "pointer" }}
+              onClick={() => handleSelectTicket(item)}
+            >
+              <CardHeader
+                title={item.asunto}
+                subheader={`Creado: ${new Date(
+                  item.fechaCreacion!
+                ).toLocaleDateString()}`}
+                titleTypographyProps={{ variant: "h6" }}
+                subheaderTypographyProps={{ variant: "body2" }}
+              />
+              <CardContent>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    mb: 1,
+                  }}
+                >
+                  <Chip
+                    icon={<InfoIcon />}
+                    label={
+                      item.isAceptado
+                        ? item.isAutorizado
+                          ? item.isActive
+                            ? "Activo"
+                            : "Inactivo"
+                          : "No Autorizado"
+                        : "Pendiente"
+                    }
+                    sx={{ m: 0.5 }}
+                  />
+                  {user && item.solicitante?.id !== user.id && (
+                    <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
+                      <PersonIcon sx={{ mr: 0.5 }} />
+                      <Typography variant="body2">
+                        {item.solicitante?.firstName}{" "}
+                        {item.solicitante?.lastName}
+                      </Typography>
+                    </Box>
+                  )}
+                  <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
+                    <PersonIcon sx={{ mr: 0.5 }} />
+                    <Typography variant="body2">
+                      {item.receptor?.firstName} {item.receptor?.lastName}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
+                    <PersonIcon sx={{ mr: 0.5 }} />
+                    <Typography variant="body2">Yo</Typography>
+                  </Box>
+                </Box>
+                {item.isAceptado === false ? (
+                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button
+                      variant="contained"
+                      sx={{ mr: 1 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAccept(item.id!);
+                      }}
+                    >
+                      Aceptar
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleReject(item.id!);
+                      }}
+                    >
+                      Rechazar
+                    </Button>
+                  </Box>
+                ) : (
+                  item.isAutorizado && (
+                    <Button
+                      variant="outlined"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectTicket(item);
+                      }}
+                    >
+                      Ver Ticket
+                    </Button>
+                  )
+                )}
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Typography variant="body2">No se encontraron tickets.</Typography>
+        )}
       </Grid2>
+      {/* Grid2 mayor: Chat o placeholder */}
       <Grid2
-        size={{
-          xs: 12,
-          md: 8,
-          lg: 9,
-        }}
+        size={{ xs: 12, md: 8, lg: 9 }}
         className="card-shadow"
         sx={{
           backgroundColor: "background.paper",
@@ -36,7 +202,13 @@ export const TicketsPage = () => {
           display: "flex",
         }}
       >
-        <Chat ticketId={ticketId} userId={userId} />
+        {!selectedTicket?.id || !user?.id ? (
+          <Typography variant="body1" sx={{ m: "auto" }}>
+            Seleccione un ticket para ver el chat.
+          </Typography>
+        ) : (
+          <Chat ticketId={selectedTicket.id} userId={user.id} />
+        )}
       </Grid2>
     </Grid2>
   );
