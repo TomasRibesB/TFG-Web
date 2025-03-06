@@ -1,6 +1,12 @@
+import React from "react";
 import { Grid2 } from "@mui/material";
+import { Chat } from "../../../components/Chat"; // ajusta la ruta según corresponda
 
 export const TicketsPage = () => {
+  // Para demostrar, supongamos que obtienes ticketId y userId de algún hook o StorageAdapter
+  const ticketId = 4; // Ejemplo
+  const userId = 10; // Ejemplo
+
   return (
     <Grid2
       container
@@ -14,7 +20,9 @@ export const TicketsPage = () => {
           backgroundColor: "background.paper",
           p: 2,
         }}
-      ></Grid2>
+      >
+        {/* Aquí podrías listar los tickets o mostrar otros controles */}
+      </Grid2>
       <Grid2
         size={{
           xs: 12,
@@ -25,8 +33,11 @@ export const TicketsPage = () => {
         sx={{
           backgroundColor: "background.paper",
           p: 2,
+          display: "flex",
         }}
-      ></Grid2>
+      >
+        <Chat ticketId={ticketId} userId={userId} />
+      </Grid2>
     </Grid2>
   );
 };

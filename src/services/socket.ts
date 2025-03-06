@@ -7,7 +7,7 @@ let socket: Socket | null = null;
 const connect = async () => {
   const user = await StorageAdapter.getItem<Partial<User>>('user');
   const token = user?.token;
-  socket = io('http://10.0.2.2:3000', {
+  socket = io('http://localhost:3000', {
     auth: {
       token: token,
     },
