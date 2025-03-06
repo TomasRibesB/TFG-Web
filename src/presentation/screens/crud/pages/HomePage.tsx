@@ -77,13 +77,12 @@ export const HomePage = () => {
       {/* Primera fila: Tarjetas de resumen con altura fija */}
       <Grid2 container spacing={2} sx={{ flex: "0 0 30%" }}>
         <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
-          <Card
+          <Box
+            className="card-shadow"
             sx={{
               backgroundColor: "background.paper",
-              height: "100%",
-              boxShadow: 3,
-              display: "flex",
               p: 2,
+              height: "100%",
             }}
           >
             <Box
@@ -91,7 +90,6 @@ export const HomePage = () => {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-start", // Alinea a la izquierda
-                justifyContent: "center",
                 width: "100%",
               }}
             >
@@ -102,17 +100,16 @@ export const HomePage = () => {
                 {clients?.length}
               </Typography>
             </Box>
-          </Card>
+          </Box>
         </Grid2>
 
         <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
-          <Card
+          <Box
+            className="card-shadow"
             sx={{
               backgroundColor: "background.paper",
-              height: "100%",
-              boxShadow: 3,
-              display: "flex",
               p: 2,
+              height: "100%",
             }}
           >
             <Box
@@ -120,7 +117,6 @@ export const HomePage = () => {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-start", // Alinea a la izquierda
-                justifyContent: "center",
                 width: "100%",
               }}
             >
@@ -145,11 +141,7 @@ export const HomePage = () => {
                 </Typography>
                 <Typography variant="h6">Abiertos</Typography>
               </Stack>
-              <Stack
-                direction="row"
-                justifyContent="flex-start"
-                spacing={1}
-              >
+              <Stack direction="row" justifyContent="flex-start" spacing={1}>
                 <Typography variant="h4" sx={{ color: "primary.main" }}>
                   {
                     tickets?.filter(
@@ -163,16 +155,16 @@ export const HomePage = () => {
                 <Typography variant="h6">Pendientes</Typography>
               </Stack>
             </Box>
-          </Card>
+          </Box>
         </Grid2>
 
         <Grid2 size={{ xs: 12, md: 4 }}>
-          <Card
+          <Box
+            className="card-shadow"
             sx={{
               backgroundColor: "background.paper",
-              height: "100%",
-              boxShadow: 3,
               p: 2,
+              height: "100%",
             }}
           >
             <Typography variant="h4" sx={{ mb: 2 }}>
@@ -238,21 +230,19 @@ export const HomePage = () => {
                 </Card>
               ))}
             </Box>
-          </Card>
+          </Box>
         </Grid2>
       </Grid2>
 
       {/* Segunda fila: Turnos y Crear Disponibilidad */}
       <Grid2 container spacing={2} sx={{ flex: 1, alignItems: "stretch" }}>
         <Grid2 size={{ xs: 12, sm: 6 }}>
-          <Card
+          <Box
+            className="card-shadow"
             sx={{
               backgroundColor: "background.paper",
-              height: "100%",
-              boxShadow: 3,
-              display: "flex",
-              flexDirection: "column",
               p: 2,
+              height: "100%",
             }}
           >
             <Typography variant="h4" sx={{ mb: 2 }}>
@@ -297,18 +287,16 @@ export const HomePage = () => {
                 </Card>
               ))}
             </Box>
-          </Card>
+          </Box>
         </Grid2>
 
         <Grid2 size={{ xs: 12, sm: 6 }}>
-          <Card
+          <Box
+            className="card-shadow"
             sx={{
               backgroundColor: "background.paper",
-              height: "100%",
-              boxShadow: 3,
-              display: "flex",
-              flexDirection: "column",
               p: 2,
+              height: "100%",
             }}
           >
             <Typography variant="h4" sx={{ mb: 2 }}>
@@ -346,7 +334,7 @@ export const HomePage = () => {
                 </Card>
               ))}
             </Box>
-          </Card>
+          </Box>
         </Grid2>
       </Grid2>
     </Box>
