@@ -1,6 +1,6 @@
-
 import { TicketMensaje } from "./ticket-mensaje";
 import { User } from "./user";
+import { EstadoConsentimiento } from "../enums/estadoConsentimiento";
 
 export interface Ticket {
   id?: number;
@@ -10,8 +10,9 @@ export interface Ticket {
   solicitante?: User;
   receptor?: User;
   usuario?: User;
-  isAutorizado?: boolean;
-  isAceptado?: boolean;
-  isActive?: boolean;
+  consentimientoUsuario?: EstadoConsentimiento;
+  consentimientoSolicitante?: EstadoConsentimiento;
+  consentimientoReceptor?: EstadoConsentimiento;
+  fechaBaja?: Date;
   mensajes?: TicketMensaje[];
 }

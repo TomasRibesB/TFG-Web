@@ -14,42 +14,82 @@ import PersonIcon from "@mui/icons-material/Person";
 import InfoIcon from "@mui/icons-material/Info";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { Chat } from "../../../components/Chat"; // ajusta la ruta según corresponda
-import { getTicketsRequest } from "../../../../services/tickets";
+import {
+  getTicketsRequest,
+  updateTicketConsentimientoRequest,
+} from "../../../../services/tickets";
 import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
 import { Ticket } from "../../../../infrastructure/interfaces/ticket";
 import { User } from "../../../../infrastructure/interfaces/user";
+import { EstadoConsentimiento } from "../../../../infrastructure/enums/estadoConsentimiento";
+import { getProfesionalsByUserForTicketsCreationRequest } from "../../../../services/user";
 
 export const TicketsPage: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [user, setUser] = useState<Partial<User> | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [clients, setClients] = useState<Partial<User>[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Partial<User> | null>(
+    null
+  );
+  const [profesionals, setProfesionals] = useState<Partial<User>>({});
+  const [selectedProfesional, setSelectedProfesional] = useState<Partial<User>>(
+    {}
+  );
+  const [isModalNewTicketOpen, setIsModalNewTicketOpen] =
+    useState<boolean>(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const ticketsData = await getTicketsRequest();
-      setTickets(ticketsData);
-      const user: Partial<User> | null = await StorageAdapter.getItem("user");
-      setUser(user);
-      setLoading(false);
-    };
-
     fetchData();
   }, []);
 
+  const fetchData = async () => {
+    setLoading(true);
+    const ticketsData = await getTicketsRequest();
+    setTickets(ticketsData);
+    const user: Partial<User> | null = await StorageAdapter.getItem("user");
+    setUser(user);
+    setLoading(false);
+  };
+
   const handleSelectTicket = (ticket: Ticket) => {
-    setSelectedTicket(ticket);
+    if (
+      ticket.consentimientoUsuario === EstadoConsentimiento.Aceptado &&
+      ticket.consentimientoReceptor === EstadoConsentimiento.Aceptado &&
+      ticket.consentimientoSolicitante === EstadoConsentimiento.Aceptado
+    ) {
+      setSelectedTicket(ticket);
+    }
   };
 
-  const handleAccept = (id: number) => {
-    // Lógica para aceptar el ticket
-    console.log("Aceptar ticket", id);
+  const handleAccept = async (id: number) => {
+    await updateTicketConsentimientoRequest(id, EstadoConsentimiento.Aceptado);
+    fetchData();
   };
 
-  const handleReject = (id: number) => {
-    // Lógica para rechazar el ticket
-    console.log("Rechazar ticket", id);
+  const handleReject = async (id: number) => {
+    await updateTicketConsentimientoRequest(id, EstadoConsentimiento.Rechazado);
+    fetchData();
+  };
+
+  const handleOpenModalNewTicket = async () => {
+    setIsModalNewTicketOpen(true);
+    const clients: Partial<User> | null = await StorageAdapter.getItem(
+      "clientes"
+    );
+    setClients(clients);
+  };
+
+  useEffect(() => {
+    if (selectedClient && selectedClient.id && isModalNewTicketOpen) {
+      getProfesionals(selectedClient.id);
+    }
+  }, [selectedClient]);
+
+  const getProfesionals = async (id: number) => {
+    const response = await getProfesionalsByUserForTicketsCreationRequest(id);
+    setProfesionals(response);
   };
 
   return (
@@ -85,6 +125,7 @@ export const TicketsPage: React.FC = () => {
             color="primary"
             startIcon={<PlaylistAddIcon />}
             sx={{ mt: { xs: 2, md: 0 } }}
+            onClick={handleOpenModalNewTicket}
           >
             Agregar
           </Button>
@@ -120,13 +161,16 @@ export const TicketsPage: React.FC = () => {
                   <Chip
                     icon={<InfoIcon />}
                     label={
-                      item.isAceptado
-                        ? item.isAutorizado
-                          ? item.isActive
+                      item.consentimientoUsuario ===
+                      EstadoConsentimiento.Aceptado
+                        ? item.consentimientoReceptor ===
+                          EstadoConsentimiento.Aceptado
+                          ? item.consentimientoSolicitante ===
+                            EstadoConsentimiento.Aceptado
                             ? "Activo"
-                            : "Inactivo"
-                          : "No Autorizado"
-                        : "Pendiente"
+                            : "Pendiente de aceptación"
+                          : "Pendiente de aceptación"
+                        : "Pendiente de autorización del cliente"
                     }
                     sx={{ m: 0.5 }}
                   />
@@ -150,41 +194,49 @@ export const TicketsPage: React.FC = () => {
                     <Typography variant="body2">Yo</Typography>
                   </Box>
                 </Box>
-                {item.isAceptado === false ? (
-                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button
-                      variant="contained"
-                      sx={{ mr: 1 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAccept(item.id!);
-                      }}
-                    >
-                      Aceptar
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleReject(item.id!);
-                      }}
-                    >
-                      Rechazar
-                    </Button>
-                  </Box>
-                ) : (
-                  item.isAutorizado && (
-                    <Button
-                      variant="outlined"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelectTicket(item);
-                      }}
-                    >
-                      Ver Ticket
-                    </Button>
+                {
+                  //como hago que si soy el solicitante no me aparezca el botón de aceptar o rechazar
+                  item?.solicitante?.id !== user?.id ? (
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Button
+                        variant="contained"
+                        sx={{ mr: 1 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAccept(item.id!);
+                        }}
+                      >
+                        Aceptar
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleReject(item.id!);
+                        }}
+                      >
+                        Rechazar
+                      </Button>
+                    </Box>
+                  ) : (
+                    item.consentimientoUsuario ===
+                      EstadoConsentimiento.Aceptado &&
+                    item.consentimientoReceptor ===
+                      EstadoConsentimiento.Aceptado &&
+                    item.consentimientoSolicitante ===
+                      EstadoConsentimiento.Aceptado && (
+                      <Button
+                        variant="outlined"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectTicket(item);
+                        }}
+                      >
+                        Ver Ticket
+                      </Button>
+                    )
                   )
-                )}
+                }
               </CardContent>
             </Card>
           ))

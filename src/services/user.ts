@@ -42,3 +42,15 @@ export const getUserImageRequest = async (id: number) => {
   const { data } = await api.get(`/users/image/${id}`);
   return data;
 };
+
+export const getProfesionalsByUserForTicketsCreationRequest = async (
+  userId: number
+) => {
+  const { data } = await api.get(`/users/profesionales/tickets/${userId}`);
+  return data;
+};
+
+export const getUserByDNIForProfesional = async (dni: string) => {
+  const { data } = await api.get(`/users/profesionales/${dni}`);
+  return data;
+};
