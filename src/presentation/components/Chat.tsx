@@ -130,6 +130,7 @@ export const Chat: React.FC<ChatProps> = ({ ticketId, userId }) => {
         sx={{
           flex: 1,
           overflowY: "auto",
+          overflowX: "hidden",
           mb: 2,
         }}
       >
@@ -169,7 +170,8 @@ export const Chat: React.FC<ChatProps> = ({ ticketId, userId }) => {
                           : "secondary.contrastText",
                       p: 1,
                       borderRadius: 1,
-                      maxWidth: "80%",
+                      maxWidth: "fit-content",
+                      wordBreak: "break-word",
                     }}
                     secondaryTypographyProps={{
                       variant: "caption",
