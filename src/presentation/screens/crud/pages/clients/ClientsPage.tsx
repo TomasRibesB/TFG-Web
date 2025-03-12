@@ -31,6 +31,7 @@ import { ImageAvatar } from "../../../../components/ImageAvatar";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { GruposMusculares } from "../../../../../infrastructure/interfaces/grupos-musculares";
 import { CategoriaEjercicio } from "../../../../../infrastructure/interfaces/categoria-ejercicio";
+import { DialogNewClient } from "./components/DialogNewClient";
 
 export const ClientsPage = () => {
   const [loading, setLoading] = useState(false);
@@ -44,6 +45,7 @@ export const ClientsPage = () => {
   const [categorias, setCategorias] = useState<CategoriaEjercicio[]>([]);
   const [user, setUser] = useState<Partial<User> | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isOpenModal, setIsOpenModal] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -107,6 +109,15 @@ export const ClientsPage = () => {
     setSearchTerm(event.target.value);
   };
 
+  const handleClose = () => {
+    setIsOpenModal(false);
+  };
+
+  const onAssign = (client: User) => {
+    setClients([...clients, client]);
+    StorageAdapter.setItem("clientes", [...clients, client]);
+  };
+
   const filteredClients = clients.filter((client) => {
     const term = searchTerm.toLowerCase();
     return (
@@ -148,6 +159,7 @@ export const ClientsPage = () => {
             color="primary"
             startIcon={<PersonAddIcon />}
             sx={{ mt: { xs: 2, md: 0 } }}
+            onClick={() => setIsOpenModal(true)}
           >
             Agregar
           </Button>
@@ -270,6 +282,7 @@ export const ClientsPage = () => {
           <ProfesionalSaludForm selectedClient={selectedClient} />
         )}
       </Grid2>
+      <DialogNewClient open={isOpenModal} onClose={handleClose} onAssign={onAssign} existingClients={clients} />
     </Grid2>
   );
 };

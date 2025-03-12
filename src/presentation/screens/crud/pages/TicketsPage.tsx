@@ -22,6 +22,7 @@ import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { Chat } from "../../../components/Chat"; // ajusta la ruta según corresponda
 import {
   getTicketsRequest,
+  postTicketRequest,
   updateTicketConsentimientoRequest,
 } from "../../../../services/tickets";
 import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
@@ -40,11 +41,13 @@ export const TicketsPage: React.FC = () => {
     null
   );
   const [profesionals, setProfesionals] = useState<Partial<User>>({});
-  const [selectedProfesional, setSelectedProfesional] = useState<Partial<User>>(
-    {}
-  );
+  const [selectedProfesional, setSelectedProfesional] =
+    useState<Partial<User> | null>(null);
+  const [descipcion, setDescripcion] = useState<string>("");
+  const [asunto, setAsunto] = useState<string>("");
   const [isModalNewTicketOpen, setIsModalNewTicketOpen] =
     useState<boolean>(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -92,16 +95,61 @@ export const TicketsPage: React.FC = () => {
     setIsModalNewTicketOpen(false);
     setSelectedClient(null);
     setSelectedProfesional({});
+    setAsunto("");
+    setDescripcion("");
   };
 
   const handleSaveNewTicket = async () => {
     if (!selectedClient || !selectedClient.id) {
+      setError("Seleccione un cliente.");
       return;
     }
-    console.log("Cliente seleccionado", selectedClient);
-    console.log("Profesional seleccionado", selectedProfesional);
+    if (!asunto) {
+      setError("Ingrese un asunto.");
+      return;
+    }
+    if (!descipcion) {
+      setError("Ingrese una descripción.");
+      return;
+    }
     // Aquí se implementaría la lógica para crear el ticket utilizando selectedClient y selectedProfesional
-    handleCloseModalNewTicket();
+    const newTicket: Ticket = {
+      asunto: asunto,
+      descripcion: descipcion,
+      solicitante: { id: user?.id || 0 },
+      receptor: { id: selectedProfesional?.id || selectedClient?.id || 0 },
+      usuario: { id: selectedClient?.id || 0 },
+      consentimientoUsuario: EstadoConsentimiento.Pendiente,
+      consentimientoReceptor: EstadoConsentimiento.Pendiente,
+      consentimientoSolicitante: EstadoConsentimiento.Aceptado,
+      fechaCreacion: new Date(),
+    };
+
+    if (
+      newTicket?.receptor?.id === 0 ||
+      newTicket?.usuario?.id === 0 ||
+      newTicket?.solicitante?.id === 0
+    ) {
+      setError("No se pudo crear el ticket.");
+      return;
+    }
+
+    //verifico que no exista un ticket los mismos usuario, no importa el orden
+    const ticketExistente = tickets.find(
+      (ticket) =>
+        ticket.solicitante?.id === newTicket.solicitante?.id &&
+        ticket.receptor?.id === newTicket.receptor?.id
+    );
+
+    if (ticketExistente) {
+      setError("Ya existe un ticket entre estos usuarios.");
+      return;
+    }
+
+    const newTicketCreated = await postTicketRequest(newTicket);
+    setTickets([...tickets, newTicketCreated]);
+
+    await handleCloseModalNewTicket();
   };
 
   useEffect(() => {
@@ -110,6 +158,14 @@ export const TicketsPage: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClient]);
+
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setError("");
+      }, 5000);
+    }
+  }, [error]);
 
   const getProfesionals = async (id: number) => {
     const response = await getProfesionalsByUserForTicketsCreationRequest(id);
@@ -336,6 +392,31 @@ export const TicketsPage: React.FC = () => {
                 sx={{ mb: 2 }}
               />
             </>
+          )}
+          {/* Input para el Asunto */}
+          <TextField
+            label="Asunto"
+            variant="outlined"
+            fullWidth
+            value={asunto}
+            onChange={(e) => setAsunto(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          {/* Textbox para la Descripción */}
+          <TextField
+            label="Descripción"
+            variant="outlined"
+            fullWidth
+            multiline
+            rows={4}
+            value={descipcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          {error && (
+            <Typography color="error" sx={{ mt: 2 }}>
+              {error}
+            </Typography>
           )}
         </DialogContent>
         <DialogActions>

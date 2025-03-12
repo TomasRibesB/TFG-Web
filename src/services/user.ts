@@ -54,3 +54,10 @@ export const getUserByDNIForProfesional = async (dni: string) => {
   const { data } = await api.get(`/users/profesionales/${dni}`);
   return data;
 };
+
+export const postAsignarClienteRequest = async (clienteId: number) => {
+  const { data } = await api.post(`/users/profesionales/asignar-usuario`, {
+    clienteId,
+  });
+  return data;
+};
