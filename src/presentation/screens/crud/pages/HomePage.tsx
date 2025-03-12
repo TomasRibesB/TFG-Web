@@ -170,7 +170,7 @@ export const HomePage = () => {
             <Typography variant="h4" sx={{ mb: 2 }}>
               Recordatorios
             </Typography>
-            <Box sx={{ maxHeight: "100%", pr: 1 }}>
+            <Box sx={{ maxHeight: "15vh", pr: 1, overflowY: "auto" }}>
               {recordatorios.map((recordatorio) => (
                 <Card
                   key={`reminder-${recordatorio.id}`}

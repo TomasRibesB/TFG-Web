@@ -59,6 +59,7 @@ export const TicketsPage: React.FC = () => {
       ticket.consentimientoReceptor === EstadoConsentimiento.Aceptado &&
       ticket.consentimientoSolicitante === EstadoConsentimiento.Aceptado
     ) {
+      console.log("Ticket seleccionado", ticket);
       setSelectedTicket(ticket);
     }
   };
@@ -75,16 +76,17 @@ export const TicketsPage: React.FC = () => {
 
   const handleOpenModalNewTicket = async () => {
     setIsModalNewTicketOpen(true);
-    const clients: Partial<User> | null = await StorageAdapter.getItem(
+    const clients: Partial<User>[] | null = await StorageAdapter.getItem(
       "clientes"
     );
-    setClients(clients);
+    setClients(clients ?? []);
   };
 
   useEffect(() => {
     if (selectedClient && selectedClient.id && isModalNewTicketOpen) {
       getProfesionals(selectedClient.id);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClient]);
 
   const getProfesionals = async (id: number) => {
@@ -194,49 +196,51 @@ export const TicketsPage: React.FC = () => {
                     <Typography variant="body2">Yo</Typography>
                   </Box>
                 </Box>
-                {
-                  //como hago que si soy el solicitante no me aparezca el botón de aceptar o rechazar
-                  item?.solicitante?.id !== user?.id ? (
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                      <Button
-                        variant="contained"
-                        sx={{ mr: 1 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAccept(item.id!);
-                        }}
-                      >
-                        Aceptar
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleReject(item.id!);
-                        }}
-                      >
-                        Rechazar
-                      </Button>
-                    </Box>
-                  ) : (
-                    item.consentimientoUsuario ===
-                      EstadoConsentimiento.Aceptado &&
-                    item.consentimientoReceptor ===
-                      EstadoConsentimiento.Aceptado &&
-                    item.consentimientoSolicitante ===
-                      EstadoConsentimiento.Aceptado && (
-                      <Button
-                        variant="outlined"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectTicket(item);
-                        }}
-                      >
-                        Ver Ticket
-                      </Button>
-                    )
-                  )
-                }
+                {item?.solicitante?.id !== user?.id &&
+                item.receptor?.id === user?.id &&
+                item.consentimientoReceptor !==
+                  EstadoConsentimiento.Aceptado ? (
+                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button
+                      variant="contained"
+                      sx={{ mr: 1 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAccept(item.id!);
+                      }}
+                    >
+                      Aceptar
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleReject(item.id!);
+                      }}
+                    >
+                      Rechazar
+                    </Button>
+                  </Box>
+                ) : item.consentimientoUsuario ===
+                    EstadoConsentimiento.Aceptado &&
+                  item.consentimientoReceptor ===
+                    EstadoConsentimiento.Aceptado &&
+                  item.consentimientoSolicitante ===
+                    EstadoConsentimiento.Aceptado ? (
+                  <Button
+                    variant="outlined"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectTicket(item);
+                    }}
+                  >
+                    Ver Ticket
+                  </Button>
+                ) : item.solicitante?.id === user?.id ? (
+                  <Typography variant="body2">
+                    Esperando respuesta de los otros usuarios...
+                  </Typography>
+                ) : null}
               </CardContent>
             </Card>
           ))
