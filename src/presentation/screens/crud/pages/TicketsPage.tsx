@@ -9,6 +9,12 @@ import {
   Grid2,
   Box,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Autocomplete,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import InfoIcon from "@mui/icons-material/Info";
@@ -48,8 +54,10 @@ export const TicketsPage: React.FC = () => {
     setLoading(true);
     const ticketsData = await getTicketsRequest();
     setTickets(ticketsData);
-    const user: Partial<User> | null = await StorageAdapter.getItem("user");
-    setUser(user);
+    const userFromStorage: Partial<User> | null = await StorageAdapter.getItem(
+      "user"
+    );
+    setUser(userFromStorage);
     setLoading(false);
   };
 
@@ -59,7 +67,6 @@ export const TicketsPage: React.FC = () => {
       ticket.consentimientoReceptor === EstadoConsentimiento.Aceptado &&
       ticket.consentimientoSolicitante === EstadoConsentimiento.Aceptado
     ) {
-      console.log("Ticket seleccionado", ticket);
       setSelectedTicket(ticket);
     }
   };
@@ -76,22 +83,37 @@ export const TicketsPage: React.FC = () => {
 
   const handleOpenModalNewTicket = async () => {
     setIsModalNewTicketOpen(true);
-    const clients: Partial<User>[] | null = await StorageAdapter.getItem(
-      "clientes"
-    );
-    setClients(clients ?? []);
+    const clientsFromStorage: Partial<User>[] | null =
+      await StorageAdapter.getItem("clientes");
+    setClients(clientsFromStorage ?? []);
+  };
+
+  const handleCloseModalNewTicket = () => {
+    setIsModalNewTicketOpen(false);
+    setSelectedClient(null);
+    setSelectedProfesional({});
+  };
+
+  const handleSaveNewTicket = async () => {
+    if (!selectedClient || !selectedClient.id) {
+      return;
+    }
+    console.log("Cliente seleccionado", selectedClient);
+    console.log("Profesional seleccionado", selectedProfesional);
+    // Aquí se implementaría la lógica para crear el ticket utilizando selectedClient y selectedProfesional
+    handleCloseModalNewTicket();
   };
 
   useEffect(() => {
     if (selectedClient && selectedClient.id && isModalNewTicketOpen) {
       getProfesionals(selectedClient.id);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClient]);
 
   const getProfesionals = async (id: number) => {
     const response = await getProfesionalsByUserForTicketsCreationRequest(id);
-    setProfesionals(response);
+    setProfesionals(response?.profesionales || []);
   };
 
   return (
@@ -104,10 +126,7 @@ export const TicketsPage: React.FC = () => {
       <Grid2
         size={{ xs: 12, md: 4, lg: 3 }}
         className="card-shadow"
-        sx={{
-          backgroundColor: "background.paper",
-          p: 2,
-        }}
+        sx={{ backgroundColor: "background.paper", p: 2 }}
       >
         {/* Encabezado con título y botón para agregar */}
         <Box
@@ -252,11 +271,7 @@ export const TicketsPage: React.FC = () => {
       <Grid2
         size={{ xs: 12, md: 8, lg: 9 }}
         className="card-shadow"
-        sx={{
-          backgroundColor: "background.paper",
-          p: 2,
-          display: "flex",
-        }}
+        sx={{ backgroundColor: "background.paper", p: 2, display: "flex" }}
       >
         {!selectedTicket?.id || !user?.id ? (
           <Typography variant="body1" sx={{ m: "auto" }}>
@@ -266,6 +281,80 @@ export const TicketsPage: React.FC = () => {
           <Chat ticketId={selectedTicket.id} userId={user.id} />
         )}
       </Grid2>
+
+      {/* Modal para crear un nuevo ticket */}
+      <Dialog
+        open={isModalNewTicketOpen}
+        onClose={handleCloseModalNewTicket}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Crear Nuevo Ticket</DialogTitle>
+        <DialogContent dividers>
+          {/* Seleccionar Cliente */}
+          <Typography variant="subtitle1" gutterBottom>
+            Seleccione un Cliente
+          </Typography>
+          <Autocomplete
+            options={clients}
+            getOptionLabel={(option) =>
+              `${option.firstName || ""} ${option.lastName || ""} - ${
+                option.dni || ""
+              }`
+            }
+            onChange={(event, newValue) => {
+              setSelectedClient(newValue);
+              // Reinicia el profesional seleccionado al cambiar de cliente
+              setSelectedProfesional({});
+            }}
+            renderInput={(params) => (
+              <TextField {...params} label="Cliente" variant="outlined" />
+            )}
+            sx={{ mb: 2 }}
+          />
+          {/* Seleccionar Profesional (opcional) */}
+          {selectedClient && (
+            <>
+              <Typography variant="subtitle1" gutterBottom>
+                Seleccione un Profesional (opcional)
+              </Typography>
+              <Autocomplete
+                options={Object.values(profesionals) as Partial<User>[]}
+                getOptionLabel={(option: Partial<User>) =>
+                  `${option.firstName || ""} ${option.lastName || ""}`
+                }
+                onChange={(event, newValue) =>
+                  setSelectedProfesional(newValue || {})
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Profesional"
+                    variant="outlined"
+                  />
+                )}
+                sx={{ mb: 2 }}
+              />
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setIsModalNewTicketOpen(false)}
+            color="secondary"
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSaveNewTicket}
+            variant="contained"
+            color="primary"
+            disabled={!selectedClient || !selectedClient.id}
+          >
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Grid2>
   );
 };
