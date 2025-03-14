@@ -32,6 +32,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { GruposMusculares } from "../../../../../infrastructure/interfaces/grupos-musculares";
 import { CategoriaEjercicio } from "../../../../../infrastructure/interfaces/categoria-ejercicio";
 import { DialogNewClient } from "./components/DialogNewClient";
+import { postAsignarClienteRequest } from "../../../../../services/user";
 
 export const ClientsPage = () => {
   const [loading, setLoading] = useState(false);
@@ -111,11 +112,15 @@ export const ClientsPage = () => {
 
   const handleClose = () => {
     setIsOpenModal(false);
+    setSearchTerm("");
   };
 
-  const onAssign = (client: User) => {
-    setClients([...clients, client]);
-    StorageAdapter.setItem("clientes", [...clients, client]);
+  const handleAssign = async (client: User) => {
+    const user = await postAsignarClienteRequest(client.id!);
+    setClients([...clients, user]);
+    setSelectedClient(user);
+
+    handleClose();
   };
 
   const filteredClients = clients.filter((client) => {
@@ -282,7 +287,12 @@ export const ClientsPage = () => {
           <ProfesionalSaludForm selectedClient={selectedClient} />
         )}
       </Grid2>
-      <DialogNewClient open={isOpenModal} onClose={handleClose} onAssign={onAssign} existingClients={clients} />
+      <DialogNewClient
+        open={isOpenModal}
+        onClose={handleClose}
+        onAssign={handleAssign}
+        existingClients={clients}
+      />
     </Grid2>
   );
 };

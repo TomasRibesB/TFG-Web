@@ -209,8 +209,19 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
 
           {/* Derecha: Botones de notificaciones y logout */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Link to="/main/profile" style={{ textDecoration: "none" }}>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Link
+              to="/main/profile"
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  transition: "transform 0.3s",
+                  borderRadius: 1,
+                  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.05)" },
+                }}
+              >
                 <ImageAvatar user={user} flag={new Date()} />
                 <Box
                   sx={{
