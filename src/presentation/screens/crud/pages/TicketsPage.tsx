@@ -71,6 +71,8 @@ export const TicketsPage: React.FC = () => {
       ticket.consentimientoSolicitante === EstadoConsentimiento.Aceptado
     ) {
       setSelectedTicket(ticket);
+    } else {
+      setSelectedTicket(null);
     }
   };
 
@@ -176,15 +178,13 @@ export const TicketsPage: React.FC = () => {
     <Grid2
       container
       spacing={2}
-      sx={{ height: "95.4%", backgroundColor: "background.paper", pb: 4 }}
+      sx={{ height: "95.4%", pb: 4 }}
     >
       {/* Grid2 más pequeño: Listado de Tickets */}
       <Grid2
         size={{ xs: 12, md: 4, lg: 3 }}
         className="card-shadow"
-        sx={{ backgroundColor: "background.paper", p: 2 }}
-      >
-        {/* Encabezado con título y botón para agregar */}
+        sx={{ backgroundColor: "background.paper", p: 2, overflowY: "auto", height: "88vh" }}>
         <Box
           sx={{
             display: "flex",
@@ -260,12 +260,22 @@ export const TicketsPage: React.FC = () => {
                       </Typography>
                     </Box>
                   )}
-                  <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
-                    <PersonIcon sx={{ mr: 0.5 }} />
-                    <Typography variant="body2">
-                      {item.receptor?.firstName} {item.receptor?.lastName}
-                    </Typography>
-                  </Box>
+                  {user && item.receptor?.id !== user.id && (
+                    <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
+                      <PersonIcon sx={{ mr: 0.5 }} />
+                      <Typography variant="body2">
+                        {item.receptor?.firstName} {item.receptor?.lastName}
+                      </Typography>
+                    </Box>
+                  )}
+                  {user && item.usuario?.id !== user.id && (
+                    <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
+                      <PersonIcon sx={{ mr: 0.5 }} />
+                      <Typography variant="body2">
+                        {item.usuario?.firstName} {item.usuario?.lastName}
+                      </Typography>
+                    </Box>
+                  )}
                   <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
                     <PersonIcon sx={{ mr: 0.5 }} />
                     <Typography variant="body2">Yo</Typography>
@@ -358,7 +368,7 @@ export const TicketsPage: React.FC = () => {
                 option.dni || ""
               }`
             }
-            onChange={(event, newValue) => {
+            onChange={(_event, newValue) => {
               setSelectedClient(newValue);
               // Reinicia el profesional seleccionado al cambiar de cliente
               setSelectedProfesional({});
@@ -379,7 +389,7 @@ export const TicketsPage: React.FC = () => {
                 getOptionLabel={(option: Partial<User>) =>
                   `${option.firstName || ""} ${option.lastName || ""}`
                 }
-                onChange={(event, newValue) =>
+                onChange={(_event, newValue) =>
                   setSelectedProfesional(newValue || {})
                 }
                 renderInput={(params) => (
