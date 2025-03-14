@@ -15,7 +15,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Grid,
   Autocomplete,
   Grid2,
 } from "@mui/material";
@@ -31,6 +30,7 @@ import {
   updateRoutineRequest,
   deleteRoutineRequest,
 } from "../../../../../../services/entrenamiento";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 import { UnidadMedida } from "../../../../../../infrastructure/enums/unidadMedida";
 import { GruposMusculares } from "../../../../../../infrastructure/interfaces/grupos-musculares";
@@ -120,10 +120,9 @@ export const EntrenadorForm: React.FC<Props> = ({
   };
 
   const removeExerciseFromRoutine = async (id: number) => {
-    await deleteRoutineRequest(id);
     // Actualizamos selectedClient con response, obteniendo las rutinas, identificando el documento eliminado y le pongo la fechaBaja
     if (!selectedClient || !selectedClient.id) return;
-    selectedClient.routines = (selectedClient.routines || []).map((rut) =>
+    selectedClient!.routines = (selectedClient!.routines || []).map((rut) =>
       rut.id === id ? { ...rut, fechaBaja: new Date() } : rut
     );
     setAddedExercises(addedExercises.filter((ex) => ex.id !== id));
@@ -180,9 +179,7 @@ export const EntrenadorForm: React.FC<Props> = ({
       name: routineName,
       description: routineDescription,
       userId: selectedClient.id,
-      ejercicios: addedExercises.map((rutEx) => ({ id: rutEx.ejercicio.id })),
       ejerciciosRegistros: addedExercises.map((rutEx) => ({
-        id: rutEx.id,
         series: rutEx.series,
         repeticiones: rutEx.repeticiones,
         medicion: rutEx.medicion,
@@ -222,10 +219,24 @@ export const EntrenadorForm: React.FC<Props> = ({
     setOpenRoutineModal(true);
   };
 
+  const handleDeleteRoutine = async (id: number) => {
+    if (!selectedClient) return;
+    const response = await deleteRoutineRequest(id);
+    console.log("response", response);
+    if (response.data) {
+      selectedClient.routines = (selectedClient.routines || []).map((rut) =>
+        rut.id === id ? { ...rut, fechaBaja: new Date() } : rut
+      );
+      console.log("Rutina eliminada", selectedClient.routines);
+    } else {
+      console.log("Error al eliminar la rutina", response);
+    }
+  };
+
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
-      <Grid container spacing={2}>
-        <Grid item xs={9} sx={{ borderRight: "1px solid #ddd" }}>
+      <Grid2 container spacing={2}>
+        <Grid2 size={{xs:9}} sx={{ borderRight: "1px solid #ddd" }}>
           {selectedClient.routines && selectedClient.routines.length > 0 && (
             <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
               <Typography variant="h6" gutterBottom>
@@ -305,21 +316,28 @@ export const EntrenadorForm: React.FC<Props> = ({
                       >
                         Editar Rutina
                       </Button>
+                      <Button
+                        variant="outlined"
+                        startIcon={<DeleteIcon />}
+                        onClick={() => handleDeleteRoutine(routine.id)}
+                      >
+                        Eliminar
+                      </Button>
                     </Box>
                   </AccordionDetails>
                 </Accordion>
               ))}
             </Box>
           )}
-        </Grid>
-        <Grid item xs={3}>
+        </Grid2>
+        <Grid2 size={{xs:3}}>
           <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
             <Typography variant="h6" gutterBottom>
               Documentos
             </Typography>
           </Box>
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
 
       {/* Modal para Crear/Editar Rutina */}
       <Dialog
@@ -548,8 +566,11 @@ export const EntrenadorForm: React.FC<Props> = ({
       </Fab>
     </Box>
   ) : (
-    <Typography variant="body1" sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}>
-    Seleccione un cliente para ver sus rutinas.
-  </Typography>
+    <Typography
+      variant="body1"
+      sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}
+    >
+      Seleccione un cliente para ver sus rutinas.
+    </Typography>
   );
 };
