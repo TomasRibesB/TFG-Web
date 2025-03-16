@@ -133,9 +133,9 @@ export const HomePage = () => {
                   {
                     tickets?.filter(
                       (ticket) =>
-                        ticket.isAutorizado &&
-                        ticket.isAceptado &&
-                        ticket.isActive
+                        ticket.consentimientoReceptor &&
+                        ticket.consentimientoSolicitante &&
+                        ticket.consentimientoUsuario
                     ).length
                   }
                 </Typography>
@@ -146,9 +146,10 @@ export const HomePage = () => {
                   {
                     tickets?.filter(
                       (ticket) =>
-                        ticket.isAutorizado &&
-                        !ticket.isAceptado &&
-                        !ticket.isActive
+                        (!ticket.consentimientoReceptor ||
+                          !ticket.consentimientoSolicitante ||
+                          !ticket.consentimientoUsuario) &&
+                        !ticket.fechaBaja
                     ).length
                   }
                 </Typography>
@@ -242,13 +243,13 @@ export const HomePage = () => {
             sx={{
               backgroundColor: "background.paper",
               p: 2,
-              height: "100%",
+              height: "58vh",
             }}
           >
             <Typography variant="h4" sx={{ mb: 2 }}>
               Listado de Turnos
             </Typography>
-            <Box sx={{ flexGrow: 1, pr: 1 }}>
+            <Box sx={{ flexGrow: 1, pr: 1, overflowY: "auto", height: "48vh" }}>
               {turnosOcupados?.map((turno) => (
                 <Card key={`turno-${turno.id}`} sx={{ mb: 2 }}>
                   <CardContent>
@@ -296,7 +297,7 @@ export const HomePage = () => {
             sx={{
               backgroundColor: "background.paper",
               p: 2,
-              height: "100%",
+              height: "58vh",
             }}
           >
             <Typography variant="h4" sx={{ mb: 2 }}>
@@ -320,7 +321,15 @@ export const HomePage = () => {
             >
               Crear Disponibilidad
             </Button>
-            <Box sx={{ flexGrow: 1, mt: 2, pr: 1 }}>
+            <Box
+              sx={{
+                flexGrow: 1,
+                mt: 2,
+                pr: 1,
+                overflowY: "auto",
+                height: "34vh",
+              }}
+            >
               <Typography variant="h5" sx={{ mb: 2 }}>
                 Turnos Sin Reservar
               </Typography>
