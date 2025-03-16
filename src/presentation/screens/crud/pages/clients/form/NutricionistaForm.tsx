@@ -163,6 +163,14 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
           <Typography variant="h6" gutterBottom>
             Planes Nutricionales
           </Typography>
+          <Fab
+            color="primary"
+            aria-label="add"
+            sx={{ position: "absolute", top: 0, right: 0 }}
+            onClick={handleOpenModal}
+          >
+            <AddIcon />
+          </Fab>
           {selectedClient.planesNutricionales.map((plan) => (
             <Accordion
               key={plan.id}
@@ -397,15 +405,6 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
           )}
         </DialogActions>
       </Dialog>
-
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ position: "fixed", bottom: 24, right: 24 }}
-        onClick={handleOpenModal}
-      >
-        <AddIcon />
-      </Fab>
     </Box>
   ) : (
     <Typography

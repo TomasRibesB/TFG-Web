@@ -178,7 +178,7 @@ export const TicketsPage: React.FC = () => {
     <Grid2
       container
       spacing={2}
-      sx={{ height: "95.4%", pb: 4 }}
+      sx={{ height: "88vh", pb: 4 }}
     >
       {/* Grid2 más pequeño: Listado de Tickets */}
       <Grid2

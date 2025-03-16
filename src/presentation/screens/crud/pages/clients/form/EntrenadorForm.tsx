@@ -30,8 +30,8 @@ import {
   updateRoutineRequest,
   deleteRoutineRequest,
 } from "../../../../../../services/entrenamiento";
-import ArchiveIcon from '@mui/icons-material/Archive';
-import UnarchiveIcon from '@mui/icons-material/Unarchive';
+import ArchiveIcon from "@mui/icons-material/Archive";
+import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 import { UnidadMedida } from "../../../../../../infrastructure/enums/unidadMedida";
 import { GruposMusculares } from "../../../../../../infrastructure/interfaces/grupos-musculares";
@@ -237,11 +237,19 @@ export const EntrenadorForm: React.FC<Props> = ({
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
       <Grid2 container spacing={2}>
-        <Grid2 size={{xs:9}} sx={{ borderRight: "1px solid #ddd" }}>
+        <Grid2 size={{ xs: 9 }} sx={{ borderRight: "1px solid #ddd" }}>
           {selectedClient.routines && selectedClient.routines.length > 0 && (
-            <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
+            <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper", position: "relative" }}>
+              <Fab
+                color="primary"
+                aria-label="add"
+                sx={{ position: "absolute", top: 0, right: 16 }}
+                onClick={() => handleOpenModal()}
+              >
+                <AddIcon />
+              </Fab>
               <Typography variant="h6" gutterBottom>
-                Rutinas Actuales
+                Rutinas
               </Typography>
               {selectedClient.routines.map((routine) => (
                 <Accordion
@@ -323,10 +331,16 @@ export const EntrenadorForm: React.FC<Props> = ({
                       </Button>
                       <Button
                         variant="outlined"
-                        startIcon={ routine.fechaBaja ? <UnarchiveIcon /> : <ArchiveIcon /> }
+                        startIcon={
+                          routine.fechaBaja ? (
+                            <UnarchiveIcon />
+                          ) : (
+                            <ArchiveIcon />
+                          )
+                        }
                         onClick={() => handleDeleteRoutine(routine.id)}
                       >
-                        { routine.fechaBaja ? 'Restaurar' : 'Archivar' }
+                        {routine.fechaBaja ? "Restaurar" : "Archivar"}
                       </Button>
                     </Box>
                   </AccordionDetails>
@@ -335,7 +349,7 @@ export const EntrenadorForm: React.FC<Props> = ({
             </Box>
           )}
         </Grid2>
-        <Grid2 size={{xs:3}}>
+        <Grid2 size={{ xs: 3 }}>
           <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
             <Typography variant="h6" gutterBottom>
               Documentos
@@ -560,15 +574,6 @@ export const EntrenadorForm: React.FC<Props> = ({
           )}
         </DialogActions>
       </Dialog>
-
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ position: "fixed", bottom: 24, right: 24 }}
-        onClick={() => handleOpenModal()}
-      >
-        <AddIcon />
-      </Fab>
     </Box>
   ) : (
     <Typography

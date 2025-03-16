@@ -157,11 +157,20 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
 
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
+      
+      <Fab
+        color="primary"
+        aria-label="add"
+        sx={{ position: "absolute", top: 0, right: 0 }}
+        onClick={handleOpenModal}
+      >
+        <AddIcon />
+      </Fab>
       {/* Listado de Documentos */}
       {(selectedClient.documentos || createdDocuments.length > 0) && (
         <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
           <Typography variant="h6" gutterBottom>
-            Documentos / Informes
+            Documentos
           </Typography>
           {(selectedClient.documentos || [])
             .concat(createdDocuments)
@@ -305,15 +314,6 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
           )}
         </DialogActions>
       </Dialog>
-
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ position: "fixed", bottom: 24, right: 24 }}
-        onClick={handleOpenModal}
-      >
-        <AddIcon />
-      </Fab>
     </Box>
   ) : (
     <Typography
