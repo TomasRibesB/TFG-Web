@@ -44,9 +44,13 @@ interface DocumentoRequest {
 
 interface Props {
   selectedClient: Partial<User> | null;
+  onUpdateClient: (client: Partial<User>) => void;
 }
 
-export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
+export const ProfesionalSaludForm: React.FC<Props> = ({
+  selectedClient,
+  onUpdateClient,
+}) => {
   const [docType, setDocType] = useState<TipoDocumento>(TipoDocumento.Informe);
   const [docTitle, setDocTitle] = useState<string>("");
   const [docDescription, setDocDescription] = useState<string>("");
@@ -141,11 +145,16 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
 
   const removeDocument = async (id: number) => {
     const response = await deleteDocumentoRequest(id);
-    // Actualizamos selectedClient.documentos con response, obteniendo los documentos, identificando el documento eliminado y le pongo la fechaBaja
-    if (selectedClient?.documentos) {
-      selectedClient.documentos = selectedClient.documentos.map((doc) =>
-        doc.id === id ? { ...doc, fechaBaja: new Date() } : doc
-      );
+    if (response.data) {
+      const updatedClient = {
+        ...selectedClient,
+        documentos: (selectedClient?.documentos || []).map((doc) =>
+          doc.id === id
+            ? { ...doc, fechaBaja: doc.fechaBaja ? null : new Date() }
+            : doc
+        ),
+      };
+      onUpdateClient(updatedClient);
     }
     setCreatedDocuments(
       createdDocuments.map((doc) =>
@@ -157,7 +166,6 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
 
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
-      
       <Fab
         color="primary"
         aria-label="add"

@@ -115,6 +115,10 @@ export const ClientsPage = () => {
     setSearchTerm("");
   };
 
+  const handleUpdateClient = (client: Partial<User>) => {
+    setSelectedClient(client);
+  };
+
   const handleAssign = async (client: User) => {
     const user = await postAsignarClienteRequest(client.id!);
     setClients([...clients, user]);
@@ -278,13 +282,14 @@ export const ClientsPage = () => {
             selectedClient={selectedClient}
             gruposMusculares={gruposMusculares}
             categoriasEjercicio={categorias}
+            onUpdateClient={handleUpdateClient}
           />
         )}
         {user && user.role === Role.Nutricionista && (
-          <NutricionistaForm selectedClient={selectedClient} />
+          <NutricionistaForm selectedClient={selectedClient} onUpdateClient={handleUpdateClient} />
         )}
         {user && user.role === Role.Profesional && (
-          <ProfesionalSaludForm selectedClient={selectedClient} />
+          <ProfesionalSaludForm selectedClient={selectedClient} onUpdateClient={handleUpdateClient} />
         )}
       </Grid2>
       <DialogNewClient

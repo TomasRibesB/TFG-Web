@@ -55,7 +55,6 @@ export const HomePage = () => {
     const turnos: Turno[] = (await StorageAdapter.getItem("turnos")) || [];
     const recordatorios: Recordatorio[] =
       (await StorageAdapter.getItem("recordatorios")) || [];
-
     setClients(clientes);
     setTickets(tickets);
     setTurnosLibres(turnos.filter((turno) => turno.paciente === null));

@@ -41,12 +41,14 @@ interface Props {
   selectedClient: Partial<User> | null;
   gruposMusculares: GruposMusculares[];
   categoriasEjercicio: CategoriaEjercicio[];
+  onUpdateClient: (client: Partial<User>) => void;
 }
 
 export const EntrenadorForm: React.FC<Props> = ({
   selectedClient,
   gruposMusculares,
   categoriasEjercicio,
+  onUpdateClient,
 }) => {
   const [routineName, setRoutineName] = useState("");
   const [routineDescription, setRoutineDescription] = useState("");
@@ -220,17 +222,19 @@ export const EntrenadorForm: React.FC<Props> = ({
     setOpenRoutineModal(true);
   };
 
-  const handleDeleteRoutine = async (id: number) => {
+  const removeRoutine = async (id: number) => {
     if (!selectedClient) return;
     const response = await deleteRoutineRequest(id);
-    console.log("response", response);
     if (response.data) {
-      selectedClient.routines = (selectedClient.routines || []).map((rut) =>
-        rut.id === id ? { ...rut, fechaBaja: new Date() } : rut
-      );
-      console.log("Rutina eliminada", selectedClient.routines);
-    } else {
-      console.log("Error al eliminar la rutina", response);
+      const updatedClient = {
+        ...selectedClient,
+        routines: (selectedClient.routines || []).map((rut) =>
+          rut.id === id
+            ? { ...rut, fechaBaja: rut.fechaBaja ? null : new Date() }
+            : rut
+        ),
+      };
+      onUpdateClient(updatedClient);
     }
   };
 
@@ -239,7 +243,14 @@ export const EntrenadorForm: React.FC<Props> = ({
       <Grid2 container spacing={2}>
         <Grid2 size={{ xs: 9 }} sx={{ borderRight: "1px solid #ddd" }}>
           {selectedClient.routines && selectedClient.routines.length > 0 && (
-            <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper", position: "relative" }}>
+            <Box
+              sx={{
+                mb: 3,
+                p: 2,
+                backgroundColor: "background.paper",
+                position: "relative",
+              }}
+            >
               <Fab
                 color="primary"
                 aria-label="add"
@@ -338,7 +349,7 @@ export const EntrenadorForm: React.FC<Props> = ({
                             <ArchiveIcon />
                           )
                         }
-                        onClick={() => handleDeleteRoutine(routine.id)}
+                        onClick={() => removeRoutine(routine.id)}
                       >
                         {routine.fechaBaja ? "Restaurar" : "Archivar"}
                       </Button>

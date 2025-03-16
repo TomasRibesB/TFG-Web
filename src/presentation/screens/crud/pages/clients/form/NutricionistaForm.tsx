@@ -35,9 +35,13 @@ import {
 
 interface Props {
   selectedClient: Partial<User> | null;
+  onUpdateClient: (client: Partial<User>) => void;
 }
 
-export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
+export const NutricionistaForm: React.FC<Props> = ({
+  selectedClient,
+  onUpdateClient,
+}) => {
   // Estados para los campos del plan nutricional
   const [planName, setPlanName] = useState<string>("");
   const [planDescription, setPlanDescription] = useState<string>("");
@@ -143,15 +147,21 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
       console.error("Error al actualizar el plan nutricional", data);
     }
   };
-  // Función para eliminar un plan de la lista local (por ejemplo, en sesión)
   const removePlan = async (id: number) => {
-    await deletePlanNutricionalRequest(id);
-    // Actualizamos selectedClient.planesnutricionales con response, obteniendo los planes nutricionales, identificando el documento eliminado y le pongo la fechaBaja
-    if (selectedClient?.planesNutricionales) {
-      selectedClient.planesNutricionales =
-        selectedClient.planesNutricionales.map((p) =>
-          p.id === id ? { ...p, fechaBaja: new Date() } : p
-        );
+    const response = await deletePlanNutricionalRequest(id);
+    if (response.data) {
+      if (selectedClient?.planesNutricionales) {
+        const updatedClient = {
+          ...selectedClient,
+          planesNutricionales: selectedClient.planesNutricionales.map((p) =>
+            p.id === id
+              ? { ...p, fechaBaja: p.fechaBaja ? null : new Date() }
+              : p
+          ),
+        };
+        console.log("updatedClient", updatedClient);
+        onUpdateClient(updatedClient);
+      }
     }
   };
 
