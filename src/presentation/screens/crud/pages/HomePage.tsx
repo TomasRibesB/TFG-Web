@@ -15,6 +15,11 @@ import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
 import { Ticket } from "../../../../infrastructure/interfaces/ticket";
 import { Turno } from "../../../../infrastructure/interfaces/turno";
 import { EstadoTurno } from "../../../../infrastructure/enums/estadosTurnos";
+import {
+  createTurnoRequest,
+  updateTurnoRequest,
+  removeTurnoRequest,
+} from "../../../../services/turnos";
 
 interface Recordatorio {
   id: number;
@@ -32,16 +37,73 @@ export const HomePage = () => {
   const [newAppointmentDateTime, setNewAppointmentDateTime] =
     useState<string>("");
 
-  const handleAccept = (id: number) => {
-    console.log("Accepting turno with id: ", id);
+  // Función para crear disponibilidad
+  const handleCreateAppointment = async () => {
+    try {
+      // Se crea un turno sin paciente asignado y se obtiene el turno creado
+      const nuevoTurno = await createTurnoRequest({
+        fechaHora: new Date(newAppointmentDateTime),
+      });
+      setNewAppointmentDateTime("");
+      // Agregar el nuevo turno a la lista de turnos libres
+      setTurnosLibres((prev) => (prev ? [...prev, nuevoTurno] : [nuevoTurno]));
+    } catch (error) {
+      console.error("Error al crear la disponibilidad", error);
+    }
   };
 
-  const handleReject = (id: number) => {
-    console.log("Rejecting turno with id: ", id);
+  const handleAccept = async (id: number) => {
+    try {
+      // Se actualiza el estado del turno a Confirmado (ya está asignado por otro proceso)
+      const updatedTurno = await updateTurnoRequest({
+        id,
+        estado: EstadoTurno.Confirmado,
+      });
+      // Actualizar la UI: mover de turnosLibres a turnosOcupados
+      setTurnosLibres((prev) =>
+        prev ? prev.filter((turno) => turno.id !== id) : []
+      );
+      setTurnosOcupados((prev) =>
+        prev ? [...prev, updatedTurno as Turno] : [updatedTurno as Turno]
+      );
+    } catch (error) {
+      console.error("Error al aceptar el turno", error);
+    }
   };
 
-  const handleCreateAppointment = () => {
-    // Lógica para crear disponibilidad
+  // Función para rechazar un turno (actualiza su estado a Cancelado)
+  const handleReject = async (id: number) => {
+    try {
+      // Se actualiza el turno a Cancelado
+      const updatedTurno = await updateTurnoRequest({
+        id,
+        estado: EstadoTurno.Cancelado,
+      });
+      // Actualizar el state: quitar de turnosLibres o actualizar en turnosOcupados
+      setTurnosLibres((prev) =>
+        prev ? prev.filter((turno) => turno.id !== id) : []
+      );
+      setTurnosOcupados((prev) =>
+        prev
+          ? prev.map((turno) =>
+              turno.id === id ? (updatedTurno as Turno) : turno
+            )
+          : []
+      );
+    } catch (error) {
+      console.error("Error al rechazar el turno", error);
+    }
+  };
+
+  const handleDeleteFreeTurn = async (id: number) => {
+    try {
+      await removeTurnoRequest(id);
+      setTurnosLibres((prev) =>
+        prev ? prev.filter((turno) => turno.id !== id) : []
+      );
+    } catch (error) {
+      console.error("Error al eliminar el turno", error);
+    }
   };
 
   useEffect(() => {
@@ -73,7 +135,7 @@ export const HomePage = () => {
         gap: 2,
       }}
     >
-      {/* Primera fila: Tarjetas de resumen con altura fija */}
+      {/* Primera fila: Tarjetas de resumen */}
       <Grid2 container spacing={2} sx={{ flex: "0 0 30%" }}>
         <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
           <Box
@@ -88,7 +150,7 @@ export const HomePage = () => {
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "flex-start", // Alinea a la izquierda
+                alignItems: "flex-start",
                 width: "100%",
               }}
             >
@@ -115,7 +177,7 @@ export const HomePage = () => {
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "flex-start", // Alinea a la izquierda
+                alignItems: "flex-start",
                 width: "100%",
               }}
             >
@@ -239,11 +301,7 @@ export const HomePage = () => {
         <Grid2 size={{ xs: 12, sm: 6 }}>
           <Box
             className="card-shadow"
-            sx={{
-              backgroundColor: "background.paper",
-              p: 2,
-              height: "58vh",
-            }}
+            sx={{ backgroundColor: "background.paper", p: 2, height: "58vh" }}
           >
             <Typography variant="h4" sx={{ mb: 2 }}>
               Listado de Turnos
@@ -253,7 +311,9 @@ export const HomePage = () => {
                 <Card key={`turno-${turno.id}`} sx={{ mb: 2 }}>
                   <CardContent>
                     <Typography variant="h6">
-                      {turno.paciente.firstName} {turno.paciente.lastName}
+                      {turno.paciente
+                        ? `${turno.paciente.firstName} ${turno.paciente.lastName}`
+                        : "Sin asignar"}
                     </Typography>
                     <Typography variant="body1">
                       Fecha: {new Date(turno.fechaHora).toLocaleString()}
@@ -293,11 +353,7 @@ export const HomePage = () => {
         <Grid2 size={{ xs: 12, sm: 6 }}>
           <Box
             className="card-shadow"
-            sx={{
-              backgroundColor: "background.paper",
-              p: 2,
-              height: "58vh",
-            }}
+            sx={{ backgroundColor: "background.paper", p: 2, height: "58vh" }}
           >
             <Typography variant="h4" sx={{ mb: 2 }}>
               Crear Disponibilidad
@@ -310,12 +366,16 @@ export const HomePage = () => {
               InputLabelProps={{ shrink: true }}
               fullWidth
               sx={{ mb: 2 }}
+              inputProps={{
+                min: new Date().toISOString().substring(0, 16),
+              }}
             />
             <Button
               variant="contained"
               color="primary"
               sx={{ mr: 2, borderRadius: "8px" }}
               size="medium"
+              disabled={!newAppointmentDateTime}
               onClick={handleCreateAppointment}
             >
               Crear Disponibilidad
@@ -334,10 +394,26 @@ export const HomePage = () => {
               </Typography>
               {turnosLibres?.map((turno) => (
                 <Card key={`unreserved-${turno.id}`} sx={{ mb: 2 }}>
-                  <CardContent>
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
                     <Typography variant="body1">
                       Fecha: {new Date(turno.fechaHora).toLocaleString()}
                     </Typography>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleDeleteFreeTurn(turno.id)}
+                      sx={{ mt: 1 }}
+                    >
+                      Eliminar
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
