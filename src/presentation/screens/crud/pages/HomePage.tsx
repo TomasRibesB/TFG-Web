@@ -173,7 +173,7 @@ export const HomePage = () => {
             <Box sx={{ maxHeight: "15vh", pr: 1, overflowY: "auto" }}>
               {recordatorios.map((recordatorio) => (
                 <Card
-                  key={`reminder-${recordatorio.id}`}
+                  key={`reminder-${recordatorio.id}-${recordatorio.tipo}-${recordatorio.fecha}`}
                   sx={{ mb: 2, boxShadow: 0 }}
                 >
                   <CardContent sx={{ p: 2 }}>
