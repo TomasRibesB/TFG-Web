@@ -18,7 +18,8 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import ArchiveIcon from "@mui/icons-material/Archive";
+import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import AddIcon from "@mui/icons-material/Add";
 import SetMealIcon from "@mui/icons-material/SetMeal";
 import BreakfastDiningIcon from "@mui/icons-material/BreakfastDining";
@@ -147,26 +148,30 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
     await deletePlanNutricionalRequest(id);
     // Actualizamos selectedClient.planesnutricionales con response, obteniendo los planes nutricionales, identificando el documento eliminado y le pongo la fechaBaja
     if (selectedClient?.planesNutricionales) {
-      selectedClient.planesNutricionales = selectedClient.planesNutricionales.map((p) =>
-        p.id === id ? { ...p, fechaBaja: new Date() } : p
-      );
+      selectedClient.planesNutricionales =
+        selectedClient.planesNutricionales.map((p) =>
+          p.id === id ? { ...p, fechaBaja: new Date() } : p
+        );
     }
-  }
-
+  };
 
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
       {/* Listado de Planes Nutricionales */}
-      {(selectedClient.planesNutricionales) && (
+      {selectedClient.planesNutricionales && (
         <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
           <Typography variant="h6" gutterBottom>
             Planes Nutricionales
           </Typography>
-          {(selectedClient.planesNutricionales).map((plan) => (
+          {selectedClient.planesNutricionales.map((plan) => (
             <Accordion
               key={plan.id}
               disableGutters
               TransitionProps={{ unmountOnExit: true }}
+              sx={{
+                opacity: plan.fechaBaja ? 0.6 : 1,
+                mb: 1,
+              }}
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -240,14 +245,16 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
                     startIcon={<EditIcon />}
                     onClick={() => handleOpenEditModal(plan)}
                   >
-                    Editar Plan
+                    Editar
                   </Button>
                   <Button
                     variant="outlined"
-                    startIcon={<DeleteIcon />}
+                    startIcon={
+                      plan.fechaBaja ? <UnarchiveIcon /> : <ArchiveIcon />
+                    }
                     onClick={() => removePlan(plan.id)}
                   >
-                    Eliminar
+                    {plan.fechaBaja ? "Restaurar" : "Archivar"}
                   </Button>
                 </Box>
               </AccordionDetails>
@@ -401,7 +408,10 @@ export const NutricionistaForm: React.FC<Props> = ({ selectedClient }) => {
       </Fab>
     </Box>
   ) : (
-    <Typography variant="body1" sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}>
+    <Typography
+      variant="body1"
+      sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}
+    >
       Seleccione un cliente para ver sus planes nutricionales.
     </Typography>
   );

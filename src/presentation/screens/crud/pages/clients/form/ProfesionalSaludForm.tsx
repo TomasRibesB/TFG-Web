@@ -19,7 +19,8 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import ArchiveIcon from "@mui/icons-material/Archive";
+import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import AddIcon from "@mui/icons-material/Add";
 import { MuiFileInput } from "mui-file-input";
 import { User } from "../../../../../../infrastructure/interfaces/user";
@@ -169,6 +170,10 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
                 key={doc.id}
                 disableGutters
                 TransitionProps={{ unmountOnExit: true }}
+                sx={{
+                  opacity: doc.fechaBaja ? 0.6 : 1,
+                  mb: 1,
+                }}
               >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -205,14 +210,16 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
                       startIcon={<EditIcon />}
                       onClick={() => handleOpenEditModal(doc)}
                     >
-                      Editar Documento
+                      Editar
                     </Button>
                     <Button
                       variant="outlined"
-                      startIcon={<DeleteIcon />}
+                      startIcon={
+                        doc.fechaBaja ? <UnarchiveIcon /> : <ArchiveIcon />
+                      }
                       onClick={() => removeDocument(doc.id)}
                     >
-                      Eliminar
+                      {doc.fechaBaja ? "Restaurar" : "Archivar"}
                     </Button>
                   </Box>
                 </AccordionDetails>
@@ -309,7 +316,10 @@ export const ProfesionalSaludForm: React.FC<Props> = ({ selectedClient }) => {
       </Fab>
     </Box>
   ) : (
-    <Typography variant="body1" sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}>
+    <Typography
+      variant="body1"
+      sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}
+    >
       Seleccione un cliente para ver sus documentos.
     </Typography>
   );

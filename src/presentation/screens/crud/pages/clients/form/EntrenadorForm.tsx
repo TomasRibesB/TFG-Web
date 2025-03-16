@@ -30,7 +30,8 @@ import {
   updateRoutineRequest,
   deleteRoutineRequest,
 } from "../../../../../../services/entrenamiento";
-import DeleteIcon from "@mui/icons-material/Delete";
+import ArchiveIcon from '@mui/icons-material/Archive';
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 import { UnidadMedida } from "../../../../../../infrastructure/enums/unidadMedida";
 import { GruposMusculares } from "../../../../../../infrastructure/interfaces/grupos-musculares";
@@ -247,6 +248,10 @@ export const EntrenadorForm: React.FC<Props> = ({
                   key={routine.id}
                   disableGutters
                   TransitionProps={{ unmountOnExit: true }}
+                  sx={{
+                    opacity: routine.fechaBaja ? 0.6 : 1,
+                    mb: 1,
+                  }}
                 >
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -314,14 +319,14 @@ export const EntrenadorForm: React.FC<Props> = ({
                         startIcon={<EditIcon />}
                         onClick={() => handleOpenModal(routine)}
                       >
-                        Editar Rutina
+                        Editar
                       </Button>
                       <Button
                         variant="outlined"
-                        startIcon={<DeleteIcon />}
+                        startIcon={ routine.fechaBaja ? <UnarchiveIcon /> : <ArchiveIcon /> }
                         onClick={() => handleDeleteRoutine(routine.id)}
                       >
-                        Eliminar
+                        { routine.fechaBaja ? 'Restaurar' : 'Archivar' }
                       </Button>
                     </Box>
                   </AccordionDetails>
