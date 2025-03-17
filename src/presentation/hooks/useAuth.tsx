@@ -5,6 +5,7 @@ import { isTokenExpired } from "../../utils/tokenUtils";
 import { initialFetch } from "../../services/fetch";
 import { User } from "../../infrastructure/interfaces/user";
 import { Role } from "../../infrastructure/enums/roles";
+import { uploadCertificateRequest } from "../../services/user";
 
 export const useAuth = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export const useAuth = () => {
     try {
       const data = await loginRequest(email, password);
       if (data.role && data.role == Role.Usuario) {
-        return 'Esta aplicación es solo para profesionales de la salud';
+        return "Esta aplicación es solo para profesionales de la salud";
       }
       console.log("continua");
       await StorageAdapter.setItem("user", data);
@@ -23,7 +24,7 @@ export const useAuth = () => {
       return;
     } catch (err) {
       console.log(err);
-      return 'Usuario o contraseña incorrectos';
+      return "Usuario o contraseña incorrectos";
     }
   };
 
@@ -43,17 +44,33 @@ export const useAuth = () => {
     password: string,
     firstName: string,
     lastName: string,
-    dni: string
+    dni: string,
+    role: Role,
+    tipoProfesionalIds?: number[],
+    certificate?: File
   ) => {
     try {
-      const data = await registerRequest({
+      const data : User = await registerRequest({
         email,
         password,
         firstName,
         lastName,
         dni,
+        role,
+        tipoProfesionalIds,
       });
       await StorageAdapter.setItem("user", data);
+
+      if (
+        data.id &&
+        certificate &&
+        data.userTipoProfesionales &&
+        data.userTipoProfesionales.length > 0 &&
+        data.userTipoProfesionales[0].id !== undefined
+      ) {
+        await uploadCertificateRequest(data.userTipoProfesionales[0].id, data.id, certificate);
+      }
+
       // Redirige al loader
       navigate("/loader", { replace: true });
     } catch (err) {

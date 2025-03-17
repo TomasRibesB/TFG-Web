@@ -474,7 +474,7 @@ export const ProfilePage = () => {
             value={image}
             sx={{ width: "100%", borderRadius: "8px", mr: 2 }}
             getInputText={(file) => file?.name || ""}
-            inputProps={{ accept: ".png, .jpeg, .jpg, .pdf" }}
+            inputProps={{ accept: ".png, .jpeg, .jpg" }}
           />
           <Button
             variant="contained"

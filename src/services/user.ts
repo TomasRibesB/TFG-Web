@@ -38,6 +38,27 @@ export const uploadImageRequest = async (image: File) => {
   return data;
 };
 
+export const uploadCertificateRequest = async (
+  userTipoProfesionalId: number,
+  userId: number,
+  certificate: File
+) => {
+  const formData = new FormData();
+  formData.append("userTipoProfesionalId", userTipoProfesionalId.toString());
+  formData.append("userId", userId.toString());
+  formData.append("certificate", certificate);
+  const { data } = await api.post(
+    `/users/profesionales/certificado`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return data;
+};
+
 export const getUserImageRequest = async (id: number) => {
   const { data } = await api.get(`/users/image/${id}`);
   return data;
@@ -59,5 +80,10 @@ export const postAsignarClienteRequest = async (clienteId: number) => {
   const { data } = await api.post(`/users/profesionales/asignar-usuario`, {
     clienteId,
   });
+  return data;
+};
+
+export const getTipoProfesionalRequest = async () => {
+  const { data } = await api.get(`/users/tipos-profesional`);
   return data;
 };

@@ -19,11 +19,20 @@ import { Link as RouterLink } from "react-router-dom";
 import { AuthLayout } from "../layout/AuthLayout";
 import { MuiFileInput } from "mui-file-input";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
+import { Role } from "../../../../infrastructure/enums/roles";
+import { getTipoProfesionalRequest } from "../../../../services/user";
+import { TipoProfesional } from "../../../../infrastructure/interfaces/tipo-profesional";
+
+interface HandleChangeEvent {
+  target: {
+    certificate: File | undefined;
+  };
+}
 
 export const RegisterPage = () => {
-  const [value, setValue] = useState<File[] | undefined>(undefined);
+  const [certificate, setCertificate] = useState<File | undefined>(undefined);
 
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
@@ -31,18 +40,29 @@ export const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [dni, setDni] = useState("");
-  const [profesion, setProfesion] = useState("");
+  const [profesion, setProfesion] = useState<Role | "">("");
+  const [tipoProfesional, setTipoProfesional] = useState<TipoProfesional[]>([]);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const { register } = useAuth();
+  const [tiposProfesional, setTiposProfesional] = useState<TipoProfesional[]>(
+    []
+  );
 
-  interface HandleChangeEvent {
-    target: {
-      value: File[] | undefined;
-    };
-  }
+  useEffect(() => {
+    fetch();
+  }, []);
+
+  const fetch = async () => {
+    try {
+      const tiposProfesional = await getTipoProfesionalRequest();
+      setTiposProfesional(tiposProfesional);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -101,10 +121,22 @@ export const RegisterPage = () => {
       setError("Debes aceptar los términos y condiciones");
       return;
     }
-    // Aquí se pueden agregar validaciones adicionales según se requiera
 
     try {
-      await register(email, password, nombre, apellido, dni);
+      await register(
+        email,
+        password,
+        nombre,
+        apellido,
+        dni,
+        profesion,
+        profesion === Role.Profesional && tipoProfesional.length > 0
+          ? tipoProfesional
+              .map((tp) => tp.id)
+              .filter((id): id is number => id !== undefined)
+          : undefined,
+        certificate
+      );
       setNombre("");
       setApellido("");
       setEmail("");
@@ -112,7 +144,8 @@ export const RegisterPage = () => {
       setConfirmPassword("");
       setDni("");
       setProfesion("");
-      setValue(undefined);
+      setCertificate(undefined);
+      setTipoProfesional([]);
       setTermsAccepted(false);
     } catch (err) {
       setError("No se pudo registrar");
@@ -120,8 +153,11 @@ export const RegisterPage = () => {
     }
   };
 
-  const handleChange = (newValue: HandleChangeEvent["target"]["value"]) => {
-    setValue(newValue);
+  const handleChange = (
+    newValue: HandleChangeEvent["target"]["certificate"] | null
+  ) => {
+    if (!newValue) return;
+    setCertificate(newValue);
   };
 
   return (
@@ -272,18 +308,27 @@ export const RegisterPage = () => {
                 <Select
                   value={profesion}
                   onChange={(e) => {
-                    setProfesion(e.target.value);
+                    setProfesion(e.target.value as Role);
+                    setTipoProfesional([]);
                     setError("");
                   }}
                   label="Profesión"
                   placeholder="Tipo de usuario"
                   style={{ borderRadius: "8px" }}
                 >
-                  <MenuItem value="nutricionista">Nutricionista</MenuItem>
-                  <MenuItem value="entrenador">Entrenador</MenuItem>
-                  <MenuItem value="profesional">
-                    Profesional de la salud
-                  </MenuItem>
+                  {Object.values(Role)
+                    .filter((role) => role !== Role.Usuario)
+                    .map((role) => {
+                      const displayText =
+                        role === Role.Profesional
+                          ? "Otra profesión de la salud"
+                          : role.charAt(0).toUpperCase() + role.slice(1);
+                      return (
+                        <MenuItem key={role} value={role}>
+                          {displayText}
+                        </MenuItem>
+                      );
+                    })}
                 </Select>
               </FormControl>
             </Grid2>
@@ -300,22 +345,51 @@ export const RegisterPage = () => {
                 }}
                 label="Certificado Profesional"
                 onChange={handleChange}
-                value={value}
+                value={certificate}
                 clearIconButtonProps={{
                   title: "Limpiar",
                   children: <Delete />,
                 }}
                 fullWidth
-                getInputText={(files) =>
-                  files?.length === 1
-                    ? "1 archivo seleccionado"
-                    : `${files?.length} archivos seleccionados`
-                }
-                multiple
+                getInputText={(file) => file?.name || ""}
                 inputProps={{ accept: ".png, .jpeg, .jpg, .pdf" }}
               />
             </Grid2>
           </Grid2>
+          {profesion === Role.Profesional && (
+            <Grid2 container size={12}>
+              <Grid2 size={6}>
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel>Tipo de profesional</InputLabel>
+                  <Select
+                    value={tipoProfesional[0]?.id || ""}
+                    onChange={(e) => {
+                      setTipoProfesional(
+                        tiposProfesional.filter(
+                          (tipo) => tipo.id === e.target.value
+                        )
+                      );
+                      setError("");
+                    }}
+                    label="Tipo de profesional"
+                    style={{ borderRadius: "8px" }}
+                  >
+                    {tiposProfesional.map((tipo) => {
+                      const displayText = tipo.profesion
+                        ? tipo.profesion.charAt(0).toUpperCase() +
+                          tipo.profesion.slice(1)
+                        : "";
+                      return (
+                        <MenuItem key={tipo.id} value={tipo.id}>
+                          {displayText}
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
+                </FormControl>
+              </Grid2>
+            </Grid2>
+          )}
           {/* Aceptar términos */}
           <Grid2 size={12}>
             <FormControlLabel
