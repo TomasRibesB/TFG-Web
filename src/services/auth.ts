@@ -4,7 +4,7 @@ import { StorageAdapter } from "../config/adapters/storage-adapter";
 import { Role } from "../infrastructure/enums/roles";
 
 export const loginRequest = async (email: string, password: string) => {
-  const { data } = await api.post("/auth/login", { email, password });
+  const { data } = await api.post("/auth/login-profesional", { email, password });
   return data;
 };
 

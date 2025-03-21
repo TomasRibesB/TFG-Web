@@ -81,7 +81,7 @@ export const useAuth = () => {
   const authRedirection = async () => {
     const user = await StorageAdapter.getItem<Partial<User>>("user");
 
-    if (user && user.token) {
+    if (user && user.token && user.role !== Role.Usuario) {
       if (isTokenExpired(user.token)) {
         await logout();
         return;

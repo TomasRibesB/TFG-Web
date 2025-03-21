@@ -26,7 +26,7 @@ import {
   getRelacionesEjericiosRequest,
 } from "../../../../../services/entrenamiento";
 import { Documento } from "../../../../../infrastructure/interfaces/documento";
-import { getDocumentosForProfesionalByUserRequest } from "../../../../../services/salud";
+import { getDocumentosForProfesionalByUserRequest, getVisibleDocumentosForProfesionalByUserRequest } from "../../../../../services/salud";
 import { ImageAvatar } from "../../../../components/ImageAvatar";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { GruposMusculares } from "../../../../../infrastructure/interfaces/grupos-musculares";
@@ -47,6 +47,7 @@ export const ClientsPage = () => {
   const [user, setUser] = useState<Partial<User> | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [documents, setDocuments] = useState<Partial<Documento>[]>([]);
 
   useEffect(() => {
     setLoading(true);
@@ -73,9 +74,12 @@ export const ClientsPage = () => {
     }
   };
 
-  const handeSelectClient = (client: Partial<User>) => {
+  const handeSelectClient = async (client: Partial<User>) => {
     if (!client || typeof client.id !== "number") return;
     setSelectedClient(client);
+    const documentos: Partial<Documento>[] =
+      await getVisibleDocumentosForProfesionalByUserRequest(client.id!);
+    setDocuments(documentos);
 
     if (user?.role === Role.Nutricionista) {
       fetchNutricionista(client);
@@ -283,13 +287,22 @@ export const ClientsPage = () => {
             gruposMusculares={gruposMusculares}
             categoriasEjercicio={categorias}
             onUpdateClient={handleUpdateClient}
+            documents={documents}
           />
         )}
         {user && user.role === Role.Nutricionista && (
-          <NutricionistaForm selectedClient={selectedClient} onUpdateClient={handleUpdateClient} />
+          <NutricionistaForm
+            selectedClient={selectedClient}
+            onUpdateClient={handleUpdateClient}
+            documents={documents}
+          />
         )}
         {user && user.role === Role.Profesional && (
-          <ProfesionalSaludForm selectedClient={selectedClient} onUpdateClient={handleUpdateClient} />
+          <ProfesionalSaludForm
+            selectedClient={selectedClient}
+            onUpdateClient={handleUpdateClient}
+            documents={documents}
+          />
         )}
       </Grid2>
       <DialogNewClient

@@ -32,15 +32,19 @@ import {
   setPlanNutricionalRequest,
   updatePlanNutricionalRequest,
 } from "../../../../../../services/nutricion";
+import { Documento } from "../../../../../../infrastructure/interfaces/documento";
+import { DocumentosForm } from "../components/DocumentosForm";
 
 interface Props {
   selectedClient: Partial<User> | null;
   onUpdateClient: (client: Partial<User>) => void;
+  documents: Partial<Documento>[];
 }
 
 export const NutricionistaForm: React.FC<Props> = ({
   selectedClient,
   onUpdateClient,
+  documents,
 }) => {
   // Estados para los campos del plan nutricional
   const [planName, setPlanName] = useState<string>("");
@@ -167,119 +171,138 @@ export const NutricionistaForm: React.FC<Props> = ({
 
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
-      {/* Listado de Planes Nutricionales */}
-      {selectedClient.planesNutricionales && (
-        <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
-          <Typography variant="h6" gutterBottom>
-            Planes Nutricionales
-          </Typography>
-          <Fab
-            color="primary"
-            aria-label="add"
-            sx={{ position: "absolute", top: 0, right: 0 }}
-            onClick={handleOpenModal}
-          >
-            <AddIcon />
-          </Fab>
-          {selectedClient.planesNutricionales.map((plan) => (
-            <Accordion
-              key={plan.id}
-              disableGutters
-              TransitionProps={{ unmountOnExit: true }}
+      <Grid2 container spacing={2}>
+        <Grid2
+          size={{ xs: 9 }}
+          sx={{
+            borderRight: "1px solid #ddd",
+          }}
+        >
+          {/* Listado de Planes Nutricionales */}
+          {selectedClient.planesNutricionales && (
+            <Box
               sx={{
-                opacity: plan.fechaBaja ? 0.6 : 1,
-                mb: 1,
+                mb: 3,
+                p: 2,
+                backgroundColor: "background.paper",
+                position: "relative",
               }}
             >
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      color: plan.fechaBaja ? "error.main" : "text.primary",
-                    }}
-                  >
-                    {plan.nombre}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {plan.fechaCreacion
-                      ? new Date(plan.fechaCreacion).toLocaleDateString()
-                      : "Fecha no definida"}
-                  </Typography>
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography variant="body2" gutterBottom>
-                  {plan.descripcion || "Sin descripción"}
-                </Typography>
-                <Typography variant="body2">
-                  Calorías Diarias: {plan.caloriasDiarias || 0}
-                </Typography>
-                <Box sx={{ mt: 1 }}>
-                  <Typography variant="body2">Macronutrientes:</Typography>
-                  <List dense>
-                    <ListItem>
-                      <SetMealIcon sx={{ mr: 1 }} color="primary" />
-                      <ListItemText
-                        primary={`Proteínas: ${
-                          plan.macronutrientes?.proteinas || 0
-                        } g`}
-                      />
-                    </ListItem>
-                    <ListItem>
-                      <BreakfastDiningIcon sx={{ mr: 1 }} color="primary" />
-                      <ListItemText
-                        primary={`Carbohidratos: ${
-                          plan.macronutrientes?.carbohidratos || 0
-                        } g`}
-                      />
-                    </ListItem>
-                    <ListItem>
-                      <OpacityIcon sx={{ mr: 1 }} color="primary" />
-                      <ListItemText
-                        primary={`Grasas: ${
-                          plan.macronutrientes?.grasas || 0
-                        } g`}
-                      />
-                    </ListItem>
-                  </List>
-                </Box>
-                <Typography variant="body2">
-                  Objetivos: {plan.objetivos || "No especificados"}
-                </Typography>
-                <Typography variant="body2">
-                  Notas Adicionales: {plan.notasAdicionales || "Sin notas"}
-                </Typography>
-                <Box
+              <Typography variant="h6" gutterBottom>
+                Planes Nutricionales
+              </Typography>
+              <Fab
+                color="primary"
+                aria-label="add"
+                sx={{ position: "absolute", top: 0, right: 0 }}
+                onClick={handleOpenModal}
+              >
+                <AddIcon />
+              </Fab>
+              {selectedClient.planesNutricionales.map((plan) => (
+                <Accordion
+                  key={plan.id}
+                  disableGutters
+                  TransitionProps={{ unmountOnExit: true }}
                   sx={{
-                    mt: 1,
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    gap: 1,
+                    opacity: plan.fechaBaja ? 0.6 : 1,
+                    mb: 1,
                   }}
                 >
-                  <Button
-                    variant="outlined"
-                    startIcon={<EditIcon />}
-                    onClick={() => handleOpenEditModal(plan)}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    startIcon={
-                      plan.fechaBaja ? <UnarchiveIcon /> : <ArchiveIcon />
-                    }
-                    onClick={() => removePlan(plan.id)}
-                  >
-                    {plan.fechaBaja ? "Restaurar" : "Archivar"}
-                  </Button>
-                </Box>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </Box>
-      )}
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          color: plan.fechaBaja ? "error.main" : "text.primary",
+                        }}
+                      >
+                        {plan.nombre}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {plan.fechaCreacion
+                          ? new Date(plan.fechaCreacion).toLocaleDateString()
+                          : "Fecha no definida"}
+                      </Typography>
+                    </Box>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography variant="body2" gutterBottom>
+                      {plan.descripcion || "Sin descripción"}
+                    </Typography>
+                    <Typography variant="body2">
+                      Calorías Diarias: {plan.caloriasDiarias || 0}
+                    </Typography>
+                    <Box sx={{ mt: 1 }}>
+                      <Typography variant="body2">Macronutrientes:</Typography>
+                      <List dense>
+                        <ListItem>
+                          <SetMealIcon sx={{ mr: 1 }} color="primary" />
+                          <ListItemText
+                            primary={`Proteínas: ${
+                              plan.macronutrientes?.proteinas || 0
+                            } g`}
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <BreakfastDiningIcon sx={{ mr: 1 }} color="primary" />
+                          <ListItemText
+                            primary={`Carbohidratos: ${
+                              plan.macronutrientes?.carbohidratos || 0
+                            } g`}
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <OpacityIcon sx={{ mr: 1 }} color="primary" />
+                          <ListItemText
+                            primary={`Grasas: ${
+                              plan.macronutrientes?.grasas || 0
+                            } g`}
+                          />
+                        </ListItem>
+                      </List>
+                    </Box>
+                    <Typography variant="body2">
+                      Objetivos: {plan.objetivos || "No especificados"}
+                    </Typography>
+                    <Typography variant="body2">
+                      Notas Adicionales: {plan.notasAdicionales || "Sin notas"}
+                    </Typography>
+                    <Box
+                      sx={{
+                        mt: 1,
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        gap: 1,
+                      }}
+                    >
+                      <Button
+                        variant="outlined"
+                        startIcon={<EditIcon />}
+                        onClick={() => handleOpenEditModal(plan)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        startIcon={
+                          plan.fechaBaja ? <UnarchiveIcon /> : <ArchiveIcon />
+                        }
+                        onClick={() => removePlan(plan.id)}
+                      >
+                        {plan.fechaBaja ? "Restaurar" : "Archivar"}
+                      </Button>
+                    </Box>
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+            </Box>
+          )}
+        </Grid2>
+        <Grid2 size={{ xs: 3 }}>
+          <DocumentosForm documents={documents} />
+        </Grid2>
+      </Grid2>
 
       {/* Modal para Crear/Editar Plan Nutricional */}
       <Dialog

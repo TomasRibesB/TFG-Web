@@ -36,12 +36,15 @@ import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 import { UnidadMedida } from "../../../../../../infrastructure/enums/unidadMedida";
 import { GruposMusculares } from "../../../../../../infrastructure/interfaces/grupos-musculares";
 import { CategoriaEjercicio } from "../../../../../../infrastructure/interfaces/categoria-ejercicio";
+import { Documento } from "../../../../../../infrastructure/interfaces/documento";
+import { DocumentosForm } from "../components/DocumentosForm";
 
 interface Props {
   selectedClient: Partial<User> | null;
   gruposMusculares: GruposMusculares[];
   categoriasEjercicio: CategoriaEjercicio[];
   onUpdateClient: (client: Partial<User>) => void;
+  documents: Partial<Documento>[];
 }
 
 export const EntrenadorForm: React.FC<Props> = ({
@@ -49,6 +52,7 @@ export const EntrenadorForm: React.FC<Props> = ({
   gruposMusculares,
   categoriasEjercicio,
   onUpdateClient,
+  documents,
 }) => {
   const [routineName, setRoutineName] = useState("");
   const [routineDescription, setRoutineDescription] = useState("");
@@ -361,11 +365,7 @@ export const EntrenadorForm: React.FC<Props> = ({
           )}
         </Grid2>
         <Grid2 size={{ xs: 3 }}>
-          <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
-            <Typography variant="h6" gutterBottom>
-              Documentos
-            </Typography>
-          </Box>
+          <DocumentosForm documents={documents} />
         </Grid2>
       </Grid2>
 

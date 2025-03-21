@@ -1,12 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Box,
   TextField,
   Button,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Fab,
   Dialog,
   DialogTitle,
@@ -16,11 +13,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Divider,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import EditIcon from "@mui/icons-material/Edit";
-import ArchiveIcon from "@mui/icons-material/Archive";
-import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import AddIcon from "@mui/icons-material/Add";
 import { MuiFileInput } from "mui-file-input";
 import { User } from "../../../../../../infrastructure/interfaces/user";
@@ -33,6 +27,7 @@ import {
   uploadFileRequest,
   //getArchivoRequest,
 } from "../../../../../../services/salud";
+import { DocumentoProfesional } from "../components/DocumentosProfesional";
 
 interface DocumentoRequest {
   id?: number;
@@ -45,11 +40,13 @@ interface DocumentoRequest {
 interface Props {
   selectedClient: Partial<User> | null;
   onUpdateClient: (client: Partial<User>) => void;
+  documents: Partial<Documento>[];
 }
 
 export const ProfesionalSaludForm: React.FC<Props> = ({
   selectedClient,
   onUpdateClient,
+  documents,
 }) => {
   const [docType, setDocType] = useState<TipoDocumento>(TipoDocumento.Informe);
   const [docTitle, setDocTitle] = useState<string>("");
@@ -60,6 +57,18 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
     null
   );
   const [openDocumentModal, setOpenDocumentModal] = useState(false);
+  const [profesionalDocuments, setProfesionalDocuments] = useState<Documento[]>(
+    []
+  );
+
+  useEffect(() => {
+    const clientDocs = selectedClient?.documentos || [];
+    setProfesionalDocuments([...clientDocs, ...createdDocuments]);
+  }, [selectedClient, createdDocuments]);
+
+  useEffect(() => {
+    setCreatedDocuments([]);
+  }, [selectedClient]);
 
   const handleOpenModal = () => {
     setCurrentDocument(null);
@@ -92,8 +101,7 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
       const data = await setDocumentoRequest(newDocument);
       if (data?.id && docFile) {
         // Subir archivo
-        const { response } = await uploadFileRequest(docFile, data.id);
-        console.log(response);
+        await uploadFileRequest(docFile, data.id);
       }
       setCreatedDocuments([...createdDocuments, data]);
       setOpenDocumentModal(false);
@@ -118,11 +126,7 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
         // Actualizamos selectedClient.documentos si existe
         if (docFile) {
           // Subir archivo
-          const { response } = await uploadFileRequest(
-            docFile,
-            currentDocument.id
-          );
-          console.log(response);
+          await uploadFileRequest(docFile, currentDocument.id);
         }
         if (selectedClient.documentos) {
           selectedClient.documentos = selectedClient.documentos.map((doc) =>
@@ -161,7 +165,6 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
         doc.id === id ? { ...doc, fechaBaja: new Date() } : doc
       )
     );
-    console.log(response);
   };
 
   return selectedClient ? (
@@ -180,68 +183,29 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
           <Typography variant="h6" gutterBottom>
             Documentos
           </Typography>
-          {(selectedClient.documentos || [])
-            .concat(createdDocuments)
-            .map((doc) => (
-              <Accordion
-                key={doc.id}
-                disableGutters
-                TransitionProps={{ unmountOnExit: true }}
-                sx={{
-                  opacity: doc.fechaBaja ? 0.6 : 1,
-                  mb: 1,
-                }}
-              >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Box sx={{ display: "flex", flexDirection: "column" }}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        color: doc.fechaBaja ? "error.main" : "text.primary",
-                      }}
-                    >
-                      {doc.titulo}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {doc.fechaSubida
-                        ? new Date(doc.fechaSubida).toLocaleDateString()
-                        : "Fecha no definida"}
-                    </Typography>
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography variant="body2" gutterBottom>
-                    {doc.descripcion || "Sin descripción"}
-                  </Typography>
-                  <Typography variant="body2">Tipo: {doc.tipo}</Typography>
-                  <Box
-                    sx={{
-                      mt: 1,
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: 1,
-                    }}
-                  >
-                    <Button
-                      variant="outlined"
-                      startIcon={<EditIcon />}
-                      onClick={() => handleOpenEditModal(doc)}
-                    >
-                      Editar
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      startIcon={
-                        doc.fechaBaja ? <UnarchiveIcon /> : <ArchiveIcon />
-                      }
-                      onClick={() => removeDocument(doc.id)}
-                    >
-                      {doc.fechaBaja ? "Restaurar" : "Archivar"}
-                    </Button>
-                  </Box>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+          {(profesionalDocuments || []).map((doc) => (
+            <DocumentoProfesional
+              key={doc.id}
+              document={doc}
+              onhandleOpenEditModal={handleOpenEditModal}
+              onRemoveDocument={removeDocument}
+            />
+          ))}
+          {documents && documents.length > 0 && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle1" gutterBottom>
+                Documentos del Cliente
+              </Typography>
+              {(documents || []).map((doc) => (
+                <DocumentoProfesional
+                  key={doc.id}
+                  document={doc}
+                  isEditable={false}
+                />
+              ))}
+            </>
+          )}
         </Box>
       )}
 
