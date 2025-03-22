@@ -1,6 +1,7 @@
 import { Role } from "../enums/roles";
 import { Sex } from "../enums/sex";
 import { Documento } from "./documento";
+import { PermisoDocumento } from "./permiso-documento";
 import { PlanNutricional } from "./plan-nutricional";
 import { Routine } from "./routine";
 import { Ticket } from "./ticket";
@@ -30,4 +31,5 @@ export interface User {
   documentos?: Documento[];
   userTipoProfesionales?: UserTipoProfesional[];
   token?: string;
+  permisosDocumentos?: PermisoDocumento[];
 }
