@@ -9,5 +9,5 @@ export interface Routine {
     user: User;
     trainer: User;
     fechaBaja?: Date | null;
-    visibilidad: User[];
+    visibilidad?: User[];
   }

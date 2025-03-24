@@ -34,17 +34,22 @@ import {
 } from "../../../../../../services/nutricion";
 import { Documento } from "../../../../../../infrastructure/interfaces/documento";
 import { DocumentosForm } from "../components/DocumentosForm";
+import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 
 interface Props {
   selectedClient: Partial<User> | null;
   onUpdateClient: (client: Partial<User>) => void;
   documents: Partial<Documento>[];
+  routines: Partial<Routine>[];
+  planesNutricionales: Partial<PlanNutricional>[];
 }
 
 export const NutricionistaForm: React.FC<Props> = ({
   selectedClient,
   onUpdateClient,
   documents,
+  routines,
+  planesNutricionales,
 }) => {
   // Estados para los campos del plan nutricional
   const [planName, setPlanName] = useState<string>("");
@@ -173,9 +178,21 @@ export const NutricionistaForm: React.FC<Props> = ({
     <Box sx={{ position: "relative", p: 2 }}>
       <Grid2 container spacing={2}>
         <Grid2
-          size={{ xs: 9 }}
+          size={{
+            xs:
+              documents.length > 0 ||
+              routines.length > 0 ||
+              planesNutricionales.length > 0
+                ? 9
+                : 12,
+          }}
           sx={{
-            borderRight: "1px solid #ddd",
+            borderRight:
+              documents.length > 0 ||
+              routines.length > 0 ||
+              planesNutricionales.length > 0
+                ? "1px solid #ddd"
+                : "none",
           }}
         >
           {/* Listado de Planes Nutricionales */}
@@ -194,7 +211,7 @@ export const NutricionistaForm: React.FC<Props> = ({
               <Fab
                 color="primary"
                 aria-label="add"
-                sx={{ position: "absolute", top: 0, right: 0 }}
+                sx={{ position: "absolute", top: 0, right: 16 }}
                 onClick={handleOpenModal}
               >
                 <AddIcon />
@@ -299,9 +316,17 @@ export const NutricionistaForm: React.FC<Props> = ({
             </Box>
           )}
         </Grid2>
-        <Grid2 size={{ xs: 3 }}>
-          <DocumentosForm documents={documents} />
-        </Grid2>
+        {(documents.length > 0 ||
+          routines.length > 0 ||
+          planesNutricionales.length > 0) && (
+          <Grid2 size={{ xs: 3 }}>
+            <DocumentosForm
+              documents={documents}
+              routines={routines}
+              planesNutricionales={planesNutricionales}
+            />
+          </Grid2>
+        )}
       </Grid2>
 
       {/* Modal para Crear/Editar Plan Nutricional */}

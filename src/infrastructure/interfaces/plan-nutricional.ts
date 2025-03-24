@@ -13,5 +13,5 @@ export interface PlanNutricional {
   paciente?: User;
   nutricionista?: User;
   fechaBaja?: Date | null;
-  visibilidad: User[];
+  visibilidad?: User[];
 }

@@ -42,3 +42,10 @@ export const deleteRoutineRequest = async (id: number) => {
   const response = await api.delete(`/routines/${id}`);
   return response;
 };
+
+export const getVisibleRoutineForProfesionalByUserRequest = async (
+  id: number
+) => {
+  const { data } = await api.get(`/routines/${id}/visible`);
+  return data;
+};

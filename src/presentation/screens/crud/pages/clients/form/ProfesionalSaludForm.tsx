@@ -13,7 +13,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Divider,
+  Grid2,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { MuiFileInput } from "mui-file-input";
@@ -28,6 +28,9 @@ import {
   //getArchivoRequest,
 } from "../../../../../../services/salud";
 import { DocumentoProfesional } from "../components/DocumentosProfesional";
+import { PlanNutricional } from "../../../../../../infrastructure/interfaces/plan-nutricional";
+import { Routine } from "../../../../../../infrastructure/interfaces/routine";
+import { DocumentosForm } from "../components/DocumentosForm";
 
 interface DocumentoRequest {
   id?: number;
@@ -41,12 +44,16 @@ interface Props {
   selectedClient: Partial<User> | null;
   onUpdateClient: (client: Partial<User>) => void;
   documents: Partial<Documento>[];
+  routines: Partial<Routine>[];
+  planesNutricionales: Partial<PlanNutricional>[];
 }
 
 export const ProfesionalSaludForm: React.FC<Props> = ({
   selectedClient,
   onUpdateClient,
   documents,
+  routines,
+  planesNutricionales,
 }) => {
   const [docType, setDocType] = useState<TipoDocumento>(TipoDocumento.Informe);
   const [docTitle, setDocTitle] = useState<string>("");
@@ -169,123 +176,153 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
 
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ position: "absolute", top: 0, right: 0 }}
-        onClick={handleOpenModal}
-      >
-        <AddIcon />
-      </Fab>
-      {/* Listado de Documentos */}
-      {(selectedClient.documentos || createdDocuments.length > 0) && (
-        <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
-          <Typography variant="h6" gutterBottom>
-            Documentos
-          </Typography>
-          {(profesionalDocuments || []).map((doc) => (
-            <DocumentoProfesional
-              key={doc.id}
-              document={doc}
-              onhandleOpenEditModal={handleOpenEditModal}
-              onRemoveDocument={removeDocument}
-            />
-          ))}
-          {documents && documents.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="subtitle1" gutterBottom>
-                Documentos del Cliente
+      <Grid2 container spacing={2}>
+        <Grid2
+          size={{
+            xs:
+              documents.length > 0 ||
+              routines.length > 0 ||
+              planesNutricionales.length > 0
+                ? 9
+                : 12,
+          }}
+          sx={{
+            borderRight:
+              documents.length > 0 ||
+              routines.length > 0 ||
+              planesNutricionales.length > 0
+                ? "1px solid #ddd"
+                : "none",
+          }}
+        >
+          {(selectedClient.documentos || createdDocuments.length > 0) && (
+            <Box
+              sx={{
+                mb: 3,
+                p: 2,
+                backgroundColor: "background.paper",
+                position: "relative",
+              }}
+            >
+              <Fab
+                color="primary"
+                aria-label="add"
+                sx={{ position: "absolute", top: 0, right: 16 }}
+                onClick={handleOpenModal}
+              >
+                <AddIcon />
+              </Fab>
+              <Typography variant="h6" gutterBottom>
+                Documentos
               </Typography>
-              {(documents || []).map((doc) => (
+              {(profesionalDocuments || []).map((doc) => (
                 <DocumentoProfesional
                   key={doc.id}
                   document={doc}
-                  isEditable={false}
+                  onhandleOpenEditModal={handleOpenEditModal}
+                  onRemoveDocument={removeDocument}
                 />
               ))}
-            </>
+            </Box>
           )}
-        </Box>
-      )}
 
-      {/* Modal para Crear/Editar Documento */}
-      <Dialog
-        open={openDocumentModal}
-        onClose={() => setOpenDocumentModal(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>
-          {currentDocument ? "Editar Documento" : "Subir Documento / Informe"}
-        </DialogTitle>
-        <DialogContent dividers>
-          <FormControl fullWidth sx={{ my: 1, borderRadius: "8px" }}>
-            <InputLabel>Tipo de Documento</InputLabel>
-            <Select
-              label="Tipo de Documento"
-              value={docType}
-              onChange={(e) => setDocType(e.target.value as TipoDocumento)}
-            >
-              <MenuItem value={TipoDocumento.Acta}>Acta</MenuItem>
-              <MenuItem value={TipoDocumento.Certificado}>Certificado</MenuItem>
-              <MenuItem value={TipoDocumento.Informe}>Informe</MenuItem>
-              <MenuItem value={TipoDocumento.Recomendacion}>
-                Recomendación
-              </MenuItem>
-              <MenuItem value={TipoDocumento.Otro}>Otro</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            label="Título"
-            variant="outlined"
+          {/* Modal para Crear/Editar Documento */}
+          <Dialog
+            open={openDocumentModal}
+            onClose={() => setOpenDocumentModal(false)}
             fullWidth
-            sx={{ my: 1, borderRadius: "8px" }}
-            value={docTitle}
-            onChange={(e) => setDocTitle(e.target.value)}
-          />
-          <TextField
-            label="Descripción"
-            variant="outlined"
-            fullWidth
-            multiline
-            rows={3}
-            sx={{ my: 1, borderRadius: "8px" }}
-            value={docDescription}
-            onChange={(e) => setDocDescription(e.target.value)}
-          />
-          <MuiFileInput
-            label="Subir Archivo (png, jpg, pdf, etc)"
-            value={docFile}
-            onChange={(file) => setDocFile(file)}
-            fullWidth
-            sx={{ my: 1, borderRadius: "8px" }}
-            inputProps={{ accept: ".png,.jpeg,.jpg,.pdf" }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDocumentModal(false)} color="secondary">
-            Cancelar
-          </Button>
-          {currentDocument ? (
-            <Button
-              onClick={handleUpdateDocument}
-              variant="contained"
-              color="primary"
-            >
-              Actualizar Documento
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSaveDocument}
-              variant="contained"
-              color="primary"
-            >
-              Guardar Documento
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
+            maxWidth="sm"
+          >
+            <DialogTitle>
+              {currentDocument
+                ? "Editar Documento"
+                : "Subir Documento / Informe"}
+            </DialogTitle>
+            <DialogContent dividers>
+              <FormControl fullWidth sx={{ my: 1, borderRadius: "8px" }}>
+                <InputLabel>Tipo de Documento</InputLabel>
+                <Select
+                  label="Tipo de Documento"
+                  value={docType}
+                  onChange={(e) => setDocType(e.target.value as TipoDocumento)}
+                >
+                  <MenuItem value={TipoDocumento.Acta}>Acta</MenuItem>
+                  <MenuItem value={TipoDocumento.Certificado}>
+                    Certificado
+                  </MenuItem>
+                  <MenuItem value={TipoDocumento.Informe}>Informe</MenuItem>
+                  <MenuItem value={TipoDocumento.Recomendacion}>
+                    Recomendación
+                  </MenuItem>
+                  <MenuItem value={TipoDocumento.Otro}>Otro</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Título"
+                variant="outlined"
+                fullWidth
+                sx={{ my: 1, borderRadius: "8px" }}
+                value={docTitle}
+                onChange={(e) => setDocTitle(e.target.value)}
+              />
+              <TextField
+                label="Descripción"
+                variant="outlined"
+                fullWidth
+                multiline
+                rows={3}
+                sx={{ my: 1, borderRadius: "8px" }}
+                value={docDescription}
+                onChange={(e) => setDocDescription(e.target.value)}
+              />
+              <MuiFileInput
+                label="Subir Archivo (png, jpg, pdf, etc)"
+                value={docFile}
+                onChange={(file) => setDocFile(file)}
+                fullWidth
+                sx={{ my: 1, borderRadius: "8px" }}
+                inputProps={{ accept: ".png,.jpeg,.jpg,.pdf" }}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => setOpenDocumentModal(false)}
+                color="secondary"
+              >
+                Cancelar
+              </Button>
+              {currentDocument ? (
+                <Button
+                  onClick={handleUpdateDocument}
+                  variant="contained"
+                  color="primary"
+                >
+                  Actualizar Documento
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSaveDocument}
+                  variant="contained"
+                  color="primary"
+                >
+                  Guardar Documento
+                </Button>
+              )}
+            </DialogActions>
+          </Dialog>
+        </Grid2>
+        {(documents.length > 0 ||
+          routines.length > 0 ||
+          planesNutricionales.length > 0) && (
+          <Grid2 size={{ xs: 3 }}>
+            <DocumentosForm
+              documents={documents}
+              routines={routines}
+              planesNutricionales={planesNutricionales}
+            />
+          </Grid2>
+        )}
+      </Grid2>
     </Box>
   ) : (
     <Typography

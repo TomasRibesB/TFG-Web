@@ -38,6 +38,7 @@ import { GruposMusculares } from "../../../../../../infrastructure/interfaces/gr
 import { CategoriaEjercicio } from "../../../../../../infrastructure/interfaces/categoria-ejercicio";
 import { Documento } from "../../../../../../infrastructure/interfaces/documento";
 import { DocumentosForm } from "../components/DocumentosForm";
+import { PlanNutricional } from "../../../../../../infrastructure/interfaces/plan-nutricional";
 
 interface Props {
   selectedClient: Partial<User> | null;
@@ -45,6 +46,8 @@ interface Props {
   categoriasEjercicio: CategoriaEjercicio[];
   onUpdateClient: (client: Partial<User>) => void;
   documents: Partial<Documento>[];
+  routines: Partial<Routine>[];
+  planesNutricionales: Partial<PlanNutricional>[];
 }
 
 export const EntrenadorForm: React.FC<Props> = ({
@@ -53,6 +56,8 @@ export const EntrenadorForm: React.FC<Props> = ({
   categoriasEjercicio,
   onUpdateClient,
   documents,
+  routines,
+  planesNutricionales,
 }) => {
   const [routineName, setRoutineName] = useState("");
   const [routineDescription, setRoutineDescription] = useState("");
@@ -245,7 +250,24 @@ export const EntrenadorForm: React.FC<Props> = ({
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
       <Grid2 container spacing={2}>
-        <Grid2 size={{ xs: 9 }} sx={{ borderRight: "1px solid #ddd" }}>
+        <Grid2
+          size={{
+            xs:
+              documents.length > 0 ||
+              routines.length > 0 ||
+              planesNutricionales.length > 0
+                ? 9
+                : 12,
+          }}
+          sx={{
+            borderRight:
+              documents.length > 0 ||
+              routines.length > 0 ||
+              planesNutricionales.length > 0
+                ? "1px solid #ddd"
+                : "none",
+          }}
+        >
           {selectedClient.routines && selectedClient.routines.length > 0 && (
             <Box
               sx={{
@@ -364,9 +386,17 @@ export const EntrenadorForm: React.FC<Props> = ({
             </Box>
           )}
         </Grid2>
-        <Grid2 size={{ xs: 3 }}>
-          <DocumentosForm documents={documents} />
-        </Grid2>
+        {(documents.length > 0 ||
+          routines.length > 0 ||
+          planesNutricionales.length > 0) && (
+          <Grid2 size={{ xs: 3 }}>
+            <DocumentosForm
+              documents={documents}
+              routines={routines}
+              planesNutricionales={planesNutricionales}
+            />
+          </Grid2>
+        )}
       </Grid2>
 
       {/* Modal para Crear/Editar Rutina */}

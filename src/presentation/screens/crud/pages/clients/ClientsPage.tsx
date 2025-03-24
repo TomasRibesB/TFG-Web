@@ -19,14 +19,21 @@ import { EntrenadorForm } from "./form/EntrenadorForm";
 import { NutricionistaForm } from "./form/NutricionistaForm";
 import { ProfesionalSaludForm } from "./form/ProfesionalSaludForm";
 import { Role } from "../../../../../infrastructure/enums/roles";
-import { getPlanNutricionalByUserIdRequest } from "../../../../../services/nutricion";
+import {
+  getPlanNutricionalByUserIdRequest,
+  getVisiblePlanNutricionalForProfesionalByUserRequest,
+} from "../../../../../services/nutricion";
 import { Routine } from "../../../../../infrastructure/interfaces/routine";
 import {
   getPlanTrainerByUserIdRequest,
   getRelacionesEjericiosRequest,
+  getVisibleRoutineForProfesionalByUserRequest,
 } from "../../../../../services/entrenamiento";
 import { Documento } from "../../../../../infrastructure/interfaces/documento";
-import { getDocumentosForProfesionalByUserRequest, getVisibleDocumentosForProfesionalByUserRequest } from "../../../../../services/salud";
+import {
+  getDocumentosForProfesionalByUserRequest,
+  getVisibleDocumentosForProfesionalByUserRequest,
+} from "../../../../../services/salud";
 import { ImageAvatar } from "../../../../components/ImageAvatar";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { GruposMusculares } from "../../../../../infrastructure/interfaces/grupos-musculares";
@@ -48,6 +55,10 @@ export const ClientsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [documents, setDocuments] = useState<Partial<Documento>[]>([]);
+  const [planesNutricionales, setPlanesNutricionales] = useState<
+    PlanNutricional[]
+  >([]);
+  const [routines, setRoutines] = useState<Partial<Routine>[]>([]);
 
   useEffect(() => {
     setLoading(true);
@@ -80,6 +91,12 @@ export const ClientsPage = () => {
     const documentos: Partial<Documento>[] =
       await getVisibleDocumentosForProfesionalByUserRequest(client.id!);
     setDocuments(documentos);
+    const planesNutricionales: PlanNutricional[] =
+      await getVisiblePlanNutricionalForProfesionalByUserRequest(client.id!);
+    setPlanesNutricionales(planesNutricionales);
+    const routines: Routine[] =
+      await getVisibleRoutineForProfesionalByUserRequest(client.id!);
+    setRoutines(routines);
 
     if (user?.role === Role.Nutricionista) {
       fetchNutricionista(client);
@@ -288,6 +305,8 @@ export const ClientsPage = () => {
             categoriasEjercicio={categorias}
             onUpdateClient={handleUpdateClient}
             documents={documents}
+            routines={routines}
+            planesNutricionales={planesNutricionales}
           />
         )}
         {user && user.role === Role.Nutricionista && (
@@ -295,6 +314,8 @@ export const ClientsPage = () => {
             selectedClient={selectedClient}
             onUpdateClient={handleUpdateClient}
             documents={documents}
+            routines={routines}
+            planesNutricionales={planesNutricionales}
           />
         )}
         {user && user.role === Role.Profesional && (
@@ -302,6 +323,8 @@ export const ClientsPage = () => {
             selectedClient={selectedClient}
             onUpdateClient={handleUpdateClient}
             documents={documents}
+            routines={routines}
+            planesNutricionales={planesNutricionales}
           />
         )}
       </Grid2>

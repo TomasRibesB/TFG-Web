@@ -28,3 +28,10 @@ export const deletePlanNutricionalRequest = async (id: number) => {
   const response = await api.delete(`/plan-nutricional/${id}`);
   return response;
 }
+
+export const getVisiblePlanNutricionalForProfesionalByUserRequest = async (
+  id: number
+) => {
+  const { data } = await api.get(`/plan-nutricional/${id}/visible`);
+  return data;
+};
