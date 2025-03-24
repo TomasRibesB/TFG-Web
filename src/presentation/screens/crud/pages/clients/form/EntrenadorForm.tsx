@@ -17,6 +17,8 @@ import {
   DialogActions,
   Autocomplete,
   Grid2,
+  MenuItem,
+  IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
@@ -24,6 +26,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { User } from "../../../../../../infrastructure/interfaces/user";
 import { Ejercicio } from "../../../../../../infrastructure/interfaces/ejercicio";
 import { RutinaEjercicio } from "../../../../../../infrastructure/interfaces/rutina-ejercicio";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   getEjerciciosRequest,
   setRoutineRequest,
@@ -114,6 +117,7 @@ export const EntrenadorForm: React.FC<Props> = ({
       series: 3,
       repeticiones: 10,
       medicion: "",
+      unidadMedida: UnidadMedida.Ninguna,
     };
     setAddedExercises([...addedExercises, newRutinaEjercicio]);
     setExerciseSearch("");
@@ -158,6 +162,7 @@ export const EntrenadorForm: React.FC<Props> = ({
       fecha: rutEx.fecha,
       ejercicio: { id: rutEx.ejercicio.id },
       routine: { id: currentRoutine.id },
+      unidadMedida: rutEx.unidadMedida || UnidadMedida.Ninguna,
     }));
 
     const updatedRoutineDto = {
@@ -197,6 +202,7 @@ export const EntrenadorForm: React.FC<Props> = ({
         medicion: rutEx.medicion,
         fecha: rutEx.fecha,
         ejercicio: { id: rutEx.ejercicio.id },
+        unidadMedida: rutEx.unidadMedida || UnidadMedida.Ninguna,
       })),
     };
 
@@ -560,11 +566,7 @@ export const EntrenadorForm: React.FC<Props> = ({
                         size="small"
                       />
                       <TextField
-                        label={`Medición ${
-                          rutEx.ejercicio.unidadMedida !== UnidadMedida.Ninguna
-                            ? "(" + rutEx.ejercicio.unidadMedida + ")"
-                            : ""
-                        }`}
+                        label="Medición"
                         type="number"
                         value={rutEx.medicion || ""}
                         onChange={(e) =>
@@ -576,13 +578,34 @@ export const EntrenadorForm: React.FC<Props> = ({
                         }
                         size="small"
                       />
-                      <Button
-                        variant="outlined"
+                      <TextField
+                        select
+                        sx={{ width: "170px" }}
+                        label="Unidad de Medida"
+                        value={rutEx.unidadMedida}
+                        onChange={(e) =>
+                          handleExerciseChange(
+                            rutEx.id,
+                            "unidadMedida",
+                            e.target.value
+                          )
+                        }
+                        size="small"
+                      >
+                        {Object.values(UnidadMedida)
+                          .filter((unit) => unit !== UnidadMedida.Ninguna)
+                          .map((unit) => (
+                            <MenuItem key={unit} value={unit}>
+                              {unit}
+                            </MenuItem>
+                          ))}
+                      </TextField>
+                      <IconButton
                         color="error"
                         onClick={() => removeExerciseFromRoutine(rutEx.id)}
                       >
-                        Eliminar
-                      </Button>
+                        <DeleteIcon />
+                      </IconButton>
                     </Box>
                   </ListItem>
                 ))}

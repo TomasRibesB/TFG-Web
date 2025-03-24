@@ -1,3 +1,4 @@
+import { UnidadMedida } from "../enums/unidadMedida";
 import { Ejercicio } from "./ejercicio";
 import { Routine } from "./routine";
 
@@ -9,4 +10,5 @@ export interface RutinaEjercicio {
     series: number;
     repeticiones: number;
     medicion?: string;
+    unidadMedida?: UnidadMedida;
   }
