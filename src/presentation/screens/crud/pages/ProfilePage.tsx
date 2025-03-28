@@ -163,15 +163,16 @@ export const ProfilePage = () => {
       container
       spacing={2}
       direction="row"
-      sx={{ height: "95.4%", pb: 4 }}
+      sx={{ pb: 4 }}
     >
       {/* Información de certificación */}
-      <Grid2 container size={{ xs: 12, md: 6 }} direction="column">
+      <Grid2 container size={{ xs: 12 }} direction="column">
         <Grid2
           className="card-shadow"
           sx={{
             padding: 2,
             backgroundColor: "background.paper",
+            borderRadius: 2,
           }}
         >
           <Grid2 container spacing={2} direction="row" alignItems="center">
@@ -251,27 +252,11 @@ export const ProfilePage = () => {
             </Grid2>
           </Grid2>
         </Grid2>
-        <Grid2
-          className="card-shadow"
-          sx={{
-            padding: 2,
-            backgroundColor: "background.paper",
-            flex: 1,
-          }}
-        >
-          <Typography variant="h5" sx={{ mb: 1 }}>
-            Tareas Pendientes
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          <Typography variant="body1">
-            Sin tareas pendientes por el momento
-          </Typography>
-        </Grid2>
       </Grid2>
 
       {/* Formulario de edición de datos */}
       <Grid2
-        size={{ xs: 12, md: 6 }}
+        size={{ xs: 12}}
         className="card-shadow"
         sx={{
           padding: 4,

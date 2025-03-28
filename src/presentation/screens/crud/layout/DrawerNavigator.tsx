@@ -18,7 +18,6 @@ import {
   Home as HomeIcon,
   Groups2 as ClientsIcon,
   Logout,
-  NotificationsNone,
 } from "@mui/icons-material";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -249,9 +248,6 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
                 </Box>
               </Box>
             </Link>
-            <IconButton color="inherit">
-              <NotificationsNone />
-            </IconButton>
             <IconButton color="inherit" onClick={useAuth().logout}>
               <Logout />
             </IconButton>

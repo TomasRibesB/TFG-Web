@@ -8,6 +8,7 @@ import {
   CardContent,
   Button,
   TextField,
+  Chip,
 } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import { User } from "../../../../infrastructure/interfaces/user";
@@ -64,7 +65,9 @@ export const HomePage = () => {
         prev ? prev.filter((turno) => turno.id !== id) : []
       );
       setTurnosOcupados((prev) =>
-        prev ? [...prev, updatedTurno as Turno] : [updatedTurno as Turno]
+        prev
+          ? prev.map((turno) => (turno.id === id ? updatedTurno : turno))
+          : []
       );
     } catch (error) {
       console.error("Error al aceptar el turno", error);
@@ -316,11 +319,20 @@ export const HomePage = () => {
                         : "Sin asignar"}
                     </Typography>
                     <Typography variant="body1">
-                      Fecha: {new Date(turno.fechaHora).toLocaleString()}
+                      {new Date(turno.fechaHora).toLocaleString()}
                     </Typography>
-                    <Typography variant="body1">
-                      Estado: {turno.estado}
-                    </Typography>
+                    {turno.estado !== EstadoTurno.Pendiente && (
+                      <Chip
+                        label={turno.estado}
+                        variant="outlined"
+                        color={
+                          turno.estado === EstadoTurno.Confirmado
+                            ? "primary"
+                            : "error"
+                        }
+                        sx={{ mt: 2 }}
+                      />
+                    )}
                     {turno.estado === EstadoTurno.Pendiente && (
                       <Box sx={{ mt: 2 }}>
                         <Button
