@@ -195,7 +195,7 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
                 : "none",
           }}
         >
-          {(selectedClient.documentos || createdDocuments.length > 0) && (
+          {selectedClient.documentos && (
             <Box
               sx={{
                 mb: 3,

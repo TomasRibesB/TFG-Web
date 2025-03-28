@@ -15,6 +15,7 @@ import {
   DialogContent,
   DialogActions,
   Grid2,
+  ListItemIcon,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
@@ -22,6 +23,7 @@ import ArchiveIcon from "@mui/icons-material/Archive";
 import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import AddIcon from "@mui/icons-material/Add";
 import SetMealIcon from "@mui/icons-material/SetMeal";
+import ChevronRight from "@mui/icons-material/ChevronRight";
 import BreakfastDiningIcon from "@mui/icons-material/BreakfastDining";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import { useState } from "react";
@@ -279,9 +281,17 @@ export const NutricionistaForm: React.FC<Props> = ({
                         </ListItem>
                       </List>
                     </Box>
-                    <Typography variant="body2">
-                      Objetivos: {plan.objetivos || "No especificados"}
-                    </Typography>
+                    <Typography variant="body2">Objetivos:</Typography>
+                    <List dense>
+                      {plan.objetivos?.split(",").map((objetivo, index) => (
+                        <ListItem key={index}>
+                          <ListItemIcon>
+                            <ChevronRight sx={{ color: "primary.main" }} />
+                          </ListItemIcon>
+                          <ListItemText primary={`${objetivo.trim()}`} />
+                        </ListItem>
+                      ))}
+                    </List>
                     <Typography variant="body2">
                       Notas Adicionales: {plan.notasAdicionales || "Sin notas"}
                     </Typography>

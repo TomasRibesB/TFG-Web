@@ -19,6 +19,7 @@ import {
   Grid2,
   MenuItem,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
@@ -76,6 +77,7 @@ export const EntrenadorForm: React.FC<Props> = ({
     null
   );
   const [openRoutineModal, setOpenRoutineModal] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
 
   // Búsqueda de ejercicios con debounce y filtros (search, categoría y grupo muscular)
   useEffect(() => {
@@ -87,6 +89,7 @@ export const EntrenadorForm: React.FC<Props> = ({
       setFilteredExercises([]);
       return;
     }
+    setLoadingSearch(true);
     const timer = setTimeout(async () => {
       const ejercicios = await getEjerciciosRequest(
         exerciseSearch,
@@ -98,7 +101,8 @@ export const EntrenadorForm: React.FC<Props> = ({
           : []
       );
       setFilteredExercises(ejercicios);
-    }, 1000);
+      setLoadingSearch(false);
+    }, 500);
     return () => clearTimeout(timer);
   }, [exerciseSearch, exerciseSearchCategory, exerciseSearchMuscularGroup]);
 
@@ -120,8 +124,6 @@ export const EntrenadorForm: React.FC<Props> = ({
       unidadMedida: UnidadMedida.Ninguna,
     };
     setAddedExercises([...addedExercises, newRutinaEjercicio]);
-    setExerciseSearch("");
-    setFilteredExercises([]);
   };
 
   // Permitir editar campos de cada ejercicio agregado
@@ -185,6 +187,10 @@ export const EntrenadorForm: React.FC<Props> = ({
       setAddedExercises([]);
       setCurrentRoutine(null);
       setOpenRoutineModal(false);
+      setExerciseSearch("");
+      setFilteredExercises([]);
+      setExerciseSearchMuscularGroup([]);
+      setExerciseSearchCategory([]);
     } else {
       console.log("Error al actualizar la rutina", response);
     }
@@ -216,6 +222,10 @@ export const EntrenadorForm: React.FC<Props> = ({
       setRoutineDescription("");
       setAddedExercises([]);
       setOpenRoutineModal(false);
+      setExerciseSearch("");
+      setFilteredExercises([]);
+      setExerciseSearchMuscularGroup([]);
+      setExerciseSearchCategory([]);
     } else {
       console.log("Error al guardar la rutina", response);
     }
@@ -274,7 +284,7 @@ export const EntrenadorForm: React.FC<Props> = ({
                 : "none",
           }}
         >
-          {selectedClient.routines && selectedClient.routines.length > 0 && (
+          {selectedClient.routines && (
             <Box
               sx={{
                 mb: 3,
@@ -348,7 +358,7 @@ export const EntrenadorForm: React.FC<Props> = ({
                                     rutEx.repeticiones
                                   }${
                                     rutEx.medicion
-                                      ? " - Medición: " + rutEx.medicion
+                                      ? " - Medición: " + rutEx.medicion + ' ' + rutEx.unidadMedida
                                       : ""
                                   }`}
                                 />
@@ -408,7 +418,13 @@ export const EntrenadorForm: React.FC<Props> = ({
       {/* Modal para Crear/Editar Rutina */}
       <Dialog
         open={openRoutineModal}
-        onClose={() => setOpenRoutineModal(false)}
+        onClose={() => {
+          setOpenRoutineModal(false);
+          setExerciseSearch("");
+          setFilteredExercises([]);
+          setExerciseSearchMuscularGroup([]);
+          setExerciseSearchCategory([]);
+        }}
         fullWidth
         maxWidth="sm"
       >
@@ -443,6 +459,11 @@ export const EntrenadorForm: React.FC<Props> = ({
             sx={{ my: 1 }}
             value={exerciseSearch}
             onChange={(e) => setExerciseSearch(e.target.value)}
+            InputProps={{
+              endAdornment: loadingSearch ? (
+                <CircularProgress size={24} color="primary" />
+              ) : null,
+            }}
           />
 
           {/* Filtro por Categoría */}
