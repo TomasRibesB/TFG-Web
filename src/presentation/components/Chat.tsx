@@ -162,8 +162,8 @@ export const Chat: React.FC<ChatProps> = ({ ticketId, userId }) => {
                     sx={{
                       backgroundColor:
                         msg.emisor.id === userId
-                          ? "primary.main"
-                          : "secondary.main",
+                          ? "primary.300"
+                          : "secondary.300",
                       color:
                         msg.emisor.id === userId
                           ? "primary.contrastText"

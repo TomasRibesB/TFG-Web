@@ -29,3 +29,8 @@ export const postTicketRequest = async (ticket: Ticket) => {
   const { data } = await api.post(`/tickets`, payload);
   return data;
 };
+
+export const deleteTicketRequest = async (ticketId: number) => {
+  const { data } = await api.delete(`/tickets/${ticketId}`);
+  return data;
+}

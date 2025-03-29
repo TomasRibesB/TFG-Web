@@ -24,6 +24,7 @@ import {
   getTicketsRequest,
   postTicketRequest,
   updateTicketConsentimientoRequest,
+  deleteTicketRequest,
 } from "../../../../services/tickets";
 import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
 import { Ticket } from "../../../../infrastructure/interfaces/ticket";
@@ -171,17 +172,24 @@ export const TicketsPage: React.FC = () => {
     setProfesionals(response?.profesionales || []);
   };
 
+  const handleDeleteTicket = async (ticketId: number) => {
+    await deleteTicketRequest(ticketId);
+    setTickets((prev) => prev.filter((ticket) => ticket.id !== ticketId));
+  };
+
   return (
-    <Grid2
-      container
-      spacing={2}
-      sx={{ height: "88vh", pb: 4 }}
-    >
+    <Grid2 container spacing={2} sx={{ height: "88vh", pb: 4 }}>
       {/* Grid2 más pequeño: Listado de Tickets */}
       <Grid2
         size={{ xs: 12, md: 4, lg: 3 }}
         className="card-shadow"
-        sx={{ backgroundColor: "background.paper", p: 2, overflowY: "auto", height: "88vh" }}>
+        sx={{
+          backgroundColor: "background.paper",
+          p: 2,
+          overflowY: "auto",
+          height: "88vh",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -265,14 +273,18 @@ export const TicketsPage: React.FC = () => {
                       </Typography>
                     </Box>
                   )}
-                  {user && item.usuario?.id !== user.id && item.usuario?.id !== item.solicitante?.id && (
-                    <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
-                      <PersonIcon sx={{ mr: 0.5 }} />
-                      <Typography variant="body2">
-                        {item.usuario?.firstName} {item.usuario?.lastName}
-                      </Typography>
-                    </Box>
-                  )}
+                  {user &&
+                    item.usuario?.id !== user.id &&
+                    item.usuario?.id !== item.solicitante?.id && (
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", m: 0.5 }}
+                      >
+                        <PersonIcon sx={{ mr: 0.5 }} />
+                        <Typography variant="body2">
+                          {item.usuario?.firstName} {item.usuario?.lastName}
+                        </Typography>
+                      </Box>
+                    )}
                   <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
                     <PersonIcon sx={{ mr: 0.5 }} />
                     <Typography variant="body2">Yo</Typography>
@@ -309,15 +321,31 @@ export const TicketsPage: React.FC = () => {
                     EstadoConsentimiento.Aceptado &&
                   item.consentimientoSolicitante ===
                     EstadoConsentimiento.Aceptado ? (
-                  <Button
-                    variant="outlined"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectTicket(item);
-                    }}
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
                   >
-                    Ver Ticket
-                  </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectTicket(item);
+                      }}
+                    >
+                      Ver Ticket
+                    </Button>
+                    {item.solicitante?.id === user?.id && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTicket(item.id!);
+                        }}
+                      >
+                        Archivar Ticket
+                      </Button>
+                    )}
+                  </Box>
                 ) : item.solicitante?.id === user?.id ? (
                   <Typography variant="body2">
                     Esperando respuesta de los otros usuarios...
