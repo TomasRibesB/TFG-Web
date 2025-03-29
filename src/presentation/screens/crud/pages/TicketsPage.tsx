@@ -121,9 +121,6 @@ export const TicketsPage: React.FC = () => {
       solicitante: { id: user?.id || 0 },
       receptor: { id: selectedProfesional?.id || selectedClient?.id || 0 },
       usuario: { id: selectedClient?.id || 0 },
-      consentimientoUsuario: EstadoConsentimiento.Pendiente,
-      consentimientoReceptor: EstadoConsentimiento.Pendiente,
-      consentimientoSolicitante: EstadoConsentimiento.Aceptado,
       fechaCreacion: new Date(),
     };
 
@@ -268,7 +265,7 @@ export const TicketsPage: React.FC = () => {
                       </Typography>
                     </Box>
                   )}
-                  {user && item.usuario?.id !== user.id && (
+                  {user && item.usuario?.id !== user.id && item.usuario?.id !== item.solicitante?.id && (
                     <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
                       <PersonIcon sx={{ mr: 0.5 }} />
                       <Typography variant="body2">
