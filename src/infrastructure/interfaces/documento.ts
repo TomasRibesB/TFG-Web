@@ -18,4 +18,5 @@ export interface Documento {
   usuario: User;
   visibilidad: User[];
   fechaBaja?: Date | null;
+  hasArchivo?: boolean;
 }

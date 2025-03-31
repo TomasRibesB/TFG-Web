@@ -311,10 +311,27 @@ export const EntrenadorForm: React.FC<Props> = ({
                   TransitionProps={{ unmountOnExit: true }}
                   sx={{
                     opacity: routine.fechaBaja ? 0.6 : 1,
-                    mb: 1,
+                    mb: 2,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 1,
+                    "&:before": {
+                      display: "none",
+                    },
+                    boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
                   }}
                 >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <AccordionSummary
+                    sx={{
+                      backgroundColor: "action.hover",
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                      "& .MuiAccordionSummary-content": {
+                        marginY: 1,
+                      },
+                    }}
+                    expandIcon={<ExpandMoreIcon />}
+                  >
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
                       <Typography
                         variant="subtitle1"
@@ -336,7 +353,11 @@ export const EntrenadorForm: React.FC<Props> = ({
                     </Box>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Typography variant="body2" gutterBottom>
+                    <Typography
+                      variant="body2"
+                      gutterBottom
+                      sx={{ whiteSpace: "pre-line" }}
+                    >
                       {routine.description || "Sin descripción"}
                     </Typography>
                     {routine.rutinaEjercicio &&
@@ -358,7 +379,10 @@ export const EntrenadorForm: React.FC<Props> = ({
                                     rutEx.repeticiones
                                   }${
                                     rutEx.medicion
-                                      ? " - Medición: " + rutEx.medicion + ' ' + rutEx.unidadMedida
+                                      ? " - Medición: " +
+                                        rutEx.medicion +
+                                        " " +
+                                        rutEx.unidadMedida
                                       : ""
                                   }`}
                                 />
@@ -384,6 +408,7 @@ export const EntrenadorForm: React.FC<Props> = ({
                       </Button>
                       <Button
                         variant="outlined"
+                        color="error"
                         startIcon={
                           routine.fechaBaja ? (
                             <UnarchiveIcon />

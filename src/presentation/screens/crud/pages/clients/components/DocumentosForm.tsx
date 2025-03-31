@@ -8,6 +8,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Button,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SetMealIcon from "@mui/icons-material/SetMeal";
@@ -16,6 +17,8 @@ import OpacityIcon from "@mui/icons-material/Opacity";
 import { Documento } from "../../../../../../infrastructure/interfaces/documento";
 import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 import { PlanNutricional } from "../../../../../../infrastructure/interfaces/plan-nutricional";
+import DownloadingIcon from "@mui/icons-material/Downloading";
+import { downloadDocumentoRequest } from "../../../../../../services/salud";
 
 interface Props {
   documents: Partial<Documento>[];
@@ -28,6 +31,12 @@ export const DocumentosForm: React.FC<Props> = ({
   routines = [],
   planesNutricionales = [],
 }) => {
+  const handleDownload = async (id: number) => {
+    if (id) {
+      await downloadDocumentoRequest(id);
+    }
+  };
+
   return (
     <Box sx={{ mb: 3, p: 2, backgroundColor: "background.paper" }}>
       {documents.length > 0 && (
@@ -42,17 +51,34 @@ export const DocumentosForm: React.FC<Props> = ({
           TransitionProps={{ unmountOnExit: true }}
           sx={{
             opacity: doc.fechaBaja ? 0.6 : 1,
-            mb: 1,
+            mb: 2,
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 1,
+            "&:before": {
+              display: "none",
+            },
+            boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
           }}
         >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <AccordionSummary
+            sx={{
+              backgroundColor: "action.hover",
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              "& .MuiAccordionSummary-content": {
+                marginY: 1,
+              },
+            }}
+            expandIcon={<ExpandMoreIcon />}
+          >
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography
                 variant="subtitle1"
                 sx={{
                   color: doc.fechaBaja ? "error.main" : "text.primary",
                   wordBreak: "break-word",
-                  whiteSpace: "normal",
+                  whiteSpace: "pre-line",
                 }}
               >
                 {doc.titulo}
@@ -62,9 +88,10 @@ export const DocumentosForm: React.FC<Props> = ({
                 color="text.secondary"
                 sx={{
                   wordBreak: "break-word",
-                  whiteSpace: "normal",
+                  whiteSpace: "pre-line",
                 }}
               >
+                <strong>{doc.tipo}</strong> -{" "}
                 {doc.fechaSubida
                   ? new Date(doc.fechaSubida).toLocaleDateString()
                   : "Fecha no definida"}
@@ -75,24 +102,21 @@ export const DocumentosForm: React.FC<Props> = ({
             <Typography
               variant="body2"
               gutterBottom
-              sx={{ wordBreak: "break-word", whiteSpace: "normal" }}
+              sx={{ wordBreak: "break-word", whiteSpace: "pre-line" }}
             >
               {doc.descripcion || "Sin descripción"}
             </Typography>
-            <Typography
-              variant="body2"
-              sx={{ wordBreak: "break-word", whiteSpace: "normal" }}
-            >
-              Tipo: {doc.tipo}
-            </Typography>
-            <Box
-              sx={{
-                mt: 1,
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 1,
-              }}
-            ></Box>
+
+            {doc.hasArchivo && (
+              <Button
+                variant="outlined"
+                startIcon={<DownloadingIcon />}
+                onClick={() => handleDownload(doc.id!)}
+                sx={{ mt: 2 }}
+              >
+                Descargar archivo adjunto
+              </Button>
+            )}
           </AccordionDetails>
         </Accordion>
       ))}
@@ -110,17 +134,34 @@ export const DocumentosForm: React.FC<Props> = ({
             TransitionProps={{ unmountOnExit: true }}
             sx={{
               opacity: routine.fechaBaja ? 0.6 : 1,
-              mb: 1,
+              mb: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 1,
+              "&:before": {
+                display: "none",
+              },
+              boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
             }}
           >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <AccordionSummary
+              sx={{
+                backgroundColor: "action.hover",
+                borderBottom: "1px solid",
+                borderColor: "divider",
+                "& .MuiAccordionSummary-content": {
+                  marginY: 1,
+                },
+              }}
+              expandIcon={<ExpandMoreIcon />}
+            >
               <Box sx={{ display: "flex", flexDirection: "column" }}>
                 <Typography
                   variant="subtitle1"
                   sx={{
                     color: routine.fechaBaja ? "error.main" : "text.primary",
                     wordBreak: "break-word",
-                    whiteSpace: "normal",
+                    whiteSpace: "pre-line",
                   }}
                 >
                   {routine.name}
@@ -138,7 +179,7 @@ export const DocumentosForm: React.FC<Props> = ({
               <Typography
                 variant="body2"
                 gutterBottom
-                sx={{ wordBreak: "break-word", whiteSpace: "normal" }}
+                sx={{ wordBreak: "break-word", whiteSpace: "pre-line" }}
               >
                 {routine.description || "Sin descripción"}
               </Typography>
@@ -181,10 +222,27 @@ export const DocumentosForm: React.FC<Props> = ({
             TransitionProps={{ unmountOnExit: true }}
             sx={{
               opacity: plan.fechaBaja ? 0.6 : 1,
-              mb: 1,
+              mb: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 1,
+              "&:before": {
+                display: "none",
+              },
+              boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
             }}
           >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <AccordionSummary
+              sx={{
+                backgroundColor: "action.hover",
+                borderBottom: "1px solid",
+                borderColor: "divider",
+                "& .MuiAccordionSummary-content": {
+                  marginY: 1,
+                },
+              }}
+              expandIcon={<ExpandMoreIcon />}
+            >
               <Box sx={{ display: "flex", flexDirection: "column" }}>
                 <Typography
                   variant="subtitle1"
@@ -205,7 +263,7 @@ export const DocumentosForm: React.FC<Props> = ({
               <Typography
                 variant="body2"
                 gutterBottom
-                sx={{ wordBreak: "break-word", whiteSpace: "normal" }}
+                sx={{ wordBreak: "break-word", whiteSpace: "pre-line" }}
               >
                 {plan.descripcion || "Sin descripción"}
               </Typography>

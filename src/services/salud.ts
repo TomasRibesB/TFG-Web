@@ -1,4 +1,5 @@
 // src/services/authService.ts
+import { StorageAdapter } from "../config/adapters/storage-adapter";
 import { api } from "../config/apis/api";
 import { Documento } from "../infrastructure/interfaces/documento";
 import { PermisoDocumento } from "../infrastructure/interfaces/permiso-documento";
@@ -76,13 +77,63 @@ export const setByNoUserRequest = async (
   return data;
 };
 
-export const uploadFileByNoUserRequest = async (file: File, id: number, code: string) => {
+export const uploadFileByNoUserRequest = async (
+  file: File,
+  id: number,
+  code: string
+) => {
   const formData = new FormData();
   formData.append("archivo", file);
-  const { data } = await api.put(`/documentos/archivo/no-user/${id}/${code}`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const { data } = await api.put(
+    `/documentos/archivo/no-user/${id}/${code}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
   return data;
+};
+
+// Agrega este endpoint al final del archivo
+export const downloadDocumentoRequest = async (
+  documentoId: number
+): Promise<void> => {
+  try {
+    const url = `${api.defaults.baseURL}/documentos/archivo/${documentoId}`;
+    const user = await StorageAdapter.getItem("user");
+    const headers: Record<string, string> = {};
+    if (user && (user as { token: string }).token) {
+      headers["Authorization"] = `Bearer ${(user as { token: string }).token}`;
+    }
+
+    // Realiza la petición para obtener el archivo en formato blob
+    const response = await api.get(url, {
+      headers,
+      responseType: "blob",
+    });
+
+    if (response.status === 200) {
+      // Crea una URL temporal para el blob y simula la descarga
+      const blobUrl = window.URL.createObjectURL(response.data);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.setAttribute("download", `documento-${documentoId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      // Liberar la URL creada
+      window.URL.revokeObjectURL(blobUrl);
+      console.log(
+        `Archivo descargado correctamente como documento-${documentoId}.pdf`
+      );
+    } else {
+      throw new Error("Error al descargar el archivo");
+    }
+  } catch (error) {
+    console.error("Error en la descarga:", error);
+    // Aquí puedes manejar notificaciones o mensajes de error en tu app web
+    alert("No se pudo descargar el documento. Inténtalo de nuevo más tarde.");
+  }
 };
