@@ -2,7 +2,7 @@ import { Container, Typography } from "@mui/material";
 
 export const TermsPrivPage = () => {
   return (
-    <Container>
+    <Container sx={{ mb: 4, mt: 4 }}>
       <Typography variant="h4" gutterBottom>
         Términos y Condiciones de Uso
       </Typography>
