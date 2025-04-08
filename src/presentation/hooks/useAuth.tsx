@@ -17,7 +17,6 @@ export const useAuth = () => {
       if (data.role && data.role == Role.Usuario) {
         return "Esta aplicación es solo para profesionales de la salud";
       }
-      console.log("continua");
       await StorageAdapter.setItem("user", data);
       // Redirige al loader
       navigate("/loader", { replace: true });
@@ -50,7 +49,7 @@ export const useAuth = () => {
     certificate?: File
   ) => {
     try {
-      const data : User = await registerRequest({
+      const data: User = await registerRequest({
         email,
         password,
         firstName,
@@ -59,7 +58,6 @@ export const useAuth = () => {
         role,
         tipoProfesionalIds,
       });
-      await StorageAdapter.setItem("user", data);
 
       if (
         data.id &&
@@ -68,11 +66,14 @@ export const useAuth = () => {
         data.userTipoProfesionales.length > 0 &&
         data.userTipoProfesionales[0].id !== undefined
       ) {
-        await uploadCertificateRequest(data.userTipoProfesionales[0].id, data.id, certificate);
+        await uploadCertificateRequest(
+          data.userTipoProfesionales[0].id,
+          data.id,
+          certificate
+        );
       }
 
-      // Redirige al loader
-      navigate("/loader", { replace: true });
+      return true;
     } catch (err) {
       console.log(err);
     }
@@ -89,7 +90,11 @@ export const useAuth = () => {
       await initialFetch();
       // Solo redirige a /main si NO está en una ruta autorizada
       if (!location.pathname.startsWith("/main")) {
-        navigate("/main", { replace: true });
+        if (user.userTipoProfesionales?.[0]?.isCertified) {
+          navigate("/main", { replace: true });
+        } else {
+          navigate("/main/profile", { replace: true });
+        }
       }
     } else {
       if (!location.pathname.startsWith("/auth")) {

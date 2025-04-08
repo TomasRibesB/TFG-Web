@@ -159,12 +159,7 @@ export const ProfilePage = () => {
   };
 
   return (
-    <Grid2
-      container
-      spacing={2}
-      direction="row"
-      sx={{ pb: 4 }}
-    >
+    <Grid2 container spacing={2} direction="row" sx={{ pb: 4 }}>
       {/* Información de certificación */}
       <Grid2 container size={{ xs: 12 }} direction="column">
         <Grid2
@@ -221,7 +216,7 @@ export const ProfilePage = () => {
                 <Chip
                   icon={
                     user.userTipoProfesionales?.some(
-                      (tipo) => tipo.certificadora
+                      (tipo) => tipo.isCertified
                     ) ? (
                       <Verified />
                     ) : (
@@ -229,19 +224,12 @@ export const ProfilePage = () => {
                     )
                   }
                   label={
-                    user.userTipoProfesionales?.some(
-                      (tipo) => tipo.certificadora
-                    )
-                      ? `Certificado por ${user.userTipoProfesionales
-                          ?.filter((tipo) => tipo.certificadora)
-                          .map((tipo) => tipo.certificadora)
-                          .join(", ")}`
+                    user.userTipoProfesionales?.some((tipo) => tipo.isCertified)
+                      ? `Certificado`
                       : "Sin certificar"
                   }
                   color={
-                    user.userTipoProfesionales?.some(
-                      (tipo) => tipo.certificadora
-                    )
+                    user.userTipoProfesionales?.some((tipo) => tipo.isCertified)
                       ? "success"
                       : "warning"
                   }
@@ -251,12 +239,22 @@ export const ProfilePage = () => {
               </Grid2>
             </Grid2>
           </Grid2>
+          {!user?.userTipoProfesionales?.some((tipo) => tipo.isCertified) && (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mt: 1, textAlign: "center", fontSize: 12 }}
+            >
+              Se habilitaran mas funciones cuando un administrador te certifique
+              como profesional.
+            </Typography>
+          )}
         </Grid2>
       </Grid2>
 
       {/* Formulario de edición de datos */}
       <Grid2
-        size={{ xs: 12}}
+        size={{ xs: 12 }}
         className="card-shadow"
         sx={{
           padding: 4,

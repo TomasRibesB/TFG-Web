@@ -50,6 +50,7 @@ export const RegisterPage = () => {
   const [tiposProfesional, setTiposProfesional] = useState<TipoProfesional[]>(
     []
   );
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetch();
@@ -79,51 +80,62 @@ export const RegisterPage = () => {
   };
 
   const handleRegister = async () => {
+    setLoading(true);
     // Validaciones
     if (!nombre.trim()) {
       setError("El nombre es obligatorio");
+      setLoading(false);
       return;
     }
     if (!apellido.trim()) {
       setError("El apellido es obligatorio");
+      setLoading(false);
       return;
     }
     if (!email) {
       setError("El correo electrónico es obligatorio");
+      setLoading(false);
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("El correo electrónico no es válido");
+      setLoading(false);
       return;
     }
     if (email.length > 50) {
       setError("El correo electrónico no puede tener más de 50 caracteres");
+      setLoading(false);
       return;
     }
     if (!password) {
       setError("La contraseña es obligatoria");
+      setLoading(false);
       return;
     }
     if (password.length < 6 || password.length > 50) {
       setError("La contraseña debe tener entre 6 y 50 caracteres");
+      setLoading(false);
       return;
     }
     if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden");
+      setLoading(false);
       return;
     }
     if (!profesion) {
       setError("La profesión es obligatoria");
+      setLoading(false);
       return;
     }
     if (!termsAccepted) {
       setError("Debes aceptar los términos y condiciones");
+      setLoading(false);
       return;
     }
 
     try {
-      await register(
+      const result = await register(
         email,
         password,
         nombre,
@@ -137,6 +149,12 @@ export const RegisterPage = () => {
           : undefined,
         certificate
       );
+      if (result !== true) {
+        setError("No se pudo registrar el usuario");
+        setLoading(false);
+        return;
+      }
+
       setNombre("");
       setApellido("");
       setEmail("");
@@ -147,9 +165,14 @@ export const RegisterPage = () => {
       setCertificate(undefined);
       setTipoProfesional([]);
       setTermsAccepted(false);
+      setError(
+        "Se ha registrado correctamente, para iniciar sesion debe verificar su correo electrónico para activar su cuenta."
+      );
+      setLoading(false);
     } catch (err) {
       setError("No se pudo registrar");
       console.error(err);
+      setLoading(false);
     }
   };
 
@@ -433,6 +456,7 @@ export const RegisterPage = () => {
             <Button
               variant="contained"
               fullWidth
+              disabled={loading}
               onClick={handleRegister}
               sx={{
                 borderRadius: "8px",

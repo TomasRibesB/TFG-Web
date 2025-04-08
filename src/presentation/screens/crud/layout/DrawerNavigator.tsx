@@ -140,12 +140,15 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const menuItems = [
-    { text: "Home", icon: <HomeIcon />, path: "/main" },
-    { text: "Clientes", icon: <ClientsIcon />, path: "/main/clients" },
-    { text: "Tickets", icon: <InboxIcon />, path: "/main/tickets" },
-  ];
-
+  const menuItems = user?.userTipoProfesionales?.some(
+    (tipo) => tipo.isCertified
+  )
+    ? [
+        { text: "Home", icon: <HomeIcon />, path: "/main" },
+        { text: "Clientes", icon: <ClientsIcon />, path: "/main/clients" },
+        { text: "Tickets", icon: <InboxIcon />, path: "/main/tickets" },
+      ]
+    : [];
   return (
     <Box sx={{ display: "flex" }}>
       {/* AppBar */}
@@ -163,15 +166,17 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
         <Toolbar sx={{ justifyContent: "space-between" }}>
           {/* Izquierda: Menu Icon y location.pathname */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              edge="start"
-              sx={{ marginRight: 2, ...(open && { display: "none" }) }}
-            >
-              <MenuIcon />
-            </IconButton>
+            {user?.userTipoProfesionales?.some((tipo) => tipo.isCertified) && (
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                sx={{ marginRight: 2, ...(open && { display: "none" }) }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
             <Typography
               variant="h6"
               noWrap

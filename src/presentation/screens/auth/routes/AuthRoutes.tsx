@@ -5,6 +5,9 @@ import {
   TermsPrivPage,
   TermsProfPage,
   UploadDocumentScreen,
+  ValidateAccountPage,
+  ResetPasswordPage,
+  DenyResetPasswordPage,
 } from "../pages";
 
 export const AuthRoutes = () => {
@@ -16,6 +19,9 @@ export const AuthRoutes = () => {
       <Route path="terms/privacy" element={<TermsPrivPage />} />
       <Route path="upload" element={<UploadDocumentScreen />} />
       <Route path="upload/:code" element={<UploadDocumentScreen />} />
+      <Route path="validate/:token" element={<ValidateAccountPage />} />
+      <Route path="reset-password/:token" element={<ResetPasswordPage />} />
+      <Route path="deny-reset-password/:token" element={<DenyResetPasswordPage />} />
 
       <Route path="/*" element={<Navigate to="/auth/login" />} />
     </Routes>

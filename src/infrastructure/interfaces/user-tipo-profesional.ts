@@ -6,7 +6,7 @@ export interface UserTipoProfesional {
     id?: number;
     archivo?: string;
     directorio?: string;
-    certificadora?: string;
+    isCertified?: string;
     user?: User;
     tipoProfesional?: TipoProfesional;
 }
