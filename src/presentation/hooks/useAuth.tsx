@@ -6,6 +6,7 @@ import { initialFetch } from "../../services/fetch";
 import { User } from "../../infrastructure/interfaces/user";
 import { Role } from "../../infrastructure/enums/roles";
 import { uploadCertificateRequest } from "../../services/user";
+import axios from "axios";
 
 export const useAuth = () => {
   const navigate = useNavigate();
@@ -15,15 +16,17 @@ export const useAuth = () => {
     try {
       const data = await loginRequest(email, password);
       if (data.role && data.role == Role.Usuario) {
-        return "Esta aplicación es solo para profesionales de la salud";
+        return data.message;
       }
       await StorageAdapter.setItem("user", data);
       // Redirige al loader
       navigate("/loader", { replace: true });
       return;
-    } catch (err) {
-      console.log(err);
-      return "Usuario o contraseña incorrectos";
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        return err.response?.data?.message || "Error de autenticación";
+      }
+      return "Error de autenticación";
     }
   };
 
