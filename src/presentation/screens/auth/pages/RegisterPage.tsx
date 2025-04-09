@@ -118,6 +118,15 @@ export const RegisterPage = () => {
       setLoading(false);
       return;
     }
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()])[A-Za-z\d@$!%*?&#^()]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError(
+        "La contraseña debe tener al menos 8 caracteres e incluir al menos una letra mayúscula, una minúscula, un número y un carácter especial entre los siguientes: @$!%*?&#^()"
+      );
+      setLoading(false);
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden");
       setLoading(false);
