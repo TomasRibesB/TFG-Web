@@ -87,8 +87,28 @@ export const RegisterPage = () => {
       setLoading(false);
       return;
     }
+    if (nombre.length > 50) {
+      setError("El nombre no puede tener más de 50 caracteres");
+      setLoading(false);
+      return;
+    }
     if (!apellido.trim()) {
       setError("El apellido es obligatorio");
+      setLoading(false);
+      return;
+    }
+    if (apellido.length > 50) {
+      setError("El apellido no puede tener más de 50 caracteres");
+      setLoading(false);
+      return;
+    }
+    if (!dni.trim()) {
+      setError("El DNI es obligatorio");
+      setLoading(false);
+      return;
+    }
+    if (dni.length > 20) {
+      setError("El DNI no puede tener más de 20 caracteres");
       setLoading(false);
       return;
     }
@@ -134,6 +154,11 @@ export const RegisterPage = () => {
     }
     if (!profesion) {
       setError("La profesión es obligatoria");
+      setLoading(false);
+      return;
+    }
+    if (!certificate) {
+      setError("El certificado es obligatorio");
       setLoading(false);
       return;
     }
