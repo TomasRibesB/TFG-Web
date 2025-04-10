@@ -276,23 +276,6 @@ export const ClientsPage = () => {
                     flexDirection: { xs: "column", md: "row" },
                   }}
                 >
-                  {selectedClient.birthdate && (
-                    <Typography variant="h6">
-                      Edad:{" "}
-                      <span style={{ fontSize: "1.5rem" }}>
-                        {new Date().getFullYear() -
-                          new Date(selectedClient.birthdate).getFullYear()}
-                      </span>
-                    </Typography>
-                  )}
-                  {selectedClient.sex && (
-                    <Typography variant="h6">
-                      Sexo:{" "}
-                      <span style={{ fontSize: "1.5rem" }}>
-                        {selectedClient.sex}
-                      </span>
-                    </Typography>
-                  )}
                 </Box>
               </Box>
             </Box>

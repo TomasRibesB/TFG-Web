@@ -1,6 +1,10 @@
 import { StorageAdapter } from "../config/adapters/storage-adapter";
 import { getTicketsRequest } from "./tickets";
-import { getClientesRequest, getRecordatoriosRequest } from "./user";
+import {
+  getClientesRequest,
+  getProfesionalesByAdminRequest,
+  getRecordatoriosRequest,
+} from "./user";
 import { getTurnosRequest } from "./turnos";
 import { Role } from "../infrastructure/enums/roles";
 import { getEjerciciosRequest } from "./entrenamiento";
@@ -29,10 +33,13 @@ export const initialFetch = async () => {
       console.log("ejercicios", ejercicios);
       break;
     }
-    case Role.Nutricionista:
+    case Role.Administrador: {
+      const profesionales: Partial<User> =
+        await getProfesionalesByAdminRequest();
+      await StorageAdapter.setItem("profesionales", profesionales);
+      console.log("profesionales", profesionales);
       break;
-    case Role.Profesional:
-      break;
+    }
     default:
       break;
   }

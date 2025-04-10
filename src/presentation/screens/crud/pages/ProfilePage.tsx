@@ -212,7 +212,8 @@ export const ProfilePage = () => {
               </Grid2>
 
               {/* Certificación */}
-              <Grid2>
+              {user.role !== Role.Administrador &&
+                <Grid2>
                 <Chip
                   icon={
                     user.userTipoProfesionales?.some(
@@ -236,7 +237,7 @@ export const ProfilePage = () => {
                   variant="outlined"
                   sx={{ mb: 1 }}
                 />
-              </Grid2>
+              </Grid2>}
             </Grid2>
           </Grid2>
           {!user?.userTipoProfesionales?.some((tipo) => tipo.isCertified) && (

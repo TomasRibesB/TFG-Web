@@ -133,6 +133,8 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
         return "Clientes";
       case "/main/tickets":
         return "Tickets";
+      case "/main/professionals":
+        return "Profesionales";
       case "/main":
         return "Home";
       default:
@@ -140,15 +142,26 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const menuItems = user?.userTipoProfesionales?.some(
-    (tipo) => tipo.isCertified
-  )
-    ? [
-        { text: "Home", icon: <HomeIcon />, path: "/main" },
-        { text: "Clientes", icon: <ClientsIcon />, path: "/main/clients" },
-        { text: "Tickets", icon: <InboxIcon />, path: "/main/tickets" },
-      ]
-    : [];
+  const menuItems = (
+    user?.userTipoProfesionales?.some((tipo) => tipo.isCertified)
+      ? [
+          { text: "Home", icon: <HomeIcon />, path: "/main" },
+          { text: "Clientes", icon: <ClientsIcon />, path: "/main/clients" },
+          { text: "Tickets", icon: <InboxIcon />, path: "/main/tickets" },
+          user?.role === Role.Administrador && {
+            text: "Profesionales",
+            icon: <ClientsIcon />,
+            path: "/main/professionals",
+          },
+        ]
+      : [
+          user?.role === Role.Administrador && {
+            text: "Profesionales",
+            icon: <ClientsIcon />,
+            path: "/main/professionals",
+          },
+        ]
+  ).filter(Boolean) as { text: string; icon: JSX.Element; path: string }[];
   return (
     <Box sx={{ display: "flex" }}>
       {/* AppBar */}
@@ -166,17 +179,18 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
         <Toolbar sx={{ justifyContent: "space-between" }}>
           {/* Izquierda: Menu Icon y location.pathname */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            {user?.userTipoProfesionales?.some((tipo) => tipo.isCertified) && (
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={{ marginRight: 2, ...(open && { display: "none" }) }}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
+            {user?.userTipoProfesionales?.some((tipo) => tipo.isCertified) ||
+              (user.role === Role.Administrador && (
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={handleDrawerOpen}
+                  edge="start"
+                  sx={{ marginRight: 2, ...(open && { display: "none" }) }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              ))}
             <Typography
               variant="h6"
               noWrap

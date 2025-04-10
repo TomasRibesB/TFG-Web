@@ -5,6 +5,8 @@ import { DrawerNavigator } from "../layout/DrawerNavigator";
 import { useEffect, useState } from "react";
 import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
 import { User } from "../../../../infrastructure/interfaces/user";
+import { Role } from "../../../../infrastructure/enums/roles";
+import { ProfessionalsPage } from "../pages/ProfessionalsPage";
 
 export const CrudRoutes = () => {
   const [user, setUser] = useState<Partial<User> | null>(null);
@@ -33,7 +35,16 @@ export const CrudRoutes = () => {
 
           <Route path="/*" element={<Navigate to="/" />} />
         </Routes>
-      ) : (
+      ) : 
+      user?.role === Role.Administrador ? (
+        <Routes>
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="professionals" element={<ProfessionalsPage />} />
+
+          <Route path="/*" element={<Navigate to="/profile" />} />
+        </Routes>
+      ) :
+      (
         <Routes>
           <Route path="profile" element={<ProfilePage />} />
 
