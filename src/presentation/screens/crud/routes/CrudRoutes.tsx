@@ -7,6 +7,7 @@ import { StorageAdapter } from "../../../../config/adapters/storage-adapter";
 import { User } from "../../../../infrastructure/interfaces/user";
 import { Role } from "../../../../infrastructure/enums/roles";
 import { ProfessionalsPage } from "../pages/ProfessionalsPage";
+import { Box, CircularProgress } from "@mui/material";
 
 export const CrudRoutes = () => {
   const [user, setUser] = useState<Partial<User> | null>(null);
@@ -23,6 +24,21 @@ export const CrudRoutes = () => {
       setUser(null);
     }
   };
+
+  if (!user) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress size="4rem" />
+      </Box>
+    );
+  }
 
   return (
     <DrawerNavigator>
