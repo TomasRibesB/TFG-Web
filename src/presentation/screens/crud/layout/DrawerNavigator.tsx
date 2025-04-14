@@ -249,10 +249,7 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
                   }}
                 >
                   <Typography variant="body2" sx={{ ml: 1 }}>
-                    {(user.firstName?.charAt(0)?.toUpperCase() ?? "") +
-                      user.firstName?.slice(1).toLowerCase()}{" "}
-                    {(user.lastName?.charAt(0).toUpperCase() ?? "") +
-                      user.lastName?.slice(1).toLowerCase()}
+                    {user.firstName} {user.lastName}
                   </Typography>
                   <Typography variant="caption" sx={{ ml: 1 }}>
                     {user.role === Role.Profesional

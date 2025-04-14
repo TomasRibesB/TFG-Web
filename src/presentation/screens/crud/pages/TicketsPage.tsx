@@ -173,8 +173,12 @@ export const TicketsPage: React.FC = () => {
   };
 
   const handleDeleteTicket = async (ticketId: number) => {
+    if (!ticketId) return;
+    setLoading(true);
     await deleteTicketRequest(ticketId);
     setTickets((prev) => prev.filter((ticket) => ticket.id !== ticketId));
+    setLoading(false);
+    setSelectedTicket(null);
   };
 
   return (
@@ -326,6 +330,7 @@ export const TicketsPage: React.FC = () => {
                   >
                     <Button
                       variant="outlined"
+                      disabled={loading}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectTicket(item);
@@ -337,6 +342,7 @@ export const TicketsPage: React.FC = () => {
                       <Button
                         variant="outlined"
                         color="error"
+                        disabled={loading}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteTicket(item.id!);

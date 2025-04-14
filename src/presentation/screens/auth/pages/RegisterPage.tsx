@@ -374,7 +374,10 @@ export const RegisterPage = () => {
                   style={{ borderRadius: "8px" }}
                 >
                   {Object.values(Role)
-                    .filter((role) => role !== Role.Usuario)
+                    .filter(
+                      (role) =>
+                        role !== Role.Usuario && role !== Role.Administrador
+                    )
                     .map((role) => {
                       const displayText =
                         role === Role.Profesional

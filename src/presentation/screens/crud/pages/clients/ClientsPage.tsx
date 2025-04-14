@@ -161,7 +161,7 @@ export const ClientsPage = () => {
     <Grid2
       container
       spacing={2}
-      sx={{ height: "95.4%", backgroundColor: "primary.paper", pb: 4 }}
+      sx={{ height: "96%", backgroundColor: "primary.paper", pb: 4 }}
     >
       {/* Listado de clientes */}
       <Grid2

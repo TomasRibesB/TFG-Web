@@ -221,6 +221,7 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
                   document={doc}
                   onhandleOpenEditModal={handleOpenEditModal}
                   onRemoveDocument={removeDocument}
+                  isEditable={false}
                 />
               ))}
             </Box>
@@ -325,11 +326,17 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
       </Grid2>
     </Box>
   ) : (
-    <Typography
-      variant="body1"
-      sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+      }}
     >
-      Seleccione un cliente para ver sus documentos.
-    </Typography>
+      <Typography variant="body1" sx={{ textAlign: "center" }}>
+        Seleccione un cliente para ver sus documentos.
+      </Typography>
+    </Box>
   );
 };

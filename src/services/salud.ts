@@ -108,32 +108,39 @@ export const downloadDocumentoRequest = async (
       headers["Authorization"] = `Bearer ${(user as { token: string }).token}`;
     }
 
-    // Realiza la petición para obtener el archivo en formato blob
     const response = await api.get(url, {
       headers,
       responseType: "blob",
     });
 
     if (response.status === 200) {
-      // Crea una URL temporal para el blob y simula la descarga
+      // Detectar la extension basándonos en el header content-type
+      let extension = "bin";
+      const contentType = response.headers["content-type"];
+      if (contentType.includes("application/pdf")) {
+        extension = "pdf";
+      } else if (contentType.includes("image/png")) {
+        extension = "png";
+      } else if (contentType.includes("image/jpeg")) {
+        extension = "jpeg";
+      }
+
       const blobUrl = window.URL.createObjectURL(response.data);
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.setAttribute("download", `documento-${documentoId}.pdf`);
+      link.setAttribute("download", `documento-${documentoId}.${extension}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      // Liberar la URL creada
       window.URL.revokeObjectURL(blobUrl);
       console.log(
-        `Archivo descargado correctamente como documento-${documentoId}.pdf`
+        `Archivo descargado correctamente como documento-${documentoId}.${extension}`
       );
     } else {
       throw new Error("Error al descargar el archivo");
     }
   } catch (error) {
     console.error("Error en la descarga:", error);
-    // Aquí puedes manejar notificaciones o mensajes de error en tu app web
     alert("No se pudo descargar el documento. Inténtalo de nuevo más tarde.");
   }
 };

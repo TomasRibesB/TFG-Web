@@ -190,10 +190,7 @@ export const ProfilePage = () => {
               {/* Nombre */}
               <Grid2>
                 <Typography variant="body1">
-                  {(user.firstName?.charAt(0)?.toUpperCase() ?? "") +
-                    user.firstName?.slice(1).toLowerCase()}{" "}
-                  {(user.lastName?.charAt(0).toUpperCase() ?? "") +
-                    user.lastName?.slice(1).toLowerCase()}
+                  {user.firstName} {user.lastName}
                 </Typography>
               </Grid2>
 
@@ -212,32 +209,37 @@ export const ProfilePage = () => {
               </Grid2>
 
               {/* Certificación */}
-              {user.role !== Role.Administrador &&
+              {user.role !== Role.Administrador && (
                 <Grid2>
-                <Chip
-                  icon={
-                    user.userTipoProfesionales?.some(
-                      (tipo) => tipo.isCertified
-                    ) ? (
-                      <Verified />
-                    ) : (
-                      <Pending />
-                    )
-                  }
-                  label={
-                    user.userTipoProfesionales?.some((tipo) => tipo.isCertified)
-                      ? `Certificado`
-                      : "Sin certificar"
-                  }
-                  color={
-                    user.userTipoProfesionales?.some((tipo) => tipo.isCertified)
-                      ? "success"
-                      : "warning"
-                  }
-                  variant="outlined"
-                  sx={{ mb: 1 }}
-                />
-              </Grid2>}
+                  <Chip
+                    icon={
+                      user.userTipoProfesionales?.some(
+                        (tipo) => tipo.isCertified
+                      ) ? (
+                        <Verified />
+                      ) : (
+                        <Pending />
+                      )
+                    }
+                    label={
+                      user.userTipoProfesionales?.some(
+                        (tipo) => tipo.isCertified
+                      )
+                        ? `Certificado`
+                        : "Sin certificar"
+                    }
+                    color={
+                      user.userTipoProfesionales?.some(
+                        (tipo) => tipo.isCertified
+                      )
+                        ? "success"
+                        : "warning"
+                    }
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                  />
+                </Grid2>
+              )}
             </Grid2>
           </Grid2>
           {!user?.userTipoProfesionales?.some((tipo) => tipo.isCertified) && (

@@ -500,11 +500,17 @@ export const NutricionistaForm: React.FC<Props> = ({
       </Dialog>
     </Box>
   ) : (
-    <Typography
-      variant="body1"
-      sx={{ m: "auto", textAlign: "center", justifyContent: "center" }}
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+      }}
     >
-      Seleccione un cliente para ver sus planes nutricionales.
-    </Typography>
+      <Typography variant="body1" sx={{ textAlign: "center" }}>
+        Seleccione un cliente para ver sus planes nutricionales.
+      </Typography>
+    </Box>
   );
 };
