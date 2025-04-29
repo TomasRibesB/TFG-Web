@@ -98,6 +98,11 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
   // Función para guardar un nuevo documento
   const handleSaveDocument = async () => {
     if (!selectedClient) return;
+    //valido si tiene archivo y si es pdf
+    if (docFile && docFile.type !== "application/pdf") {
+      alert("El archivo debe ser un PDF.");
+      return;
+    }
     const newDocument: DocumentoRequest = {
       tipo: docType,
       titulo: docTitle,
@@ -109,6 +114,7 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
       if (data?.id && docFile) {
         // Subir archivo
         await uploadFileRequest(docFile, data.id);
+        data.hasArchivo = true;
       }
       setCreatedDocuments([...createdDocuments, data]);
       setOpenDocumentModal(false);
@@ -277,12 +283,12 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
                 onChange={(e) => setDocDescription(e.target.value)}
               />
               <MuiFileInput
-                label="Subir Archivo (png, jpg, pdf, etc)"
+                label="Subir Archivo (pdf)"
                 value={docFile}
                 onChange={(file) => setDocFile(file)}
                 fullWidth
                 sx={{ my: 1, borderRadius: "8px" }}
-                inputProps={{ accept: ".png,.jpeg,.jpg,.pdf" }}
+                inputProps={{ accept: ".pdf" }}
               />
             </DialogContent>
             <DialogActions>
