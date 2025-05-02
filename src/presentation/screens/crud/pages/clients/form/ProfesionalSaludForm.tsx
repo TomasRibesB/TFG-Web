@@ -67,6 +67,7 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
   const [profesionalDocuments, setProfesionalDocuments] = useState<Documento[]>(
     []
   );
+  const [focusDocumentos, setFocusDocumentos] = useState(false);
 
   useEffect(() => {
     const clientDocs = selectedClient?.documentos || [];
@@ -180,6 +181,10 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
     );
   };
 
+  const onFocus = (state: boolean) => {
+    setFocusDocumentos(state);
+  };
+
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
       <Grid2 container spacing={2}>
@@ -189,7 +194,9 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
               documents.length > 0 ||
               routines.length > 0 ||
               planesNutricionales.length > 0
-                ? 9
+                ? focusDocumentos
+                  ? 4
+                  : 8
                 : 12,
           }}
           sx={{
@@ -199,6 +206,7 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
               planesNutricionales.length > 0
                 ? "1px solid #ddd"
                 : "none",
+            transition: "all 0.2s ease-in-out",
           }}
         >
           {selectedClient.documentos && (
@@ -228,6 +236,7 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
                   onhandleOpenEditModal={handleOpenEditModal}
                   onRemoveDocument={removeDocument}
                   isEditable={false}
+                  onFocus={onFocus}
                 />
               ))}
             </Box>
@@ -321,11 +330,15 @@ export const ProfesionalSaludForm: React.FC<Props> = ({
         {(documents.length > 0 ||
           routines.length > 0 ||
           planesNutricionales.length > 0) && (
-          <Grid2 size={{ xs: 3 }}>
+          <Grid2
+            size={{ xs: focusDocumentos ? 8 : 4 }}
+            sx={{ transition: "all 0.2s ease-in-out" }}
+          >
             <DocumentosForm
               documents={documents}
               routines={routines}
               planesNutricionales={planesNutricionales}
+              onFocus={onFocus}
             />
           </Grid2>
         )}

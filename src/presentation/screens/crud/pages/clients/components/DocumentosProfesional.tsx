@@ -20,6 +20,7 @@ interface Props {
   onhandleOpenEditModal?: (documento: Documento) => void;
   onRemoveDocument?: (id: number) => void;
   isEditable?: boolean;
+  onFocus?: (state: boolean) => void;
 }
 
 export const DocumentoProfesional: React.FC<Props> = ({
@@ -27,6 +28,7 @@ export const DocumentoProfesional: React.FC<Props> = ({
   onhandleOpenEditModal,
   onRemoveDocument,
   isEditable = true,
+  onFocus = (state: boolean) => state,
 }) => {
   const handleDownload = async () => {
     if (document.id) {
@@ -39,6 +41,9 @@ export const DocumentoProfesional: React.FC<Props> = ({
       key={document.id}
       disableGutters
       TransitionProps={{ unmountOnExit: true }}
+      onFocus={() => {
+        onFocus(false);
+      }}
       sx={{
         opacity: document.fechaBaja ? 0.6 : 1,
         mb: 2,

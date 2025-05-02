@@ -179,18 +179,18 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
         <Toolbar sx={{ justifyContent: "space-between" }}>
           {/* Izquierda: Menu Icon y location.pathname */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            {user?.userTipoProfesionales?.some((tipo) => tipo.isCertified) ||
-              (user.role === Role.Administrador && (
-                <IconButton
-                  color="inherit"
-                  aria-label="open drawer"
-                  onClick={handleDrawerOpen}
-                  edge="start"
-                  sx={{ marginRight: 2, ...(open && { display: "none" }) }}
-                >
-                  <MenuIcon />
-                </IconButton>
-              ))}
+            {(user?.userTipoProfesionales?.some((tipo) => tipo.isCertified) ||
+              user.role === Role.Administrador) && (
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                sx={{ marginRight: 2, ...(open && { display: "none" }) }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
             <Typography
               variant="h6"
               noWrap
@@ -318,11 +318,20 @@ export const DrawerNavigator: React.FC<{ children: React.ReactNode }> = ({
         </List>
       </Drawer>
 
-      {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        {/* Necessary for content to be below app bar */}
         <DrawerHeader />
-        {children}
+        {children ? (
+          <>{children}</>
+        ) : (
+          <Typography
+            sx={{ textAlign: "center", mt: 2 }}
+            variant="h6"
+            color="text.secondary"
+            fontWeight={600}
+          >
+            <strong>Sin contenido</strong>
+          </Typography>
+        )}
       </Box>
     </Box>
   );

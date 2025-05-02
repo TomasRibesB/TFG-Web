@@ -23,6 +23,7 @@ import ArchiveIcon from "@mui/icons-material/Archive";
 import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import AddIcon from "@mui/icons-material/Add";
 import SetMealIcon from "@mui/icons-material/SetMeal";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
 import ChevronRight from "@mui/icons-material/ChevronRight";
 import BreakfastDiningIcon from "@mui/icons-material/BreakfastDining";
 import OpacityIcon from "@mui/icons-material/Opacity";
@@ -66,6 +67,7 @@ export const NutricionistaForm: React.FC<Props> = ({
   const [currentPlan, setCurrentPlan] = useState<PlanNutricional | null>(null);
   // Modal control
   const [openPlanModal, setOpenPlanModal] = useState(false);
+  const [focusDocumentos, setFocusDocumentos] = useState(false);
 
   // Abrir modal en modo creación
   const handleOpenModal = () => {
@@ -128,6 +130,11 @@ export const NutricionistaForm: React.FC<Props> = ({
       console.error("Error al guardar el plan nutricional", error);
     }
   };
+
+  const onFocus = (state: boolean) => {
+    setFocusDocumentos(state);
+  };
+
   // Función para actualizar un plan existente
   const handleUpdatePlan = async () => {
     if (!selectedClient || !selectedClient.id || !currentPlan) return;
@@ -185,7 +192,9 @@ export const NutricionistaForm: React.FC<Props> = ({
               documents.length > 0 ||
               routines.length > 0 ||
               planesNutricionales.length > 0
-                ? 9
+                ? focusDocumentos
+                  ? 4
+                  : 8
                 : 12,
           }}
           sx={{
@@ -195,6 +204,7 @@ export const NutricionistaForm: React.FC<Props> = ({
               planesNutricionales.length > 0
                 ? "1px solid #ddd"
                 : "none",
+            transition: "all 0.2s ease-in-out",
           }}
         >
           {/* Listado de Planes Nutricionales */}
@@ -223,6 +233,9 @@ export const NutricionistaForm: React.FC<Props> = ({
                   key={plan.id}
                   disableGutters
                   TransitionProps={{ unmountOnExit: true }}
+                  onFocus={() => {
+                    onFocus(false);
+                  }}
                   sx={{
                     opacity: plan.fechaBaja ? 0.6 : 1,
                     mb: 2,
@@ -270,7 +283,11 @@ export const NutricionistaForm: React.FC<Props> = ({
                     >
                       {plan.descripcion || "Sin descripción"}
                     </Typography>
-                    <Typography variant="body2">
+                    <Typography
+                      variant="body2"
+                      sx={{ display: "flex", alignItems: "center" }}
+                    >
+                      <RestaurantIcon sx={{ mr: 1 }} color="primary" />
                       Calorías Diarias: {plan.caloriasDiarias || 0}
                     </Typography>
                     <Box sx={{ mt: 1 }}>
@@ -354,11 +371,15 @@ export const NutricionistaForm: React.FC<Props> = ({
         {(documents.length > 0 ||
           routines.length > 0 ||
           planesNutricionales.length > 0) && (
-          <Grid2 size={{ xs: 3 }}>
+          <Grid2
+            size={{ xs: focusDocumentos ? 8 : 4 }}
+            sx={{ transition: "all 0.2s ease-in-out" }}
+          >
             <DocumentosForm
               documents={documents}
               routines={routines}
               planesNutricionales={planesNutricionales}
+              onFocus={onFocus}
             />
           </Grid2>
         )}
@@ -403,6 +424,9 @@ export const NutricionistaForm: React.FC<Props> = ({
             sx={{ my: 1, borderRadius: "8px" }}
             value={caloriasDiarias}
             onChange={(e) => setCaloriasDiarias(e.target.value)}
+            InputProps={{
+              startAdornment: <RestaurantIcon sx={{ mr: 1 }} color="primary" />,
+            }}
           />
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>

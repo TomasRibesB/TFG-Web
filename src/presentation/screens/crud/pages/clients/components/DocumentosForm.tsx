@@ -9,6 +9,7 @@ import {
   ListItem,
   ListItemText,
   Button,
+  IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SetMealIcon from "@mui/icons-material/SetMeal";
@@ -17,19 +18,23 @@ import OpacityIcon from "@mui/icons-material/Opacity";
 import { Documento } from "../../../../../../infrastructure/interfaces/documento";
 import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 import { PlanNutricional } from "../../../../../../infrastructure/interfaces/plan-nutricional";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import DownloadingIcon from "@mui/icons-material/Downloading";
 import { downloadDocumentoRequest } from "../../../../../../services/salud";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
 
 interface Props {
   documents: Partial<Documento>[];
   routines?: Partial<Routine>[];
   planesNutricionales?: Partial<PlanNutricional>[];
+  onFocus?: (state: boolean) => void;
 }
 
 export const DocumentosForm: React.FC<Props> = ({
   documents,
   routines = [],
   planesNutricionales = [],
+  onFocus = (state: boolean) => state,
 }) => {
   const handleDownload = async (id: number) => {
     if (id) {
@@ -49,6 +54,9 @@ export const DocumentosForm: React.FC<Props> = ({
           key={doc.id}
           disableGutters
           TransitionProps={{ unmountOnExit: true }}
+          onFocus={() => {
+            onFocus(true);
+          }}
           sx={{
             opacity: doc.fechaBaja ? 0.6 : 1,
             mb: 2,
@@ -122,7 +130,7 @@ export const DocumentosForm: React.FC<Props> = ({
       ))}
 
       {routines.length > 0 && (
-        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+        <Typography variant="h6" gutterBottom>
           Rutinas:
         </Typography>
       )}
@@ -132,6 +140,9 @@ export const DocumentosForm: React.FC<Props> = ({
             key={routine.id}
             disableGutters
             TransitionProps={{ unmountOnExit: true }}
+            onFocus={() => {
+              onFocus(true);
+            }}
             sx={{
               opacity: routine.fechaBaja ? 0.6 : 1,
               mb: 2,
@@ -190,6 +201,25 @@ export const DocumentosForm: React.FC<Props> = ({
                     <List dense>
                       {routine.rutinaEjercicio.map((rutEx) => (
                         <ListItem key={rutEx.id} disableGutters sx={{ pl: 2 }}>
+                          {rutEx.ejercicio.demostration ||
+                          rutEx.ejercicio.explication ? (
+                            <IconButton
+                              onClick={() =>
+                                window.open(
+                                  rutEx.ejercicio.demostration ||
+                                    rutEx.ejercicio.explication,
+                                  "_blank"
+                                )
+                              }
+                              sx={{ ml: 2 }}
+                            >
+                              <OpenInNewIcon />
+                            </IconButton>
+                          ) : (
+                            <IconButton disabled sx={{ ml: 2 }}>
+                              <OpenInNewIcon />
+                            </IconButton>
+                          )}
                           <ListItemText
                             primary={rutEx.ejercicio.name}
                             secondary={`Series: ${rutEx.series} - Reps: ${
@@ -210,7 +240,7 @@ export const DocumentosForm: React.FC<Props> = ({
         ))}
 
       {planesNutricionales.length > 0 && (
-        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+        <Typography variant="h6" gutterBottom>
           Planes Nutricionales:
         </Typography>
       )}
@@ -220,6 +250,9 @@ export const DocumentosForm: React.FC<Props> = ({
             key={plan.id}
             disableGutters
             TransitionProps={{ unmountOnExit: true }}
+            onFocus={() => {
+              onFocus(true);
+            }}
             sx={{
               opacity: plan.fechaBaja ? 0.6 : 1,
               mb: 2,
@@ -267,7 +300,11 @@ export const DocumentosForm: React.FC<Props> = ({
               >
                 {plan.descripcion || "Sin descripción"}
               </Typography>
-              <Typography variant="body2">
+              <Typography
+                variant="body2"
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <RestaurantIcon sx={{ mr: 1 }} color="primary" />
                 Calorías Diarias: {plan.caloriasDiarias || 0}
               </Typography>
               <Box sx={{ mt: 1 }}>

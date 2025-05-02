@@ -35,6 +35,7 @@ import {
   deleteRoutineRequest,
 } from "../../../../../../services/entrenamiento";
 import ArchiveIcon from "@mui/icons-material/Archive";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { Routine } from "../../../../../../infrastructure/interfaces/routine";
 import { UnidadMedida } from "../../../../../../infrastructure/enums/unidadMedida";
@@ -78,6 +79,7 @@ export const EntrenadorForm: React.FC<Props> = ({
   );
   const [openRoutineModal, setOpenRoutineModal] = useState(false);
   const [loadingSearch, setLoadingSearch] = useState(false);
+  const [focusDocumentos, setFocusDocumentos] = useState(false);
 
   // Búsqueda de ejercicios con debounce y filtros (search, categoría y grupo muscular)
   useEffect(() => {
@@ -263,6 +265,10 @@ export const EntrenadorForm: React.FC<Props> = ({
     }
   };
 
+  const onFocus = (state: boolean) => {
+    setFocusDocumentos(state);
+  };
+
   return selectedClient ? (
     <Box sx={{ position: "relative", p: 2 }}>
       <Grid2 container spacing={2}>
@@ -272,7 +278,9 @@ export const EntrenadorForm: React.FC<Props> = ({
               documents.length > 0 ||
               routines.length > 0 ||
               planesNutricionales.length > 0
-                ? 9
+                ? focusDocumentos
+                  ? 4
+                  : 8
                 : 12,
           }}
           sx={{
@@ -282,6 +290,7 @@ export const EntrenadorForm: React.FC<Props> = ({
               planesNutricionales.length > 0
                 ? "1px solid #ddd"
                 : "none",
+            transition: "all 0.2s ease-in-out",
           }}
         >
           {selectedClient.routines && (
@@ -309,6 +318,9 @@ export const EntrenadorForm: React.FC<Props> = ({
                   key={routine.id}
                   disableGutters
                   TransitionProps={{ unmountOnExit: true }}
+                  onFocus={() => {
+                    onFocus(false);
+                  }}
                   sx={{
                     opacity: routine.fechaBaja ? 0.6 : 1,
                     mb: 2,
@@ -373,6 +385,25 @@ export const EntrenadorForm: React.FC<Props> = ({
                                 disableGutters
                                 sx={{ pl: 2 }}
                               >
+                                {rutEx.ejercicio.demostration ||
+                                rutEx.ejercicio.explication ? (
+                                  <IconButton
+                                    onClick={() =>
+                                      window.open(
+                                        rutEx.ejercicio.demostration ||
+                                          rutEx.ejercicio.explication,
+                                        "_blank"
+                                      )
+                                    }
+                                    sx={{ ml: 2 }}
+                                  >
+                                    <OpenInNewIcon />
+                                  </IconButton>
+                                ) : (
+                                  <IconButton disabled sx={{ ml: 2 }}>
+                                    <OpenInNewIcon />
+                                  </IconButton>
+                                )}
                                 <ListItemText
                                   primary={rutEx.ejercicio.name}
                                   secondary={`Series: ${rutEx.series} - Reps: ${
@@ -430,11 +461,15 @@ export const EntrenadorForm: React.FC<Props> = ({
         {(documents.length > 0 ||
           routines.length > 0 ||
           planesNutricionales.length > 0) && (
-          <Grid2 size={{ xs: 3 }}>
+          <Grid2
+            size={{ xs: focusDocumentos ? 8 : 4 }}
+            sx={{ transition: "all 0.2s ease-in-out" }}
+          >
             <DocumentosForm
               documents={documents}
               routines={routines}
               planesNutricionales={planesNutricionales}
+              onFocus={onFocus}
             />
           </Grid2>
         )}
@@ -549,7 +584,27 @@ export const EntrenadorForm: React.FC<Props> = ({
                     borderBottom: "1px solid #ddd",
                   }}
                 >
-                  <Typography>{ex.name}</Typography>
+                  <Typography>
+                    {ex.demostration || ex.explication ? (
+                      <IconButton
+                        onClick={() =>
+                          window.open(
+                            ex.demostration || ex.explication,
+                            "_blank"
+                          )
+                        }
+                        sx={{ ml: 2 }}
+                      >
+                        <OpenInNewIcon />
+                      </IconButton>
+                    ) : (
+                      <IconButton disabled sx={{ ml: 2 }}>
+                        <OpenInNewIcon />
+                      </IconButton>
+                    )}
+
+                    {ex.name}
+                  </Typography>
                   <Button
                     variant="contained"
                     size="small"
@@ -575,6 +630,25 @@ export const EntrenadorForm: React.FC<Props> = ({
                     sx={{ flexDirection: "column", alignItems: "flex-start" }}
                   >
                     <Typography variant="subtitle1">
+                      {rutEx.ejercicio.demostration ||
+                      rutEx.ejercicio.explication ? (
+                        <IconButton
+                          onClick={() =>
+                            window.open(
+                              rutEx.ejercicio.demostration ||
+                                rutEx.ejercicio.explication,
+                              "_blank"
+                            )
+                          }
+                          sx={{ ml: 2 }}
+                        >
+                          <OpenInNewIcon />
+                        </IconButton>
+                      ) : (
+                        <IconButton disabled sx={{ ml: 2 }}>
+                          <OpenInNewIcon />
+                        </IconButton>
+                      )}
                       {rutEx.ejercicio.name}
                     </Typography>
                     <Box
