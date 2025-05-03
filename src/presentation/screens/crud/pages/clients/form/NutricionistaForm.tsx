@@ -547,6 +547,15 @@ export const NutricionistaForm: React.FC<Props> = ({
               onClick={handleSavePlan}
               variant="contained"
               color="primary"
+              disabled={
+                !planName ||
+                !caloriasDiarias ||
+                !proteinas ||
+                !carbohidratos ||
+                !grasas ||
+                Number(proteinas) + Number(carbohidratos) + Number(grasas) !==
+                  100
+              }
             >
               Guardar Plan
             </Button>

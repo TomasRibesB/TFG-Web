@@ -151,36 +151,49 @@ export const Chat: React.FC<ChatProps> = ({ ticketId, userId }) => {
                   }}
                 >
                   <ListItemText
-                    primary={msg.mensaje}
-                    secondary={
-                      msg.emisor.id === userId
-                        ? `Tú - ${new Date(msg.fecha).toLocaleTimeString()}`
-                        : `${msg.emisor.firstName} ${
-                            msg.emisor.lastName
-                          } - ${new Date(msg.fecha).toLocaleTimeString()}`
+                    primary={
+                      <Typography
+                        component="pre" // Opcional: usa <pre> para semántica HTML
+                        sx={{
+                          m: 0, // reset de márgenes
+                          whiteSpace: "pre-wrap", // respetar saltos de línea y espacios
+                          backgroundColor:
+                            msg.emisor.id === userId
+                              ? "primary.300"
+                              : "secondary.300",
+                          color:
+                            msg.emisor.id === userId
+                              ? "primary.contrastText"
+                              : "secondary.contrastText",
+                          p: 1,
+                          borderRadius: 1,
+                          maxWidth: "fit-content",
+                        }}
+                      >
+                        {msg.mensaje}
+                      </Typography>
                     }
-                    sx={{
-                      backgroundColor:
-                        msg.emisor.id === userId
-                          ? "primary.300"
-                          : "secondary.300",
-                      color:
-                        msg.emisor.id === userId
-                          ? "primary.contrastText"
-                          : "secondary.contrastText",
-                      p: 1,
-                      borderRadius: 1,
-                      maxWidth: "fit-content",
-                      wordBreak: "break-word",
-                    }}
-                    secondaryTypographyProps={{
-                      variant: "caption",
-                      color:
-                        msg.emisor.id === userId
-                          ? "primary.contrastText"
-                          : "secondary.contrastText",
-                      align: "right",
-                    }}
+                    secondary={
+                      <Typography variant="caption" align="right">
+                        {msg.emisor.id === userId
+                          ? `Tú - ${new Date(msg.fecha).toLocaleTimeString(
+                              "es-ES",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}`
+                          : `${msg.emisor.firstName} ${
+                              msg.emisor.lastName
+                            } - ${new Date(msg.fecha).toLocaleTimeString(
+                              "es-ES",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}`}
+                      </Typography>
+                    }
                   />
                 </ListItem>
               ))}
@@ -198,6 +211,9 @@ export const Chat: React.FC<ChatProps> = ({ ticketId, userId }) => {
           placeholder="Escribe un mensaje"
           variant="outlined"
           size="small"
+          multiline
+          rows={Math.min((message.match(/\n/g) || []).length + 1, 10)}
+          maxRows={10}
         />
         <IconButton color="primary" onClick={handleSend}>
           <SendIcon />

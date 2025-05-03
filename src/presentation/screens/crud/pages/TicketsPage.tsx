@@ -16,9 +16,9 @@ import {
   TextField,
   Autocomplete,
 } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
 import InfoIcon from "@mui/icons-material/Info";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import { ImageAvatar } from "../../../components/ImageAvatar"; // ajusta la ruta según corresponda
 import { Chat } from "../../../components/Chat"; // ajusta la ruta según corresponda
 import {
   getTicketsRequest,
@@ -262,7 +262,17 @@ export const TicketsPage: React.FC = () => {
                   />
                   {user && item.solicitante?.id !== user.id && (
                     <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
-                      <PersonIcon sx={{ mr: 0.5 }} />
+                      <ImageAvatar
+                        user={item.solicitante || {}}
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          marginRight: 1,
+                          bgcolor: "primary.main",
+                          fontSize: 48,
+                        }}
+                        onClickView
+                      />
                       <Typography variant="body2">
                         {item.solicitante?.firstName}{" "}
                         {item.solicitante?.lastName}
@@ -271,7 +281,17 @@ export const TicketsPage: React.FC = () => {
                   )}
                   {user && item.receptor?.id !== user.id && (
                     <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
-                      <PersonIcon sx={{ mr: 0.5 }} />
+                      <ImageAvatar
+                        user={item.receptor || {}}
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          marginRight: 1,
+                          bgcolor: "primary.main",
+                          fontSize: 48,
+                        }}
+                        onClickView
+                      />
                       <Typography variant="body2">
                         {item.receptor?.firstName} {item.receptor?.lastName}
                       </Typography>
@@ -283,14 +303,34 @@ export const TicketsPage: React.FC = () => {
                       <Box
                         sx={{ display: "flex", alignItems: "center", m: 0.5 }}
                       >
-                        <PersonIcon sx={{ mr: 0.5 }} />
+                        <ImageAvatar
+                          user={item.usuario || {}}
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            marginRight: 1,
+                            bgcolor: "primary.main",
+                            fontSize: 48,
+                          }}
+                          onClickView
+                        />
                         <Typography variant="body2">
                           {item.usuario?.firstName} {item.usuario?.lastName}
                         </Typography>
                       </Box>
                     )}
                   <Box sx={{ display: "flex", alignItems: "center", m: 0.5 }}>
-                    <PersonIcon sx={{ mr: 0.5 }} />
+                  <ImageAvatar
+                          user={user || {}}
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            marginRight: 1,
+                            bgcolor: "primary.main",
+                            fontSize: 48,
+                          }}
+                          onClickView
+                        />
                     <Typography variant="body2">Yo</Typography>
                   </Box>
                 </Box>
