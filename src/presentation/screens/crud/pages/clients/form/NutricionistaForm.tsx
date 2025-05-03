@@ -16,6 +16,7 @@ import {
   DialogActions,
   Grid2,
   ListItemIcon,
+  InputAdornment,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
@@ -298,7 +299,7 @@ export const NutricionistaForm: React.FC<Props> = ({
                           <ListItemText
                             primary={`Proteínas: ${
                               plan.macronutrientes?.proteinas || 0
-                            } g`}
+                            }%`}
                           />
                         </ListItem>
                         <ListItem>
@@ -306,7 +307,7 @@ export const NutricionistaForm: React.FC<Props> = ({
                           <ListItemText
                             primary={`Carbohidratos: ${
                               plan.macronutrientes?.carbohidratos || 0
-                            } g`}
+                            }%`}
                           />
                         </ListItem>
                         <ListItem>
@@ -314,7 +315,7 @@ export const NutricionistaForm: React.FC<Props> = ({
                           <ListItemText
                             primary={`Grasas: ${
                               plan.macronutrientes?.grasas || 0
-                            } g`}
+                            }%`}
                           />
                         </ListItem>
                       </List>
@@ -430,7 +431,7 @@ export const NutricionistaForm: React.FC<Props> = ({
           />
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
-              Macronutrientes (g)
+              Macronutrientes (%)
             </Typography>
             <Grid2 container spacing={2}>
               <Grid2 size={{ xs: 12, sm: 4 }}>
@@ -444,6 +445,9 @@ export const NutricionistaForm: React.FC<Props> = ({
                   InputProps={{
                     startAdornment: (
                       <SetMealIcon sx={{ mr: 1 }} color="primary" />
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="start">%</InputAdornment>
                     ),
                   }}
                 />
@@ -460,6 +464,9 @@ export const NutricionistaForm: React.FC<Props> = ({
                     startAdornment: (
                       <BreakfastDiningIcon sx={{ mr: 1 }} color="primary" />
                     ),
+                    endAdornment: (
+                      <InputAdornment position="start">%</InputAdornment>
+                    ),
                   }}
                 />
               </Grid2>
@@ -475,10 +482,25 @@ export const NutricionistaForm: React.FC<Props> = ({
                     startAdornment: (
                       <OpacityIcon sx={{ mr: 1 }} color="primary" />
                     ),
+                    endAdornment: (
+                      <InputAdornment position="start">%</InputAdornment>
+                    ),
                   }}
                 />
               </Grid2>
             </Grid2>
+            <Typography
+              variant="caption"
+              color={
+                Number(proteinas) + Number(carbohidratos) + Number(grasas) !==
+                100
+                  ? "error.main"
+                  : "text.secondary"
+              }
+              sx={{ mt: 1 }}
+            >
+              * Los porcentajes de macronutrientes deben sumar 100%.
+            </Typography>
           </Box>
           <TextField
             label="Objetivos"
@@ -508,6 +530,15 @@ export const NutricionistaForm: React.FC<Props> = ({
               onClick={handleUpdatePlan}
               variant="contained"
               color="primary"
+              disabled={
+                !planName ||
+                !caloriasDiarias ||
+                !proteinas ||
+                !carbohidratos ||
+                !grasas ||
+                Number(proteinas) + Number(carbohidratos) + Number(grasas) !==
+                  100
+              }
             >
               Actualizar Plan
             </Button>

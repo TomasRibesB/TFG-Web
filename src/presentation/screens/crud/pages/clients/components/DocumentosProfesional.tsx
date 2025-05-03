@@ -72,7 +72,7 @@ export const DocumentoProfesional: React.FC<Props> = ({
             variant="subtitle1"
             sx={{
               color: document.fechaBaja ? "error.main" : "text.primary",
-              fontWeight: 600,
+
             }}
           >
             {document.titulo}

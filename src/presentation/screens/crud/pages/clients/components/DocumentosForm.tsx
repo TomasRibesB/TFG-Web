@@ -315,7 +315,7 @@ export const DocumentosForm: React.FC<Props> = ({
                     <ListItemText
                       primary={`Proteínas: ${
                         plan.macronutrientes?.proteinas || 0
-                      } g`}
+                      }%`}
                     />
                   </ListItem>
                   <ListItem>
@@ -323,13 +323,13 @@ export const DocumentosForm: React.FC<Props> = ({
                     <ListItemText
                       primary={`Carbohidratos: ${
                         plan.macronutrientes?.carbohidratos || 0
-                      } g`}
+                      }%`}
                     />
                   </ListItem>
                   <ListItem>
                     <OpacityIcon sx={{ mr: 1 }} color="primary" />
                     <ListItemText
-                      primary={`Grasas: ${plan.macronutrientes?.grasas || 0} g`}
+                      primary={`Grasas: ${plan.macronutrientes?.grasas || 0}%`}
                     />
                   </ListItem>
                 </List>
