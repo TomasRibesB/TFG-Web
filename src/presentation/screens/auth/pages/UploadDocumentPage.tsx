@@ -100,6 +100,7 @@ export const UploadDocumentScreen: React.FC = () => {
       // Limpiar mensajes y redirigir luego de 5s
       setTimeout(() => {
         setSuccessMsg("");
+        setDisableButton(false)
         navigate("/auth/upload");
       }, 5000);
       setTitle("");
