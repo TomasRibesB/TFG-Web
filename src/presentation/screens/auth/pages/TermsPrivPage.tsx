@@ -36,14 +36,21 @@ export const TermsPrivPage = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        4. Consentimiento y Autorización
+        4. Consentimiento Informado y Autorización
       </Typography>
       <Typography paragraph>
-        Usted reconoce y acepta que cualquier información relacionada con su
-        salud, rutinas de entrenamiento y planes nutricionales será compartida
-        con profesionales autorizados únicamente con su consentimiento
-        explícito. Tiene el derecho de otorgar o revocar dicho consentimiento en
-        cualquier momento.
+        Con plena información, usted autoriza el tratamiento de sus datos de
+        salud, incluyendo la recolección, almacenamiento, acceso y uso por parte
+        de profesionales autorizados. Ha sido informado sobre la finalidad y
+        alcance de este procesamiento y comprende que puede revocar este
+        consentimiento en cualquier momento sin afectar la licitud del uso
+        previo.
+      </Typography>
+      <Typography paragraph>
+        Asimismo, usted puede autorizar explícitamente la compartición de sus
+        documentos médicos con otros profesionales de la salud o terceros de su
+        confianza. Dicha autorización será voluntaria, expresa y podrá ser
+        revocada en cualquier momento.
       </Typography>
 
       <Typography variant="h6" gutterBottom>

@@ -80,7 +80,17 @@ export const TermsProfPage = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        8. Descargo de Responsabilidad Médica
+        8. Secreto Profesional
+      </Typography>
+      <Typography paragraph>
+        El profesional de la salud está obligado al secreto profesional respecto
+        a los documentos médicos de los usuarios. Ni la aplicación ni el
+        gimnasio asumen responsabilidad alguna por el incumplimiento de este
+        deber; cualquier violación será imputable exclusivamente al profesional.
+      </Typography>
+
+      <Typography variant="h6" gutterBottom>
+        9. Descargo de Responsabilidad Médica
       </Typography>
       <Typography paragraph>
         La plataforma es una herramienta de apoyo y no sustituye el juicio
@@ -91,7 +101,7 @@ export const TermsProfPage = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        9. Indemnización
+        10. Indemnización
       </Typography>
       <Typography paragraph>
         Usted acepta indemnizar y mantener indemnes a la plataforma y sus
@@ -101,7 +111,7 @@ export const TermsProfPage = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        10. Terminación
+        11. Terminación
       </Typography>
       <Typography paragraph>
         Nos reservamos el derecho de suspender o terminar su cuenta en cualquier
@@ -110,7 +120,7 @@ export const TermsProfPage = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        11. Modificaciones de los Términos
+        12. Modificaciones de los Términos
       </Typography>
       <Typography paragraph>
         Nos reservamos el derecho de modificar estos términos en cualquier
@@ -120,7 +130,7 @@ export const TermsProfPage = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        12. Ley Aplicable y Jurisdicción
+        13. Ley Aplicable y Jurisdicción
       </Typography>
       <Typography paragraph>
         Estos términos se rigen por las leyes de la República Argentina.
@@ -130,7 +140,7 @@ export const TermsProfPage = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        13. Divisibilidad
+        14. División y Salvaguarda
       </Typography>
       <Typography paragraph>
         Si alguna disposición de estos términos se considera inválida o
@@ -140,7 +150,7 @@ export const TermsProfPage = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        14. Contacto
+        15. Contacto
       </Typography>
       <Typography paragraph>
         Si tiene preguntas o inquietudes sobre estos términos, puede
